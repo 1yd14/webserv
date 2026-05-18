@@ -1,0 +1,16 @@
+CompileFlags:
+  Add: 
+    - -Wall
+    - -Wextra
+    - -Werror
+    - -Iinc
+    - -Isrc
+    - -std=c++11
+
+Diagnostics:
+  ClangTidy:
+    Add: 
+      - readability-*
+      - modernize-*
+      - bugprone-*
+    Remove:
