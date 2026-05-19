@@ -15,3 +15,5 @@ Diagnostics:
       - bugprone-*
     Remove:
       - modernize-use-trailing-return-type
+      - readability-convert-member-functions-to-static
+
