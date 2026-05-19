@@ -6,10 +6,11 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:46 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/19 14:20:04 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/19 16:00:17 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
 
 #include "HttpRequest.hpp"
 #include <map>
