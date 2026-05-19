@@ -6,9 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:41 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/19 14:20:17 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/19 16:05:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
+#pragma once
 
 #include <map>
 #include <string>
