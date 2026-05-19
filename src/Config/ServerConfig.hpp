@@ -6,12 +6,12 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/07 12:57:00 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/07 17:06:53 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_CONFIG_HPP
-# define SERVER_CONFIG_HPP
+#pragma once
+
 
 #include <cstddef>
 #include <map>
@@ -40,5 +40,3 @@ struct ServerConfig {
 	std::vector<RouteConfig>	routes;
 };
 
-
-#endif
