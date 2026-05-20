@@ -5,7 +5,7 @@ CompileFlags:
     - -Werror
     - -Iinc
     - -Isrc
-    - -std=c++11
+    - -std=c++20
 
 Diagnostics:
   ClangTidy:
@@ -15,3 +15,5 @@ Diagnostics:
       - bugprone-*
     Remove:
       - modernize-use-trailing-return-type
+      - readability-convert-member-functions-to-static
+
