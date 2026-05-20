@@ -6,13 +6,14 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:41 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/19 16:05:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/20 11:06:10 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #pragma once
 
+#include "HttpStatus.hpp"
 #include <map>
 #include <string>
 
@@ -30,14 +31,14 @@ class HttpRequest
 		std::string getProtocol() const;
 		std::map<std::string, std::string> getHeader() const;
 		std::string getBody() const;
-		int getStatusCode() const;
+		HttpStatus getStatusCode() const;
 
 		void setMethod(const std::string& value);
 		void setTarget(const std::string& value);
 		void setProtocol(const std::string& value);
 		void setHeader(const std::map<std::string, std::string>& value);
 		void setBody(const std::string& value);
-		void setStatusCode(int code);
+		void setStatusCode(HttpStatus& code);
 
 	private:
 		std::string _method;
@@ -45,5 +46,5 @@ class HttpRequest
 		std::string _protocol;
 		std::map<std::string, std::string> _header;
 		std::string _body;
-		int	_statusCode;
+		HttpStatus _statusCode;
 };
