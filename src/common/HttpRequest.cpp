@@ -6,13 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:46 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/19 16:00:17 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/20 11:05:20 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
-
 #include "HttpRequest.hpp"
+#include "HttpStatus.hpp"
 #include <map>
 #include <string>
 
@@ -40,7 +39,7 @@ std::string HttpRequest::getTarget() const {return _target;}
 std::string HttpRequest::getProtocol() const {return _protocol;}
 std::map<std::string, std::string> HttpRequest::getHeader() const {return _header;}
 std::string HttpRequest::getBody() const {return _body;}
-int	HttpRequest::getStatusCode()const {return _statusCode;}
+HttpStatus	HttpRequest::getStatusCode()const {return _statusCode;}
 
 // class setters
 void HttpRequest::setMethod(const std::string& value){_method = value;}
@@ -48,4 +47,4 @@ void HttpRequest::setTarget(const std::string& value){_target = value;}
 void HttpRequest::setProtocol(const std::string &value){_protocol = value;}
 void HttpRequest::setHeader(const std::map<std::string, std::string> &value){_header = value;}
 void HttpRequest::setBody(const std::string& value){_body = value;}
-void HttpRequest::setStatusCode(int code) {_statusCode = code;}
+void HttpRequest::setStatusCode(HttpStatus& code) {_statusCode = code;}
