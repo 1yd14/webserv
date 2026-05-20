@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:46 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/20 11:05:20 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/20 16:24:06 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,4 +47,4 @@ void HttpRequest::setTarget(const std::string& value){_target = value;}
 void HttpRequest::setProtocol(const std::string &value){_protocol = value;}
 void HttpRequest::setHeader(const std::map<std::string, std::string> &value){_header = value;}
 void HttpRequest::setBody(const std::string& value){_body = value;}
-void HttpRequest::setStatusCode(HttpStatus& code) {_statusCode = code;}
+void HttpRequest::setStatusCode(HttpStatus code) {_statusCode = code;}
