@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigParser.hpp                                   :+:      :+:    :+:   */
+/*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/07 12:59:25 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/21 14:40:20 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/05/21 14:40:11 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,11 @@
 
 #include "Server.hpp"
 
-
-class ConfigParser {
+class Config {
 	public:
-	static std::vector<Server> parseConfig(std::istringstream& input);
-
+	Config (std::string filename);
+	std::vector<Server> getServers();
+	
 	private:
-	static Server parseServer(std::istringstream& input);
-	static Path	parseLocation(std::istringstream& input);
-	static std::vector<std::string> readValues(std::istringstream& input);
+	std::vector<Server> _servers;
 };
-

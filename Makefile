@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
+#    By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/05/21 10:50:46 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/05/27 14:47:26 by lyvan-de         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
