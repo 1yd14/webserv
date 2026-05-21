@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/18 15:20:46 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/20 16:24:06 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/21 15:47:45 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,10 @@
 #include <map>
 #include <string>
 
-HttpRequest::HttpRequest() = default;
+HttpRequest::HttpRequest()
+{
+	_statusCode = HttpStatus::NONE;
+}
 HttpRequest::~HttpRequest()
 {}
 HttpRequest::HttpRequest(const HttpRequest &other) = default;

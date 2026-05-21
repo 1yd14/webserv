@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/21 11:30:36 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/21 15:49:30 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 	extractHeaders(rawRequest.substr(firstLine + 2, emptyHeaderLine - firstLine ), request);
 
 	// extracting the body from the raw request string
-	request.setBody(rawRequest.substr(emptyHeaderLine + 4));
+	request.setBody(trim(rawRequest.substr(emptyHeaderLine + 4)));
 	
 	return request;
 }
@@ -100,4 +100,3 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 	}
 	req.setHeader(header);
 }
-
