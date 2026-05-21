@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:23:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/20 13:00:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/21 11:30:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,21 +17,19 @@
 
 /* still need to decide on the implementation of this class !
 	does it copy or not ?
-*/
-
-// TODO: check _statusCode once HttpRequest PR is merged
+*/ 
 class HttpParser
 {
 	public:
-		HttpParser();
-		~HttpParser();
-		HttpParser(const HttpParser &other) = delete;
-		HttpParser& operator=(const HttpParser &other) = delete;
-		HttpRequest parseHttp(const std::string &rawRequest) const;
+				HttpParser();
+				~HttpParser();
+				HttpParser(const HttpParser &other) = delete;
+				HttpParser& operator=(const HttpParser &other) = delete;
+[[nodiscard]]	HttpRequest parseHttp(const std::string &rawRequest) const;
 
-		static void extractFirstLine(const std::string &line, HttpRequest &req);
-		static void extractHeaders(const std::string &line, HttpRequest &req);
-		private:
+				static void extractFirstLine(const std::string &line, HttpRequest &req);
+				static void extractHeaders(const std::string &line, HttpRequest &req);
+	private:
 		
 };
 

@@ -6,16 +6,15 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/20 16:06:57 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/21 11:30:36 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./HttpParser.hpp"
+#include "../common/Utils.hpp"
 #include <cstddef>
 #include <map>
-#include <ostream>
 #include <string>
-#include <iostream>
 
 
 HttpParser::HttpParser() = default;
@@ -32,7 +31,8 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 		request.setStatusCode(HttpStatus::BAD_REQUEST);
 		return request;	
 	}
-	// extracting first line from the request
+	
+	// extracting first line from the raw request string
 	size_t firstLine = rawRequest.find("\r\n");
 	if (firstLine == std::string::npos)
 	{
@@ -41,8 +41,7 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 	}
 	extractFirstLine(rawRequest.substr(0, firstLine), request);
 	
-	// extracting the header from the request
-
+	// extracting the header from the raw request string
 	size_t emptyHeaderLine = rawRequest.find("\r\n\r\n");
 	if (emptyHeaderLine == std::string::npos)
 	{
@@ -50,6 +49,10 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 		return request;
 	}
 	extractHeaders(rawRequest.substr(firstLine + 2, emptyHeaderLine - firstLine ), request);
+
+	// extracting the body from the raw request string
+	request.setBody(rawRequest.substr(emptyHeaderLine + 4));
+	
 	return request;
 }
 
@@ -73,8 +76,7 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 {
 	
 	std::map<std::string, std::string> header;
-	// std::cout << line << std::endl;
-	
+
 	size_t pos = 0;
 	size_t delim = 0;
 	size_t lineStart = 0;
@@ -83,23 +85,15 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 		lineStart = pos;
 		pos = line.find("\r\n", lineStart);
 		delim = line.find(":", lineStart);
-		if (pos == std::string::npos || pos == std::string::npos)
+		if (pos == std::string::npos || delim == std::string::npos)
 		{
 			break;
 		}
 		std::string key = line.substr(lineStart, delim - lineStart);
 		std::string value = line.substr(delim + 2, pos - (delim + 2));
 		
-		size_t trim = key.find_last_of(" ");
-		if (trim != std::string::npos)
-		{
-			key = key.substr(0, trim);
-		}
-		trim = value.find_first_of(" ");
-		if (trim != std::string::npos)
-		{
-			value = value.substr(0, trim);
-		}
+		key = trim(key);
+		value = trim(value);
 
 		header.insert({key, value});
 		pos+=2;
