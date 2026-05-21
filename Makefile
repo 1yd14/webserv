@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/05/20 11:41:37 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/05/21 10:50:46 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,10 +19,12 @@ INC = -I./src/common -I./src/http
 
 SRC = src/main.cpp \
       src/common/HttpRequest.cpp \
+	  src/common/Utils.cpp \
       src/http/HttpParser.cpp
 
 TEST_SRC = tests/test_parser.cpp \
            src/common/HttpRequest.cpp \
+		   src/common/Utils.cpp \
            src/http/HttpParser.cpp
 
 OBJS = $(SRC:.cpp=.o)
