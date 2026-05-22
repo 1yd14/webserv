@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 10:42:19 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/21 16:30:58 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/22 11:23:50 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,30 +15,7 @@
 #include <string>
 #include "../src/common/HttpRequest.hpp"
 #include "../src/http/HttpParser.hpp"
-
-
-void assert_equal_str(const std::string &expected, const std::string &actual, const std::string &label)
-{
-	if(expected == actual)
-	{
-		std::cout << "[PASSED] " << label << "\n";		
-	}
-	else 
-	{
-		std::cout << "[FAILED] " << label << " - expected: " << expected << " 'got: " << actual <<"'\n";
-	}
-}
-void assert_equal_int(int expected, int actual, const std::string &label)
-{
-	if(expected == actual)
-	{
-		std::cout << "[PASSED] " << label << "\n";		
-	}
-	else 
-	{
-		std::cout << "[FAILED] " << label << " - expected: " << expected << " 'got: " << actual <<"'\n";
-	}
-}
+#include "./test_utils.hpp"
 
 void test_valid_get_request()
 {
@@ -84,18 +61,6 @@ void test_missing_first_line()
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)req.getStatusCode(), "missing first line");
 }
 
-// this test doesnt make sens
-// void test_multiple_headers()
-// {
-// 	std::cout << "=================testing mutiple headers====================\n";
-
-// 	HttpParser parser;
-// 	std::string raw ="GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\nHost2: localhost2\r\n\r";
-	
-// 	HttpRequest req = parser.parseHttp(raw);
-// 	assert_equal_int((int)HttpStatus::BAD_REQUEST,(int)req.getStatusCode(),"multiple header");
-
-// }
 
 void test_post_with_content()
 {

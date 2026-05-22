@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 16:45:38 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/21 16:56:33 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/22 16:11:41 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class HttpValidator
 				~HttpValidator();
 				HttpValidator(const HttpValidator &other) = delete;
 				HttpValidator& operator=(const HttpValidator &other) = delete;
-[[nodiscard]]	HttpStatus validate(const HttpRequest& request) const;
+[[nodiscard]]	HttpStatus validate( HttpRequest& request) const;
 	private:
+				static HttpStatus isValidMethod(const HttpRequest& request);
+				static HttpStatus isValidTarget(const HttpRequest& request);
 };
