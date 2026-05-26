@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 16:45:38 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/22 16:11:41 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/26 16:29:47 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,9 @@ class HttpValidator
 	private:
 				static HttpStatus isValidMethod(const HttpRequest& request);
 				static HttpStatus isValidTarget(const HttpRequest& request);
+				static HttpStatus isValidProtocol(const HttpRequest& request);
+				static HttpStatus unsafeCharCheck(const std::string& target);
+				static HttpStatus isValidHeader(const HttpRequest& request);
+				
+
 };

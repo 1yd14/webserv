@@ -6,11 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/22 15:55:48 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/26 15:26:02 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
 
 enum class HttpStatus {
 		NONE = 0,
@@ -21,4 +22,5 @@ enum class HttpStatus {
 		NOT_FOUND = 404,
 		METHOD_NOT_ALLOWED = 405,
 		NOT_IMPLEMENTED = 501,
+		HTTP_VERSION_NOT_SUPPOERTED = 505,
 	};
