@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/26 15:43:20 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/27 12:46:01 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,8 +120,7 @@ std::vector<Server> ConfigParser::parseConfig(std::istringstream& input) {
 		if (word == "server") {
 			std::string next;
 			if (input >> next && next == "{") {
-				result.push_back(parseServer(input));   },
-        { "index",        &LocationBlock::setIndex     
+				result.push_back(parseServer(input));
 			}
 		}
 		else if (word == "server{"){
