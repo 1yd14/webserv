@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/27 12:54:51 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:32:17 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,18 +132,34 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 	
 	if (request.getProtocol().ends_with("1"))
 	{
-		if(!header.contains("Host") || header.at("Host").empty())
+		if(!header.contains("host") || header.at("host").empty())
 		{
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-	
+
 	if (request.getMethod() == "POST")
 	{
-		if(!header.contains("Content-Length") || header.at("Content-Length").empty())
+		if(!header.contains("content-length") || header.at("content-length").empty())
 		{
 			return HttpStatus::LENGTH_REQUIRED;
 		}
+	}
+	return HttpStatus::OK;
+}
+HttpStatus HttpValidator::isValidBody(const HttpRequest& request)
+{
+	if(request.getMethod() != "POST")
+	{
+		return HttpStatus::OK;
+	}
+	if (request.getContentLength() == - 1)
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+	if (request.getBody().length() != (size_t)request.getContentLength())
+	{
+		return HttpStatus::BAD_REQUEST;
 	}
 	return HttpStatus::OK;
 }

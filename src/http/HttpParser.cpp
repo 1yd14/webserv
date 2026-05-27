@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/27 14:52:44 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:20:10 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,11 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 		{
 			value = trim(line.substr(delim + 2, pos - (delim + 2)));
 		}
-		if (compareStr(key , "content-length") == 0)
+		for( auto &cha : key)
+		{
+			cha = (char)std::tolower(cha);	
+		}
+		if (key == "content-length")
 		{
 			convertContentLength(value , req);
 		}
