@@ -1,21 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/07 11:52:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/18 15:17:06 by rmhazres         ###   ########.fr       */
+/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/05/21 14:40:11 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
+#pragma once
 
-int main(int argc, char *argv[]) {
-	(void)argv;
-	if (argc != 2) {
-        std::cerr << "Usage: ./webserver <config_file>" << std::endl;
-        return 1;
-    }
-}
+#include "Server.hpp"
+
+class Config {
+	public:
+	Config (std::string filename);
+	std::vector<Server> getServers();
+	
+	private:
+	std::vector<Server> _servers;
+};
