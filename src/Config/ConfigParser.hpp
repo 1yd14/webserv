@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:59:25 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/21 14:40:20 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/21 16:49:46 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class ConfigParser {
 
 	private:
 	static Server parseServer(std::istringstream& input);
-	static Path	parseLocation(std::istringstream& input);
+	static LocationBlock	parseLocation(std::istringstream& input);
 	static std::vector<std::string> readValues(std::istringstream& input);
 };
 

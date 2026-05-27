@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/21 15:46:22 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/26 14:36:54 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ std::map<int, std::string> Server::getErrorPages() {
 	return (_error_pages);
 }
 
-std::vector<Path> Server::getPaths() {
-	return (_paths);
+std::vector<LocationBlock> Server::getLocationBlocks() {
+	return (_location_blocks);
 }
 
 void Server::setPort(std::vector<std::string> values) {
@@ -76,6 +76,10 @@ void Server::setErrorPages(std::vector<std::string> values) {
 	if (values.size() >= 2) {
         _error_pages[std::stoi(values[0])] = values[1];
 	}
+}
+
+void Server::addLocation(LocationBlock location) {
+	_location_blocks.push_back(location);
 }
 
 

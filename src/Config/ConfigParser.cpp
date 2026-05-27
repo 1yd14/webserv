@@ -6,13 +6,15 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/21 15:40:14 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/26 15:43:20 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
+#include "LocationBlock.hpp"
 #include "Server.hpp"
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 
@@ -33,6 +35,48 @@ std::vector<std::string> ConfigParser::readValues(std::istringstream& input) {
     return values;
 }
 
+LocationBlock ConfigParser::parseLocation(std::istringstream &input) {
+	LocationBlock result;
+	std::string word;
+
+	if (!(input>>word)) {
+		throw std::runtime_error("expected location path");
+	};
+	if (word.back() =='{') {
+		word.pop_back();
+	}
+	else {
+		std::string brace;
+		if (! (input>>brace) || brace != "{") {
+			throw std::runtime_error("Expected '{' after location path");
+		}
+	}
+	result.setPath(word);
+	using Setter = void (LocationBlock::*)(std::vector<std::string>);
+    const std::map<std::string, Setter> dispatch = {
+        { "methods",      &LocationBlock::setMethods      },
+        { "root",         &LocationBlock::setRoot         },
+        { "index",        &LocationBlock::setIndex        },
+        { "upload_dir",   &LocationBlock::setUploadDir    },
+        { "cgi_extension",&LocationBlock::setCgiExtension },
+        { "autoindex",    &LocationBlock::setAutoIndex    },
+        { "redirect",     &LocationBlock::setRedirect     },
+    };
+	while (input>>word) {
+		if (word == "}") {
+			break ;
+		}
+		std::vector<std::string> values = readValues(input);
+		std::map<std::string, Setter>::const_iterator iter = dispatch.find(word);
+		if (iter != dispatch.end()) {
+    		(result.*(iter->second))(values);
+		}
+		else {
+			throw std::runtime_error("Unknown location directive: " + word);
+		}
+	}
+	return result;
+}
 
 Server ConfigParser::parseServer(std::istringstream& input) {
 	Server result;
@@ -52,17 +96,17 @@ Server ConfigParser::parseServer(std::istringstream& input) {
 		if (word == "}") {
 			break ;
 		}
-		//if (word == "location") {
-		//	std::string next;
-        //    if (input >> next && next == "{") {
-        //        //result.addPath(parseLocation(input));
-		//	}
-        //    continue;
-		//}
+		if (word == "location") {
+			result.addLocation(parseLocation(input));
+			continue ;
+		}
 		std::vector<std::string> values = readValues(input);
 		std::map<std::string, Setter>::const_iterator iter = dispatch.find(word);
 		if (iter != dispatch.end()) {
     		(result.*(iter->second))(values);
+		}
+		else {
+			throw std::runtime_error("Unknown server directive: " + word);
 		}
 	}
 	return result;
@@ -76,7 +120,8 @@ std::vector<Server> ConfigParser::parseConfig(std::istringstream& input) {
 		if (word == "server") {
 			std::string next;
 			if (input >> next && next == "{") {
-				result.push_back(parseServer(input));
+				result.push_back(parseServer(input));   },
+        { "index",        &LocationBlock::setIndex     
 			}
 		}
 		else if (word == "server{"){
