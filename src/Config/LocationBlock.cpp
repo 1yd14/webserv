@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 13:59:17 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:16:27 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void LocationBlock::setPath(std::string path) {
 }
 
 void LocationBlock::setMethods(std::vector<std::string> values) {
-	if (values.size() != 1) {
+	if (values.size() < 1) {
 		throw std::runtime_error("methods directive requires at least one value");
 	}
 	_methods = values;
