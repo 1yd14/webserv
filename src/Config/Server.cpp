@@ -6,12 +6,13 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/26 14:36:54 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:13:56 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <sstream>
+#include <stdexcept>
 
 int Server::getPort() {
 	return (_port);
@@ -42,29 +43,58 @@ std::vector<LocationBlock> Server::getLocationBlocks() {
 }
 
 void Server::setPort(std::vector<std::string> values) {
-	_port = stoi(values[0]);
+	if (values.size() != 1) {
+		throw std::runtime_error("listen directive requires only one value");
+	}
+	try {
+		_port = stoi(values[0]);
+	}
+	catch (...) {
+		throw std::runtime_error("listen: invalid port number: " + values[0]);
+	}
+	if (_port <= 0 || _port >= 65535) {
+		throw std::runtime_error("listen: port number out of range: " + values[0]);
+	}
 }
 
 void Server::setHost(std::vector<std::string> values) {
+	if (values.size() != 1) {
+		throw std::runtime_error("host directive requires at least one value");
+	}
 	_host = values[0];
 }
 
 void Server::setRoot(std::vector<std::string> values) {
+	if (values.size() != 1) {
+		throw std::runtime_error("root directive requires at least one value");
+	}
 	_root = values[0];
 }
 
 void Server::setIndex(std::vector<std::string> values) {
+	if (values.size() != 1) {
+		throw std::runtime_error("index directive requires at least one value");
+	}
 	_index = values[0];
 }
 
 void Server::setMaxBodySize(std::vector<std::string> values) {
-	std::stringstream sstream(values[0]);
+	if (values.size() != 1) {
+		throw std::runtime_error("max_body_size directive requires exactly one value");
+	}
+	const std::string& val = values[0];
+	char suffix = val.back();
+	std::string numberPart = (suffix == 'M' || suffix == 'K') ? val.substr(0, val.size() - 1) : val;
+
 	size_t result;
-	sstream >> result;
-	if (values[0].back() == 'M') {
+	std::istringstream sstream(numberPart);
+	if (!(sstream >> result)) {
+		throw std::runtime_error("max_body_size: invalid value: " + val);
+	}
+	if (suffix == 'M') {
 		_max_body_size = result * 1024 * 1024;
 	}
-	else if (values[0].back() == 'K') {
+	else if (suffix == 'K') {
 		_max_body_size = result * 1024;
 	}
 	else {
@@ -73,9 +103,19 @@ void Server::setMaxBodySize(std::vector<std::string> values) {
 }
 
 void Server::setErrorPages(std::vector<std::string> values) {
-	if (values.size() >= 2) {
-        _error_pages[std::stoi(values[0])] = values[1];
+	if (values.size() != 2) {
+		throw std::runtime_error("error_page directive requires exactly two values (code path)");
 	}
+	int code;
+	try {
+		code = std::stoi(values[0]);
+	} catch (...) {
+		throw std::runtime_error("error_page: invalid status code: " + values[0]);
+	}
+	if (code < 400 || code > 599) {
+		throw std::runtime_error("error_page: code must be 4xx or 5xx, got: " + values[0]);
+	}
+	_error_pages[code] = values[1];
 }
 
 void Server::addLocation(LocationBlock location) {
