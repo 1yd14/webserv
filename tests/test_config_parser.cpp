@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   test_config_parser.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 11:52:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 14:49:11 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:52:14 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "Config/Config.hpp"
+#include "../src/Config/Config.hpp"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
