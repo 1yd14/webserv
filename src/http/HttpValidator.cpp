@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/26 16:29:58 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 12:54:51 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <cctype>
 #include <cstddef>
 #include <string>
-#include <iostream>
+
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
 
@@ -43,6 +43,14 @@ HttpStatus HttpValidator::validate(HttpRequest& request) const
 		{
 			request.setStatusCode(status);
 			return status;
+		}
+	}
+	status = isValidHeader(request);
+	{
+		if (status != HttpStatus::OK)
+		{
+			request.setStatusCode(status);
+			return  status;
 		}
 	}
 	return status;
@@ -118,3 +126,24 @@ HttpStatus HttpValidator::isValidProtocol(const HttpRequest& request)
 	return HttpStatus::OK;
 }
 
+HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
+{
+	std::map<std::string, std::string> header = request.getHeader();
+	
+	if (request.getProtocol().ends_with("1"))
+	{
+		if(!header.contains("Host") || header.at("Host").empty())
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+	}
+	
+	if (request.getMethod() == "POST")
+	{
+		if(!header.contains("Content-Length") || header.at("Content-Length").empty())
+		{
+			return HttpStatus::LENGTH_REQUIRED;
+		}
+	}
+	return HttpStatus::OK;
+}

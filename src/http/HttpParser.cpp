@@ -6,16 +6,19 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/21 15:49:30 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:52:44 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./HttpParser.hpp"
 #include "../common/Utils.hpp"
+#include <cctype>
+#include <climits>
 #include <cstddef>
 #include <map>
+#include <ostream>
 #include <string>
-
+#include <iostream>
 
 HttpParser::HttpParser() = default;
 HttpParser::~HttpParser(){};
@@ -85,18 +88,49 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 		lineStart = pos;
 		pos = line.find("\r\n", lineStart);
 		delim = line.find(":", lineStart);
-		if (pos == std::string::npos || delim == std::string::npos)
+		std::cout << delim << " > " << pos << std::endl;
+		if (pos == std::string::npos || delim == std::string::npos || delim > pos )
 		{
 			break;
 		}
 		std::string key = line.substr(lineStart, delim - lineStart);
-		std::string value = line.substr(delim + 2, pos - (delim + 2));
+		std::string value;
 		
 		key = trim(key);
-		value = trim(value);
-
+		if (delim + 2 < pos)
+		{
+			value = trim(line.substr(delim + 2, pos - (delim + 2)));
+		}
+		if (compareStr(key , "content-length") == 0)
+		{
+			convertContentLength(value , req);
+		}
 		header.insert({key, value});
 		pos+=2;
 	}
 	req.setHeader(header);
+}
+
+
+void HttpParser::convertContentLength(const std::string& str, HttpRequest& req)
+{
+	const int msize = 19;
+	if (str.empty())
+	{
+		return;
+	}
+	if (str.length() == msize && str > std::to_string(LONG_MAX))
+	{
+		req.setContentLength(-1);
+		return;
+	}
+	for (char cha : str)
+	{
+		if(!(bool)isdigit(cha))
+		{
+			req.setContentLength(-1);
+			return;
+		}
+	}
+	req.setContentLength(std::stol(str));
 }

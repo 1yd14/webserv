@@ -6,12 +6,14 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/20 16:41:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:45:57 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Utils.hpp"
+#include <cctype>
 #include <cstddef>
+#include <string>
 
 
 // Removes leading and trailing whitespace (\r, \n, \t, space) from a string
@@ -25,4 +27,21 @@ std::string trim(const std::string &str)
 	size_t end = str.find_last_not_of(" \r\n\t");
 
 	return str.substr(start, (end- start + 1));
+}
+
+//Compare case-insensative strings
+int	compareStr(const std::string& str1 , const std::string& str2 )
+{
+	if (str1.length() != str2.length())
+	{
+		return -1;
+	}
+	for (size_t i = 0; i < str1.length(); i++)
+	{
+		if(std::tolower(str2[i]) !=  std::tolower(str1[i]))
+		{
+			return  -1;
+		}
+	}
+	return 0;
 }

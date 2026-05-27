@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:06:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/26 15:28:53 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/27 14:50:12 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,8 @@ void test_valid_protocol()
 
 }
 
+// <-------------------- validating Header ------------------->
+
 void test_invalid_protocol()
 {
 	std::cout << "=================testing invalid protocol! =====================\n";
@@ -149,12 +151,43 @@ void test_invalid_protocol()
 	
 	HttpParser parser;
 
-	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+	std::string raw = "GET /index.html HTTP/1.5\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
 	HttpStatus status = validator.validate(req);
 	assert_equal_int((int)HttpStatus::HTTP_VERSION_NOT_SUPPOERTED, (int)status, "tesing invalid protocol");
 }
+
+void test_valid_header()
+{
+	std::cout << "=================testing valid header! =====================\n";
+	HttpValidator validator;
+	
+	HttpParser parser;
+
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: \r\nContent-Length: 15\r\n\r\n";
+
+	HttpRequest req = parser.parseHttp(raw);
+	HttpStatus status = validator.validate(req);
+	assert_equal_int((int)HttpStatus::OK, (int)status,"valid header");
+}
+
+void test_content_length()
+{
+	std::cout << "=================testing content length! =====================\n";
+	HttpValidator validator;
+	
+	HttpParser parser;
+
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: \r\nContent-Length: 9223372036854775808\r\n\r\n";
+
+	HttpRequest req = parser.parseHttp(raw);
+	HttpStatus status = validator.validate(req);
+	// assert_equal_int((int)HttpStatus::OK, (int)status,"valid header");
+	std::cout << req.getContentLength() << " status is " << (int)status << std::endl;
+}
+
+
 
 int main()
 {
@@ -168,6 +201,8 @@ int main()
 	test_no_slash();
 	test_valid_target();
 	test_invalid_protocol();
+	test_valid_header();
+	test_content_length();
 
 	return 0;
 }

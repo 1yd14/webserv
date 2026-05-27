@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/26 15:26:02 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/26 16:54:45 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@ enum class HttpStatus {
 		CREATED = 201,
 		BAD_REQUEST = 400,
 		NOT_FOUND = 404,
+		LENGTH_REQUIRED = 411,
 		METHOD_NOT_ALLOWED = 405,
 		NOT_IMPLEMENTED = 501,
 		HTTP_VERSION_NOT_SUPPOERTED = 505,
+
 	};
