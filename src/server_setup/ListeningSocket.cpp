@@ -6,12 +6,13 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 19:45:49 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/01 20:26:53 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 11:09:20 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ListeningSocket.hpp"
-#include <asm-generic/socket.h>
+#include <stdexcept>
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 ListeningSocket::ListeningSocket(const Server& server) :
