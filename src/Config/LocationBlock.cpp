@@ -6,12 +6,13 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 14:16:27 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 15:16:42 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "LocationBlock.hpp"
 #include <stdexcept>
+#include <set>
 
 std::string	LocationBlock::getPath() {
 	return (_path);
@@ -57,6 +58,19 @@ void LocationBlock::setMethods(std::vector<std::string> values) {
 	if (values.size() < 1) {
 		throw std::runtime_error("methods directive requires at least one value");
 	}
+    static const std::set<std::string> allowed = {
+        "GET",
+        "POST",
+        "DELETE"
+    };
+
+    for (std::vector<std::string>::const_iterator it = values.begin();
+         it != values.end(); ++it) {
+
+        if (allowed.find(*it) == allowed.end()) {
+            throw std::runtime_error("Invalid HTTP method: " + *it);
+        }
+    }
 	_methods = values;
 }
 
