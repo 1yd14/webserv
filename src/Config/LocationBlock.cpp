@@ -6,12 +6,12 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 16:31:15 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 16:45:54 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "LocationBlock.hpp"
-#include <iterator>
+#include <algorithm>
 #include <stdexcept>
 #include <set>
 
@@ -52,6 +52,9 @@ std::optional<std::string>	LocationBlock::getRedirectUrl() {
 }
 
 void LocationBlock::setPath(std::string path) {
+	if (_finalized) {
+		return ;
+	}
 	if (path.empty() || path[0] != '/') {
 	    throw std::runtime_error("location path must start with '/'");
 	}
@@ -59,6 +62,9 @@ void LocationBlock::setPath(std::string path) {
 }
 
 void LocationBlock::setMethods(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() < 1) {
 		throw std::runtime_error("methods directive requires at least one value");
 	}
@@ -79,6 +85,9 @@ void LocationBlock::setMethods(std::vector<std::string> values) {
 }
 
 void LocationBlock::setRoot(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() != 1) {
 		throw std::runtime_error("root directive requires exactly one value");
 	}
@@ -89,6 +98,9 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 }
 
 void LocationBlock::setIndex(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() != 1) {
 		throw std::runtime_error("index directive requires exactly one value");
 	}
@@ -99,6 +111,9 @@ void LocationBlock::setIndex(std::vector<std::string> values) {
 }
 
 void LocationBlock::setUploadDir(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() != 1) {
 		throw std::runtime_error("upload_dir directive requires exactly one value");
 	}
@@ -109,6 +124,9 @@ void LocationBlock::setUploadDir(std::vector<std::string> values) {
 }
 
 void LocationBlock::setCgiExtension(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() != 1) {
 		throw std::runtime_error("cgi_extension directive requires exactly one value");
 	}
@@ -119,6 +137,9 @@ void LocationBlock::setCgiExtension(std::vector<std::string> values) {
 }
 
 void LocationBlock::setAutoIndex(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.size() != 1) {
 		throw std::runtime_error("autoindex directive requires exactly one value");
 	}
@@ -134,6 +155,9 @@ void LocationBlock::setAutoIndex(std::vector<std::string> values) {
 }
 
 void LocationBlock::setRedirect(std::vector<std::string> values) {
+	if (_finalized) {
+		return ;
+	}
 	if (values.empty() || values.size() > 2) {
 		throw std::runtime_error("return directive requires a code and optional url");
 	}
@@ -162,8 +186,19 @@ void LocationBlock::finalize() {
 	if (_methods.empty()) {
 		throw std::runtime_error("methods required");
 	}
-	if (!_autoindex)
+	if (!_autoindex) {
 		_autoindex = false;
+	}
 	//check for cross checks needed
+	if (_upload_dir) {
+		if (std::ranges::find(_methods, "POST") == _methods.end()) {
+			throw std::runtime_error("upload_dir requires POST method");
+		}
+	}
+	if (_redirect_code) {
+		if (!_redirect_url) {
+			throw std::runtime_error("redirect requires URL");
+		}
+	}
 	_finalized = true;
 }
