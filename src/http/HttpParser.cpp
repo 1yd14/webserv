@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/02 13:27:15 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/02 14:40:19 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,7 @@
 #include <climits>
 #include <cstddef>
 #include <map>
-#include <ostream>
 #include <string>
-#include <iostream>
 
 HttpParser::HttpParser() = default;
 HttpParser::~HttpParser(){};
