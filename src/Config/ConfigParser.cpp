@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 16:35:30 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 17:30:35 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ LocationBlock ConfigParser::parseLocation(std::istringstream &input) {
 			throw std::runtime_error("Unknown location directive: " + word);
 		}
 	}
-	result.finalize();
+	result.validate();
 	return result;
 }
 
@@ -110,6 +110,7 @@ Server ConfigParser::parseServer(std::istringstream& input) {
 			throw std::runtime_error("Unknown server directive: " + word);
 		}
 	}
+	result.finalize();
 	return result;
 }
 

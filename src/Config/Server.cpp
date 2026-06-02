@@ -6,11 +6,12 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 14:13:56 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 17:43:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "LocationBlock.hpp"
 #include <sstream>
 #include <stdexcept>
 
@@ -122,4 +123,42 @@ void Server::addLocation(LocationBlock location) {
 	_location_blocks.push_back(location);
 }
 
-
+void Server::finalize() {
+	if (_finalized) {
+		return ;
+	}
+	if (_host.empty()) {
+		throw std::runtime_error("server: missing host");
+	}
+	if (_port == 0) {
+		throw std::runtime_error("server: missing port");
+	}
+	if (_root.empty()) {
+		throw std::runtime_error("server: missing root");
+	}
+	if (_location_blocks.empty()) {
+		throw std::runtime_error("server: no locations defined");
+	}
+	for (size_t i = 0; i < _location_blocks.size(); i ++) {
+		LocationBlock &loc = _location_blocks[i];
+		if (! loc.getRoot()) {
+			loc.setResolvedRoot(_root);
+		}
+		if (! loc.getIndex()) {
+			loc.setResolvedIndex(_index);
+		}
+		if (! loc.getAutoIndex()) {
+			loc.setResolvedAutoIndex(false);
+		}
+	}
+	//checks duplicates
+	for (size_t i = 0; i < _location_blocks.size(); i++) {
+		for (size_t j = i + 1; j < _location_blocks.size(); j++) {
+			if (_location_blocks[i].getPath() == _location_blocks[j].getPath()) {
+				throw std::runtime_error("duplicate location path: " +
+										_location_blocks[i].getPath());
+			}
+		}
+	}
+	_finalized = true;
+}

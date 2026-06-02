@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 16:45:54 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 17:40:08 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,10 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 	_root = values[0];
 }
 
+void LocationBlock::setResolvedRoot(std::string root) {
+	_root = root;
+}
+
 void LocationBlock::setIndex(std::vector<std::string> values) {
 	if (_finalized) {
 		return ;
@@ -108,6 +112,10 @@ void LocationBlock::setIndex(std::vector<std::string> values) {
 	    throw std::runtime_error("index must be a filename, not a path");
 	}
 	_index = values[0];
+}
+
+void LocationBlock::setResolvedIndex(std::string index) {
+	_index = index;
 }
 
 void LocationBlock::setUploadDir(std::vector<std::string> values) {
@@ -154,6 +162,10 @@ void LocationBlock::setAutoIndex(std::vector<std::string> values) {
 	}
 }
 
+void LocationBlock::setResolvedAutoIndex(bool value) {
+	_autoindex = value;
+}
+
 void LocationBlock::setRedirect(std::vector<std::string> values) {
 	if (_finalized) {
 		return ;
@@ -176,7 +188,7 @@ void LocationBlock::setRedirect(std::vector<std::string> values) {
 	}
 }
 
-void LocationBlock::finalize() {
+void LocationBlock::validate() {
 	if (_finalized) {
 		return ;
 	}
@@ -200,5 +212,8 @@ void LocationBlock::finalize() {
 			throw std::runtime_error("redirect requires URL");
 		}
 	}
+}
+
+void LocationBlock::freeze() {
 	_finalized = true;
 }

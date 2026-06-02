@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 16:16:28 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 17:39:29 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,16 @@ class LocationBlock {
 	void setPath(std::string path);
 	void setMethods(std::vector<std::string> value);
 	void setRoot(std::vector<std::string> value);
+	void setResolvedRoot(std::string root);
 	void setIndex(std::vector<std::string> value);
+	void setResolvedIndex(std::string index);
 	void setUploadDir(std::vector<std::string> value);
 	void setCgiExtension(std::vector<std::string> value);
 	void setAutoIndex(std::vector<std::string> value);
+	void setResolvedAutoIndex(bool value);
 	void setRedirect(std::vector<std::string> value);
-	void finalize();
+	void validate();
+	void freeze();
 
 	private:
 	std::string					_path;
