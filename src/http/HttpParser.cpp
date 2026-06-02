@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/27 15:20:10 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/02 13:27:15 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,6 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 		lineStart = pos;
 		pos = line.find("\r\n", lineStart);
 		delim = line.find(":", lineStart);
-		std::cout << delim << " > " << pos << std::endl;
 		if (pos == std::string::npos || delim == std::string::npos || delim > pos )
 		{
 			break;

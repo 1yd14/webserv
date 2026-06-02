@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/27 15:32:17 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/02 14:08:31 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 #include <cctype>
 #include <cstddef>
 #include <string>
-
+#include <iostream>
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
 
 
 // Main entry point to the validator
-HttpStatus HttpValidator::validate(HttpRequest& request) const
+HttpStatus HttpValidator::validate(HttpRequest& request, size_t max_size) const
 {
 	HttpStatus status;
 	
@@ -51,6 +51,14 @@ HttpStatus HttpValidator::validate(HttpRequest& request) const
 		{
 			request.setStatusCode(status);
 			return  status;
+		}
+	}
+	status = isValidBody(request, max_size);
+	{
+		if (status != HttpStatus::OK)
+		{
+			request.setStatusCode(status);
+			return status;
 		}
 	}
 	return status;
@@ -147,19 +155,23 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 	}
 	return HttpStatus::OK;
 }
-HttpStatus HttpValidator::isValidBody(const HttpRequest& request)
+HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size)
 {
 	if(request.getMethod() != "POST")
 	{
 		return HttpStatus::OK;
 	}
-	if (request.getContentLength() == - 1)
+	if (request.getContentLength() == -1)
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
 	if (request.getBody().length() != (size_t)request.getContentLength())
-	{
+	{		
 		return HttpStatus::BAD_REQUEST;
+	}
+	if(request.getBody().length() > max_size)
+	{
+		return HttpStatus::PAYLOAD_TOO_LARGE;
 	}
 	return HttpStatus::OK;
 }

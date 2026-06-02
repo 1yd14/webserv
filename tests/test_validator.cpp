@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:06:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/27 15:19:04 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/02 14:10:16 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void test_valid_get()
 	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 	HttpRequest req = parser.parseHttp(raw);
 
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::OK, (int)status, "valid method");
 }
@@ -44,7 +44,7 @@ void test_method()
 	std::string raw = "get /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 	HttpRequest req = parser.parseHttp(raw);
 
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "invalid lowercase method");
 }
@@ -58,7 +58,7 @@ void test_method_no_ascii()
 	std::string raw = "G@T /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 	HttpRequest req = parser.parseHttp(raw);
 
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "invalid char");
 }
@@ -72,7 +72,7 @@ void test_valid_but_not_allowed()
 	std::string raw = "PUT /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 	HttpRequest req = parser.parseHttp(raw);
 
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::METHOD_NOT_ALLOWED, (int)status, "not allowed");
 }
@@ -91,7 +91,7 @@ void test_valid_target()
 	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::OK, (int)status, "tesing valid Target");
 }
@@ -105,7 +105,7 @@ void test_unsafe_char_target()
 	std::string raw = "GET /index>..html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "tesing unsafe char");
 }
@@ -120,7 +120,7 @@ void test_no_slash()
 	std::string raw = "GET index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "tesing no slash");
 }
@@ -137,7 +137,7 @@ void test_valid_protocol()
 	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	assert_equal_int((int)HttpStatus::OK, (int)status, "tesing valid protocol");
 
 }
@@ -154,7 +154,7 @@ void test_invalid_protocol()
 	std::string raw = "GET /index.html HTTP/1.5\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	assert_equal_int((int)HttpStatus::HTTP_VERSION_NOT_SUPPOERTED, (int)status, "tesing invalid protocol");
 }
 
@@ -168,7 +168,7 @@ void test_valid_header()
 	std::string raw = "POST /index.html HTTP/1.1\r\nHost: bla\r\nContent-Length: 15\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
+	HttpStatus status = validator.validate(req,200);
 	assert_equal_int((int)HttpStatus::OK, (int)status,"valid header");
 }
 
@@ -179,15 +179,27 @@ void test_content_length()
 	
 	HttpParser parser;
 
-	std::string raw = "POST /index.html HTTP/1.1\r\nHost: \r\nConTent-leNGth: 1\r\n\r\n";
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: bla \r\nContent-Length: 10\r\n\r\nhelloworld";
 
 	HttpRequest req = parser.parseHttp(raw);
-	HttpStatus status = validator.validate(req);
-	// assert_equal_int((int)HttpStatus::OK, (int)status,"valid header");
-	std::cout << req.getContentLength() << " status is " << (int)status << std::endl;
+	HttpStatus status = validator.validate(req,200);
+	assert_equal_int((int)HttpStatus::OK, (int)status,"valid body");
+	std::cout <<"content length is '" << req.getContentLength() << "' and body content is '" << req.getBody() << "'\n";
+
 }
 
+void test_invalid_body_length()
+{
+	std::cout << "=================testing body content length! =====================\n";
+	HttpValidator validator;
+	
+	HttpParser parser;
 
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: \r\nConTent-leNGth: 1\r\n\r\nasadsd";
+	HttpRequest req = parser.parseHttp(raw);
+	HttpStatus status = validator.validate(req,200);
+	assert_equal_int((int)HttpStatus::OK, (int)status,"valid body");
+}
 
 int main()
 {

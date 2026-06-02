@@ -17,4 +17,5 @@ Diagnostics:
       - modernize-use-trailing-return-type
       - readability-convert-member-functions-to-static
       - modernize-use-starts-ends-with
+      - readability-magic-numbers
 
