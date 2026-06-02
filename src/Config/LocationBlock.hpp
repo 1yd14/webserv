@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/26 15:09:03 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 16:16:28 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class LocationBlock {
 	void setCgiExtension(std::vector<std::string> value);
 	void setAutoIndex(std::vector<std::string> value);
 	void setRedirect(std::vector<std::string> value);
+	void finalize();
 
 	private:
 	std::string					_path;
@@ -46,4 +47,5 @@ class LocationBlock {
 	std::optional<bool>			_autoindex;
 	std::optional<int>			_redirect_code;
 	std::optional<std::string>	_redirect_url;
+	bool						_finalized = false;
 };

@@ -6,11 +6,12 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 15:16:42 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/02 16:31:15 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "LocationBlock.hpp"
+#include <iterator>
 #include <stdexcept>
 #include <set>
 
@@ -51,6 +52,9 @@ std::optional<std::string>	LocationBlock::getRedirectUrl() {
 }
 
 void LocationBlock::setPath(std::string path) {
+	if (path.empty() || path[0] != '/') {
+	    throw std::runtime_error("location path must start with '/'");
+	}
 	_path = path;
 }
 
@@ -78,12 +82,18 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("root directive requires exactly one value");
 	}
+	if (values[0].empty()) {
+	    throw std::runtime_error("root cannot be empty");
+	}
 	_root = values[0];
 }
 
 void LocationBlock::setIndex(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("index directive requires exactly one value");
+	}
+	if (values[0].find('/') != std::string::npos) {
+	    throw std::runtime_error("index must be a filename, not a path");
 	}
 	_index = values[0];
 }
@@ -92,12 +102,18 @@ void LocationBlock::setUploadDir(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("upload_dir directive requires exactly one value");
 	}
+	if (values[0][0] != '/') {
+	    throw std::runtime_error("path must be absolute");
+	}
 	_upload_dir = values[0];
 }
 
 void LocationBlock::setCgiExtension(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("cgi_extension directive requires exactly one value");
+	}
+	if (values[0].empty() || values[0][0] != '.') {
+	    throw std::runtime_error("cgi_extension must start with '.'");
 	}
 	_cgi_extension = values[0];
 }
@@ -126,8 +142,28 @@ void LocationBlock::setRedirect(std::vector<std::string> values) {
 	} catch (...) {
 		throw std::runtime_error("return directive has invalid status code: " + values[0]);
 	}
+	if (_redirect_code != 301 && _redirect_code != 302 &&
+    		_redirect_code != 303 && _redirect_code != 307 &&
+    		_redirect_code != 308) {
+    	throw std::runtime_error("invalid redirect code");
+	}
 	if (values.size() == 2) {
 		_redirect_url = values[1];
 	}
 }
 
+void LocationBlock::finalize() {
+	if (_finalized) {
+		return ;
+	}
+	if (_path.empty()) {
+		throw std::runtime_error("missing location path");
+	}
+	if (_methods.empty()) {
+		throw std::runtime_error("methods required");
+	}
+	if (!_autoindex)
+		_autoindex = false;
+	//check for cross checks needed
+	_finalized = true;
+}
