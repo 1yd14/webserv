@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/02 12:49:51 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/06/03 13:31:01 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,13 +16,20 @@ TEST_VALIDATOR = test_validator
 
 CFLAGS = -Wall -Wextra -Werror -std=c++20
 CC = c++
-INC = -I./src/common -I./src/http -I./tests
+INC = -I./src/common -I./src/http -I./src/Config -I./tests
 
 SRC = src/main.cpp \
       src/common/HttpRequest.cpp \
+	  src/common/HttpResponse.cpp \
       src/common/Utils.cpp \
       src/http/HttpValidator.cpp \
-      src/http/HttpParser.cpp
+      src/http/HttpParser.cpp \
+	  src/http/HttpResponseBuilder.cpp \
+	  src/http/Router.cpp \
+	  src/Config/Config.cpp \
+	  src/Config/ConfigParser.cpp \
+	  src/Config/Server.cpp \
+	  src/Config/LocationBlock.cpp
 
 TEST_PARSER_SRC = tests/test_parser.cpp \
                   src/common/HttpRequest.cpp \
