@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 17:56:26 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/01 19:50:34 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 16:51:06 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,7 @@ class ListeningSocket : public ASocket {
 
 	public:
 	ListeningSocket(const Server& server);
+	void bindSocket();
+	void listenSocket();
 	void handleEvent() const override;
 };
