@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 17:40:08 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:12:00 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,39 +15,39 @@
 #include <stdexcept>
 #include <set>
 
-std::string	LocationBlock::getPath() {
+std::string	LocationBlock::getPath() const {
 	return (_path);
 }
 
-std::vector<std::string> LocationBlock::getMethods() {
+std::vector<std::string> LocationBlock::getMethods() const {
 	return (_methods);
 }
 
-std::optional<std::string>	LocationBlock::getRoot() {
+std::optional<std::string>	LocationBlock::getRoot() const {
 	return (_root);
 }
 
-std::optional<std::string>	LocationBlock::getIndex() {
+std::optional<std::string>	LocationBlock::getIndex() const {
 	return (_index);
 }
 
-std::optional<std::string>	LocationBlock::getUploadDir() {
+std::optional<std::string>	LocationBlock::getUploadDir() const {
 	return (_upload_dir);
 }	
 
-std::optional<std::string> LocationBlock::getCgiExtension() {
+std::optional<std::string> LocationBlock::getCgiExtension() const {
 	return (_cgi_extension);
 }
 
-std::optional<bool> LocationBlock::getAutoIndex() {
+std::optional<bool> LocationBlock::getAutoIndex() const {
 	return (_autoindex);
 }
 
-std::optional<int>	LocationBlock::getRedirectCode() {
+std::optional<int>	LocationBlock::getRedirectCode() const {
 	return (_redirect_code);
 }
 
-std::optional<std::string>	LocationBlock::getRedirectUrl() {
+std::optional<std::string>	LocationBlock::getRedirectUrl() const {
 	return (_redirect_url);
 }
 

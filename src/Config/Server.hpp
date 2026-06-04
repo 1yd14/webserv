@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 17:31:12 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:10:54 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@
 
 class Server {
 	public:
-	int getPort();
-	std::string	getHost();
-	std::string getRoot();
-	std::string getIndex();
-	size_t getMaxBodySize();
-	std::map<int, std::string> getErrorPages();
-	std::vector<LocationBlock> getLocationBlocks();
+	int getPort() const;
+	std::string	getHost() const;
+	std::string getRoot() const;
+	std::string getIndex() const;
+	size_t getMaxBodySize() const;
+	std::map<int, std::string> getErrorPages() const;
+	std::vector<LocationBlock> getLocationBlocks() const;
 	void setPort(std::vector<std::string> values);
 	void setHost(std::vector<std::string> values);
 	void setRoot(std::vector<std::string> values);

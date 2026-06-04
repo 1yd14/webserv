@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/02 17:43:41 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:11:20 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,31 @@
 #include <sstream>
 #include <stdexcept>
 
-int Server::getPort() {
+int Server::getPort() const {
 	return (_port);
 }
 
-std::string	Server::getHost() {
+std::string	Server::getHost() const {
 	return (_host);
 }
 
-std::string Server::getRoot() {
+std::string Server::getRoot() const {
 	return (_root);
 }
 
-std::string Server::getIndex() {
+std::string Server::getIndex() const {
 	return (_index);
 }
 
-size_t Server::getMaxBodySize() {
+size_t Server::getMaxBodySize() const {
 	return (_max_body_size);
 }
 
-std::map<int, std::string> Server::getErrorPages() {
+std::map<int, std::string> Server::getErrorPages() const {
 	return (_error_pages);
 }
 
-std::vector<LocationBlock> Server::getLocationBlocks() {
+std::vector<LocationBlock> Server::getLocationBlocks() const {
 	return (_location_blocks);
 }
 
