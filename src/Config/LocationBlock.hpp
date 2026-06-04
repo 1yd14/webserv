@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/26 15:09:03 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:11:42 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,23 +18,28 @@
 
 class LocationBlock {
 	public:
-	std::string	getPath();
-	std::vector<std::string> getMethods();
-	std::optional<std::string>	getRoot();
-	std::optional<std::string>	getIndex();
-	std::optional<std::string>	getUploadDir();	
-	std::optional<std::string> getCgiExtension();
-	std::optional<bool> getAutoIndex();
-	std::optional<int>	getRedirectCode();
-	std::optional<std::string>	getRedirectUrl();
+	std::string	getPath() const ;
+	std::vector<std::string> getMethods() const ;
+	std::optional<std::string>	getRoot() const ;
+	std::optional<std::string>	getIndex() const ;
+	std::optional<std::string>	getUploadDir() const ;	
+	std::optional<std::string> getCgiExtension() const ;
+	std::optional<bool> getAutoIndex() const ;
+	std::optional<int>	getRedirectCode() const ;
+	std::optional<std::string>	getRedirectUrl() const ;
 	void setPath(std::string path);
 	void setMethods(std::vector<std::string> value);
 	void setRoot(std::vector<std::string> value);
+	void setResolvedRoot(std::string root);
 	void setIndex(std::vector<std::string> value);
+	void setResolvedIndex(std::string index);
 	void setUploadDir(std::vector<std::string> value);
 	void setCgiExtension(std::vector<std::string> value);
 	void setAutoIndex(std::vector<std::string> value);
+	void setResolvedAutoIndex(bool value);
 	void setRedirect(std::vector<std::string> value);
+	void validate();
+	void freeze();
 
 	private:
 	std::string					_path;
@@ -46,4 +51,5 @@ class LocationBlock {
 	std::optional<bool>			_autoindex;
 	std::optional<int>			_redirect_code;
 	std::optional<std::string>	_redirect_url;
+	bool						_finalized = false;
 };
