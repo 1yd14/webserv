@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/03 15:55:11 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/04 12:25:59 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ enum class HttpStatus {
 		NO_CONTENT = 204,
 		BAD_REQUEST = 400,
 		NOT_FOUND = 404,
+		GONE = 410,
 		LENGTH_REQUIRED = 411,
 		PAYLOAD_TOO_LARGE = 413,
 		METHOD_NOT_ALLOWED = 405,

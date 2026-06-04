@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:06:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/02 14:10:16 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/04 11:23:00 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,14 @@ void test_method()
 	HttpValidator validator;
 
 	HttpParser parser;
-	std::string raw = "get /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+	std::string raw = "get /index.html HTTP/1.10\r\nHost: localhost\r\n\r\n";
 	HttpRequest req = parser.parseHttp(raw);
 
 	HttpStatus status = validator.validate(req,200);
 	
-	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "invalid lowercase method");
+	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)status, "invalid protocol!");
 }
+
 void test_method_no_ascii()
 {
 	std::cout << "=================testing invalid ascii in method !====================\n";
@@ -151,11 +152,26 @@ void test_invalid_protocol()
 	
 	HttpParser parser;
 
-	std::string raw = "GET /index.html HTTP/1.5\r\nHost: localhost\r\n\r\n";
+	std::string raw = "GET /index.html HTTP/1.4\r\nHost: localhost\r\n\r\n";
 
 	HttpRequest req = parser.parseHttp(raw);
 	HttpStatus status = validator.validate(req,200);
 	assert_equal_int((int)HttpStatus::HTTP_VERSION_NOT_SUPPOERTED, (int)status, "tesing invalid protocol");
+}
+
+
+void test_edge_protocol()
+{
+	std::cout << "=================testing invalid protocol 1.10! =====================\n";
+	HttpValidator validator;
+	
+	HttpParser parser;
+
+	std::string raw = "GET /index.html HTTP/1.10\r\nHost: localhost\r\n\r\n";
+
+	HttpRequest req = parser.parseHttp(raw);
+	HttpStatus status = validator.validate(req,200);
+	assert_equal_int((int)HttpStatus::HTTP_VERSION_NOT_SUPPOERTED, (int)status, "tesing invalid protocol 1.10");
 }
 
 void test_valid_header()
@@ -165,7 +181,7 @@ void test_valid_header()
 	
 	HttpParser parser;
 
-	std::string raw = "POST /index.html HTTP/1.1\r\nHost: bla\r\nContent-Length: 15\r\n\r\n";
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: bla\r\nContent-Length: 15\r\n\r\naaaaaaaaaaaaaaa";
 
 	HttpRequest req = parser.parseHttp(raw);
 	HttpStatus status = validator.validate(req,200);
@@ -213,6 +229,7 @@ int main()
 	test_no_slash();
 	test_valid_target();
 	test_invalid_protocol();
+	test_edge_protocol();
 	test_valid_header();
 	test_content_length();
 

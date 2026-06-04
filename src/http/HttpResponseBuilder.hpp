@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/03 16:30:56 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/04 12:59:35 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,11 @@ class HttpResponseBuilder
 	private:
 			static void buildProtocol(const HttpRequest& request, HttpResponse& response);
 			static void buildStatusCode(const HttpRequest& request, HttpResponse& response,const Server& server, RouteType routeType);
-			static void buildHeader(const HttpRequest& request, HttpResponse& response, const Server& server);
+			static void buildHeader(const HttpRequest& request, HttpResponse& response);
+			static void buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType);
+
+			static void manageStatic(HttpResponse& response, std::string path);
+			static void manageDelete(HttpResponse& response, std::string path);
+			static void manageUpload(HttpResponse& response, std::string path, const HttpRequest& request);
+
 };
