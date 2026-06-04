@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 12:46:01 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 14:59:01 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ LocationBlock ConfigParser::parseLocation(std::istringstream &input) {
 			throw std::runtime_error("Unknown location directive: " + word);
 		}
 	}
+	result.validate();
 	return result;
 }
 
@@ -109,6 +110,7 @@ Server ConfigParser::parseServer(std::istringstream& input) {
 			throw std::runtime_error("Unknown server directive: " + word);
 		}
 	}
+	result.finalize();
 	return result;
 }
 

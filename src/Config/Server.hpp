@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/26 15:12:13 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/04 14:58:33 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@
 
 class Server {
 	public:
-	int getPort();
-	std::string	getHost();
-	std::string getRoot();
-	std::string getIndex();
-	size_t getMaxBodySize();
-	std::map<int, std::string> getErrorPages();
-	std::vector<LocationBlock> getLocationBlocks();
+	int getPort() const;
+	std::string	getHost() const;
+	std::string getRoot() const;
+	std::string getIndex() const;
+	size_t getMaxBodySize() const;
+	std::map<int, std::string> getErrorPages() const;
+	std::vector<LocationBlock> getLocationBlocks() const;
 	void setPort(std::vector<std::string> values);
 	void setHost(std::vector<std::string> values);
 	void setRoot(std::vector<std::string> values);
@@ -35,6 +35,7 @@ class Server {
 	void setMaxBodySize(std::vector<std::string> values);
 	void setErrorPages(std::vector<std::string> values);
 	void addLocation(LocationBlock location);
+	void finalize();
 
 	private:
 	int							_port;
@@ -44,5 +45,6 @@ class Server {
 	size_t						_max_body_size;
 	std::map<int, std::string>	_error_pages;
 	std::vector<LocationBlock>	_location_blocks;
+	bool						_finalized;
 };
 
