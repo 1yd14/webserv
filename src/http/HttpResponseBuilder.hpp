@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/04 12:59:35 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/05 13:19:32 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../common/HttpRequest.hpp"
 #include "../common/RouteType.hpp"
 #include "../Config/Server.hpp"
+#include <string>
 
 class HttpResponseBuilder
 {
@@ -29,8 +30,14 @@ class HttpResponseBuilder
 			static void buildHeader(const HttpRequest& request, HttpResponse& response);
 			static void buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType);
 
-			static void manageStatic(HttpResponse& response, std::string path);
-			static void manageDelete(HttpResponse& response, std::string path);
-			static void manageUpload(HttpResponse& response, std::string path, const HttpRequest& request);
+			static void manageStatic(HttpResponse& response, const std::string& path);
+			static void manageDelete(HttpResponse& response, const std::string& path);
+			static void manageUpload(HttpResponse& response, const HttpRequest& request, const Server& server);
+			static void manageRedirect(HttpResponse& response, const HttpRequest& request, const Server& server);
+			static void manageErrorPage(HttpResponse& response, const Server& server);
+			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path);
+
+			static const LocationBlock* findMatchingLocation(const std::string& target, const Server& server);
+
 
 };

@@ -1,33 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HttpStatus.hpp                                     :+:      :+:    :+:   */
+/*   RouteType.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/05 10:32:46 by rmhazres         ###   ########.fr       */
+/*   Created: 2026/06/03 12:38:23 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/04 15:06:53 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-
-enum class HttpStatus {
-		NONE = 0,
-		CONTINUE = 100,
-		OK = 200,
-		CREATED = 201,
-		NO_CONTENT = 204,
-		MOVED_PERMANETLY = 301,
-		FOUND = 302,
-		BAD_REQUEST = 400,
-		NOT_FOUND = 404,
-		GONE = 410,
-		LENGTH_REQUIRED = 411,
-		PAYLOAD_TOO_LARGE = 413,
-		METHOD_NOT_ALLOWED = 405,
-		INTERNAL_SERVER_ERROR = 500,
-		NOT_IMPLEMENTED = 501,
-		HTTP_VERSION_NOT_SUPPOERTED = 505,
-	};
+enum class RouteType{
+		STATIC_FILE,
+    	UPLOAD,
+    	DELETE_FILE,
+    	CGI,
+    	DIRECTORY_LISTING,
+    	NOT_FOUND,
+		REDIRECT
+};
