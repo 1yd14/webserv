@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/05 16:51:50 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/05 17:30:46 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,4 +28,5 @@ class Connection : public ASocket {
 	Connection(int fd, const Server& server);
 	void setState(State newState);
 	State getState();
+	void handleEvent() const override;
 };
