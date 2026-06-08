@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/04 15:00:31 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/06/08 13:35:29 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,13 @@ TEST_PARSER_SRC = tests/test_parser.cpp \
                   src/common/HttpRequest.cpp \
                   src/common/Utils.cpp \
                   src/http/HttpParser.cpp \
-                  src/http/HttpValidator.cpp
+                  src/http/HttpValidator.cpp \
+	  src/Config/Config.cpp \
+	  src/Config/ConfigParser.cpp \
+	  src/Config/LocationBlock.cpp \
+	  src/Config/Server.cpp \
+	  src/server_setup/ASocket.cpp \
+	  src/server_setup/ListeningSocket.cpp
 
 TEST_VALIDATOR_SRC = tests/test_validator.cpp \
                      src/common/HttpRequest.cpp \

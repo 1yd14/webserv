@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 14:58:55 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 13:35:39 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,7 +195,7 @@ void LocationBlock::validate() {
 	if (_path.empty()) {
 		throw std::runtime_error("missing location path");
 	}
-	if (_methods.empty()) {
+	if (!_redirect_code &&_methods.empty()) {
 		throw std::runtime_error("methods required");
 	}
 	if (!_autoindex) {
