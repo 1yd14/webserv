@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/05 13:19:32 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 13:20:23 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ class HttpResponseBuilder
 			static void manageRedirect(HttpResponse& response, const HttpRequest& request, const Server& server);
 			static void manageErrorPage(HttpResponse& response, const Server& server);
 			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path);
-
-			static const LocationBlock* findMatchingLocation(const std::string& target, const Server& server);
 
 
 };

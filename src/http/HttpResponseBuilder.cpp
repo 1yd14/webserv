@@ -6,11 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/05 13:28:37 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 13:22:01 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponseBuilder.hpp"
+#include "../common/Utils.hpp"
 #include <array>
 #include <ctime>
 #include <filesystem>
@@ -206,16 +207,4 @@ void HttpResponseBuilder::manageDirectory(HttpResponse& response, const HttpRequ
 	}
 	response.setBody(html);
 	response.setStatus(HttpStatus::OK);
-}
-
-const LocationBlock* HttpResponseBuilder::findMatchingLocation(const std::string& target, const Server& server)
-{
-	for (const auto& location : server.getLocationBlocks())
-	{
-		if (target.find(location.getPath()) == 0)
-		{
-			return &location;
-		}
-	}
-	return nullptr;		
 }

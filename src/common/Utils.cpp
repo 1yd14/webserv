@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/02 15:03:36 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 13:21:01 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,16 @@ int	compareStr(const std::string& str1 , const std::string& str2 )
 		}
 	}
 	return 0;
+}
+
+const LocationBlock* findMatchingLocation(const std::string& target, const Server& server)
+{
+	for (const auto& location : server.getLocationBlocks())
+	{
+		if (target.find(location.getPath()) == 0)
+		{
+			return &location;
+		}
+	}
+	return nullptr;		
 }
