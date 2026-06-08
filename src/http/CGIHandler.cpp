@@ -6,25 +6,54 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 13:27:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 18:03:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./CGiHandler.hpp"
 #include "../common/Utils.hpp"
 
+#include <array>
 #include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+#include <unistd.h>
+#include <sys/wait.h>
+
 
 void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpResponse& response)
 {
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
-
-	std::string scriptPath = ((bool)block && block->getRoot().has_value() ? block->getRoot().value() : server.getRoot() + request.getTarget());
-	
-	
+	if (block == nullptr)
+		{
+			response.setStatus(HttpStatus::NOT_FOUND);
+			return;	
+		}
+	const std::string scriptPath = (block->getRoot().has_value() ? block->getRoot().value() + request.getTarget() : server.getRoot() + request.getTarget());
+	std::string extention = block->getCgiExtension().value();
+	std::string interpreter;
+	if (extention ==".py")
+	{
+		interpreter = "/usr/bin/python3";
+	} else if (extention == ".php") 
+	{
+		interpreter = "/usr/bin/php-cgi";
+	}
+	else {
+		response.setStatus(HttpStatus::NOT_IMPLEMENTED);
+		return;
+	}
+	std::vector<char*> argv;
+	argv.push_back(const_cast<char*>(interpreter.c_str()));
+	argv.push_back(const_cast<char*>(scriptPath.c_str()));
+	argv.push_back(nullptr);
+	std::vector<std::string> env = buildEnv(request, server);
+	executeCGI(argv, env, response, request.getBody());
 }
 
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
@@ -51,7 +80,90 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
 	return env;
 };
 
-void CGIHanlder::executeCGI(const std::string& scriptPath, const std::vector<std::string>& env, const std::string& body, HttpResponse& response)
+void CGIHanlder::executeCGI(const std::vector<char*>& argv, const std::vector<std::string>& env, HttpResponse& response, const std::string& body)
 {
+	std::array<int, 2> pipe_in;
+	std::array<int, 2> pipe_out;
+	int status;
+
+	if (pipe(pipe_in.data()) < 0)
+	{
+		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	if (pipe(pipe_out.data()) < 0)
+	{
+		close(pipe_in[0]);
+		close(pipe_in[1]);
+		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+
+	pid_t pid = fork();
+	if (pid < 0)
+	{
+		close(pipe_in[0]);
+		close(pipe_in[1]);
+		close(pipe_out[0]);
+		close(pipe_out[1]);
+		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	if (pid == 0)
+	{
+		close(pipe_in[1]);
+		close(pipe_out[0]);
+		dup2(pipe_in[0], STDIN_FILENO);
+		close(pipe_in[0]);
+		dup2(pipe_out[1], STDOUT_FILENO);
+		close(pipe_out[1]);
+		
+		std::vector<char *> envp;
+		for (const auto& ett:env)
+		{
+			envp.push_back(const_cast<char*>(ett.c_str()));
+		}
+		envp.push_back(nullptr);
+		
+		execve(argv[0], const_cast<char **>(argv.data()), envp.data());
+		exit(1);
+	}
+	else {
+		close(pipe_in[0]);
+		close(pipe_out[1]);
+		
+		write(pipe_in[1],body.c_str(),body.length());
+		close(pipe_in[1]);
+		
+		std::string output;
+		std::array<char, 4096> buffer;
+		ssize_t bytes;
+		while((bytes = read(pipe_out[0], buffer.data(), sizeof(buffer))) > 0)
+		{
+			output.append(buffer.data(), bytes);
+		}
+		parseCGIOutput(output, response);
+		waitpid(pid, &status, 0);
+	}
 	
+}
+
+void	CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response)
+{
+	size_t separator = output.find("\r\n\r\n");
+	
+	if (separator == std::string::npos)
+	{
+		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	response.setHeader(parseHeaders(output.substr(0,separator)));
+	response.setBody(output.substr(separator+4));
+	
+	const auto& header = response.getHeader();
+	auto itt = header.find("Status");
+	if (itt != header.end())
+	{
+		response.setStatus((HttpStatus)std::stoi(itt->second));
+	}
 }

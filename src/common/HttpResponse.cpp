@@ -6,12 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:45:17 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/04 10:06:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 18:01:06 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
+#include <map>
 #include <string>
 
 
@@ -32,4 +33,5 @@ HttpStatus HttpResponse::getStatus()const {return  _status_code;}
 void HttpResponse::setProtocol(const std::string& value){_protocol = value;}
 void HttpResponse::setBody(const std::string& value){_body = value;}
 void HttpResponse::setHeader(const std::string& key, const std::string& value ){_header.insert(key, value);}
+void HttpResponse::setHeader(const std::map<std::string, std::string>&value){_header = value};
 void HttpResponse::setStatus( HttpStatus value){ _status_code = value;}

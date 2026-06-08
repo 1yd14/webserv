@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:04:24 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/04 10:05:04 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 18:00:18 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class HttpResponse
 					void setProtocol(const std::string& value);
 					void setStatus(HttpStatus value);
 					void setHeader(const std::string& key,const std::string& value);
+					void setHeader(const std::map<std::string, std::string>& value);
 					void setBody(const std::string &value);
 	private:
 					std::string _protocol;

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 13:21:01 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 17:26:48 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,43 @@ const LocationBlock* findMatchingLocation(const std::string& target, const Serve
 		}
 	}
 	return nullptr;		
+}
+
+std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
+{
+	
+	std::map<std::string, std::string> header;
+
+	size_t pos = 0;
+	size_t delim = 0;
+	size_t lineStart = 0;
+	while(pos < headerStr.length())
+	{
+		lineStart = pos;
+		pos = headerStr.find("\r\n", lineStart);
+		delim = headerStr.find(":", lineStart);
+		if (pos == std::string::npos || delim == std::string::npos || delim > pos )
+		{
+			break;
+		}
+		std::string key = headerStr.substr(lineStart, delim - lineStart);
+		std::string value;
+		
+		key = trim(key);
+		if (delim + 2 < pos)
+		{
+			value = trim(headerStr.substr(delim + 2, pos - (delim + 2)));
+		}
+		for( auto &cha : key)
+		{
+			cha = (char)std::tolower(cha);	
+		}
+		if (key == "content-length")
+		{
+			convertContentLength(value , req);
+		}
+		header.insert({key, value});
+		pos+=2;
+	}
+	return header;
 }

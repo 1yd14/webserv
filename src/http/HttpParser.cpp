@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/02 14:40:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 17:30:17 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,41 +75,7 @@ void HttpParser::extractFirstLine(const std::string &line, HttpRequest &req)
 
 void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 {
-	
-	std::map<std::string, std::string> header;
-
-	size_t pos = 0;
-	size_t delim = 0;
-	size_t lineStart = 0;
-	while(pos < line.length())
-	{
-		lineStart = pos;
-		pos = line.find("\r\n", lineStart);
-		delim = line.find(":", lineStart);
-		if (pos == std::string::npos || delim == std::string::npos || delim > pos )
-		{
-			break;
-		}
-		std::string key = line.substr(lineStart, delim - lineStart);
-		std::string value;
-		
-		key = trim(key);
-		if (delim + 2 < pos)
-		{
-			value = trim(line.substr(delim + 2, pos - (delim + 2)));
-		}
-		for( auto &cha : key)
-		{
-			cha = (char)std::tolower(cha);	
-		}
-		if (key == "content-length")
-		{
-			convertContentLength(value , req);
-		}
-		header.insert({key, value});
-		pos+=2;
-	}
-	req.setHeader(header);
+	req.setHeader(parseHeaders(line));
 }
 
 

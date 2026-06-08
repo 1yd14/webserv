@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:41:39 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 13:08:45 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/08 16:05:09 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,6 @@ class CGIHanlder
 		static void execute(const HttpRequest& request, const Server& server, HttpResponse& response);
 	private:
 		static std::vector<std::string>buildEnv(const HttpRequest& request, const Server& server);
-		static void executeCGI(const std::string& scriptPath, const std::vector<std::string>& env, const std::string& body, HttpResponse& response);
-	//	static void parseCGIOutput();
+		static void executeCGI(const std::vector<char*>& argv, const std::vector<std::string>& env, HttpResponse& response,const std::string& body);
+		static void parseCGIOutput(const std::string& output, HttpResponse& response);
 };
