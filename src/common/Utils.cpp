@@ -6,12 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 17:26:48 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 10:53:55 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Utils.hpp"
 #include <cctype>
+#include <climits>
 #include <cstddef>
 #include <string>
 
@@ -55,7 +56,7 @@ const LocationBlock* findMatchingLocation(const std::string& target, const Serve
 			return &location;
 		}
 	}
-	return nullptr;		
+	return nullptr;
 }
 
 std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
@@ -87,12 +88,29 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 		{
 			cha = (char)std::tolower(cha);	
 		}
-		if (key == "content-length")
-		{
-			convertContentLength(value , req);
-		}
 		header.insert({key, value});
 		pos+=2;
 	}
 	return header;
+}
+
+long safeConvertLong(const std::string& str)
+{
+	const int msize = 19;
+	if (str.empty())
+	{
+		return 0;
+	}
+	if (str.length() == msize && str > std::to_string(LONG_MAX))
+	{
+		return -1;
+	}
+	for (char cha : str)
+	{
+		if(!(bool)isdigit(cha))
+		{
+			return -1;
+		}
+	}
+	 return std::stol(str);
 }

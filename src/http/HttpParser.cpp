@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 17:30:17 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 10:14:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 		return request;	
 	}
 	
-	// extracting first line from the raw request string
 	size_t firstLine = rawRequest.find("\r\n");
 	if (firstLine == std::string::npos)
 	{
@@ -42,7 +41,6 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 	}
 	extractFirstLine(rawRequest.substr(0, firstLine), request);
 	
-	// extracting the header from the raw request string
 	size_t emptyHeaderLine = rawRequest.find("\r\n\r\n");
 	if (emptyHeaderLine == std::string::npos)
 	{
@@ -50,8 +48,8 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
 		return request;
 	}
 	extractHeaders(rawRequest.substr(firstLine + 2, emptyHeaderLine - firstLine ), request);
+	extractContentLength(request);
 
-	// extracting the body from the raw request string
 	request.setBody(trim(rawRequest.substr(emptyHeaderLine + 4)));
 	
 	return request;
@@ -78,26 +76,13 @@ void HttpParser::extractHeaders(const std::string &line, HttpRequest &req)
 	req.setHeader(parseHeaders(line));
 }
 
-
-void HttpParser::convertContentLength(const std::string& str, HttpRequest& req)
+void HttpParser::extractContentLength(HttpRequest& req)
 {
-	const int msize = 19;
-	if (str.empty())
+	const auto& header = req.getHeader();
+	auto itt = header.find("content-length");
+	
+	if(itt != header.end())
 	{
-		return;
+		req.setContentLength(safeConvertLong(itt->second));
 	}
-	if (str.length() == msize && str > std::to_string(LONG_MAX))
-	{
-		req.setContentLength(-1);
-		return;
-	}
-	for (char cha : str)
-	{
-		if(!(bool)isdigit(cha))
-		{
-			req.setContentLength(-1);
-			return;
-		}
-	}
-	req.setContentLength(std::stol(str));
 }

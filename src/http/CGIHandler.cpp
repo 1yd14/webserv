@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 18:03:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 10:18:17 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,8 @@ void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpR
 		response.setStatus(HttpStatus::NOT_IMPLEMENTED);
 		return;
 	}
-	std::vector<char*> argv;
-	argv.push_back(const_cast<char*>(interpreter.c_str()));
-	argv.push_back(const_cast<char*>(scriptPath.c_str()));
-	argv.push_back(nullptr);
 	std::vector<std::string> env = buildEnv(request, server);
-	executeCGI(argv, env, response, request.getBody());
+	executeCGI(interpreter,scriptPath, env, response, request.getBody());
 }
 
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
@@ -75,15 +71,21 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
 	env.emplace_back("SERVER_PROTOCOL=" + request.getProtocol());
 	env.emplace_back("SERVER_NAME="+server.getHost());
 	env.emplace_back("SERVER_PORT="+ std::to_string(server.getPort()));
+	env.emplace_back("REDIRECT_STATUS=200");
 	// redirect status ? 
 	// all other envs ?
 	return env;
 };
 
-void CGIHanlder::executeCGI(const std::vector<char*>& argv, const std::vector<std::string>& env, HttpResponse& response, const std::string& body)
+void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& scriptPath,const std::vector<std::string>& env, HttpResponse& response, const std::string& body)
 {
 	std::array<int, 2> pipe_in;
 	std::array<int, 2> pipe_out;
+	
+	std::vector<char*> argv;
+	argv.push_back(const_cast<char*>(interpreter.c_str()));
+	argv.push_back(const_cast<char*>(scriptPath.c_str()));
+	argv.push_back(nullptr);
 	int status;
 
 	if (pipe(pipe_in.data()) < 0)
@@ -125,10 +127,11 @@ void CGIHanlder::executeCGI(const std::vector<char*>& argv, const std::vector<st
 		}
 		envp.push_back(nullptr);
 		
-		execve(argv[0], const_cast<char **>(argv.data()), envp.data());
+		execve(argv[0], const_cast<char* const*>(argv.data()), envp.data());
 		exit(1);
 	}
-	else {
+	else 
+	{
 		close(pipe_in[0]);
 		close(pipe_out[1]);
 		
@@ -143,12 +146,13 @@ void CGIHanlder::executeCGI(const std::vector<char*>& argv, const std::vector<st
 			output.append(buffer.data(), bytes);
 		}
 		parseCGIOutput(output, response);
+		close(pipe_out[0]);
 		waitpid(pid, &status, 0);
 	}
 	
 }
 
-void	CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response)
+void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response)
 {
 	size_t separator = output.find("\r\n\r\n");
 	
@@ -161,9 +165,9 @@ void	CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& respons
 	response.setBody(output.substr(separator+4));
 	
 	const auto& header = response.getHeader();
-	auto itt = header.find("Status");
+	auto itt = header.find("status");
 	if (itt != header.end())
 	{
-		response.setStatus((HttpStatus)std::stoi(itt->second));
+		response.setStatus((HttpStatus)safeConvertLong(itt->second));
 	}
 }
