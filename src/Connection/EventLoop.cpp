@@ -6,11 +6,12 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 17:21:53 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 18:49:25 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventLoop.hpp"
+#include <algorithm>
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -47,7 +48,7 @@ void EventLoop::addConnection(std::unique_ptr<ASocket> socket) {
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, socket->getFd(), &event) == -1) {
 		std::cerr << "epoll_ctl failed for connection: " << strerror(errno) << "\n";
 		return;
-	}	
+	}
 	_sockets.push_back(std::move(socket));
 }
 
@@ -72,4 +73,14 @@ void EventLoop::run() {
 			socket->handleEvent(*this);
 		}
 	}
+}
+
+void EventLoop::removeConnection(int fd) {
+	epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
+	_sockets.erase(
+		std::remove_if(_sockets.begin(), _sockets.end(), 
+			[fd](const std::unique_ptr<ASocket> &s){
+				return s->getFd() == fd;
+			}),
+		_sockets.end());
 }

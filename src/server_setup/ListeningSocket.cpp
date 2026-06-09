@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 19:45:49 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 17:15:28 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 18:48:24 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void ListeningSocket::listenSocket()
 	}
 }
 
-void ListeningSocket::handleEvent(EventLoop &loop) const {
+void ListeningSocket::handleEvent(EventLoop &loop) {
 	int clientFd = accept(getFd(), nullptr, nullptr);
 	if (clientFd == -1) {
 		std::cerr << "accept failed: " << strerror(errno) << "\n";
