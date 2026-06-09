@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:06:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/04 11:23:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 11:03:12 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,6 @@ void test_content_length()
 	HttpRequest req = parser.parseHttp(raw);
 	HttpStatus status = validator.validate(req,200);
 	assert_equal_int((int)HttpStatus::OK, (int)status,"valid body");
-	std::cout <<"content length is '" << req.getContentLength() << "' and body content is '" << req.getBody() << "'\n";
 
 }
 

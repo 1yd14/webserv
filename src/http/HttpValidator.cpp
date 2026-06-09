@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/02 14:08:31 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 12:06:15 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <cctype>
 #include <cstddef>
 #include <string>
-#include <iostream>
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
 
@@ -115,21 +114,20 @@ HttpStatus HttpValidator::unsafeCharCheck(const std::string& target)
 HttpStatus HttpValidator::isValidProtocol(const HttpRequest& request)
 {
 	const std::string protocol = request.getProtocol();
-	const int str_size = 8;
-	const int first_half = 5;
 	
-	if (protocol.empty() || protocol.size() != str_size)
+	if (protocol.empty())
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
-	if (protocol.compare(0,first_half,"HTTP/") != 0)
+	
+	if (protocol.compare(0,5, "HTTP/") != 0)
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
-	if (protocol.compare(first_half , 3,"1.0") != 0 
-		&& protocol.compare(first_half , 3,"1.1") != 0 )
+		
+	if (protocol != "HTTP/1.0" && protocol != "HTTP/1.1")
 	{
-			return HttpStatus::HTTP_VERSION_NOT_SUPPOERTED;
+		return HttpStatus::HTTP_VERSION_NOT_SUPPOERTED;
 	}
 	return HttpStatus::OK;
 }
@@ -145,7 +143,6 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-
 	if (request.getMethod() == "POST")
 	{
 		if(!header.contains("content-length") || header.at("content-length").empty())

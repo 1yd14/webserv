@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/09 10:54:55 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/06/09 11:02:32 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,7 @@ CFLAGS = -Wall -Wextra -Werror -std=c++20
 CC = c++
 INC = -I./src/common -I./src/http -I./src/Config -I./tests
 
-SRC = src/main.cpp \
-    			src/common/HttpRequest.cpp \
+SRC =			src/common/HttpRequest.cpp \
 	  			src/common/HttpResponse.cpp \
 				src/common/Utils.cpp \
 				src/http/HttpValidator.cpp \
