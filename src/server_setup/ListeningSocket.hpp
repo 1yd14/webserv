@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 17:56:26 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 16:51:06 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 16:36:47 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 #include "ASocket.hpp"
 #include "../Config/Server.hpp"
+
+class EventLoop; 
 
 class ListeningSocket : public ASocket {
 	private:
@@ -23,5 +25,5 @@ class ListeningSocket : public ASocket {
 	ListeningSocket(const Server& server);
 	void bindSocket();
 	void listenSocket();
-	void handleEvent() const override;
+	void handleEvent(EventLoop &loop) const override;
 };

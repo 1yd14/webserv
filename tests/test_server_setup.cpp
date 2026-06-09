@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   test_server_setup.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/04 17:03:03 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/05 15:31:26 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 17:02:04 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,17 +94,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	while (true) {
-		for (size_t i = 0; i < listeners.size(); ++i) {
-			int client_fd = accept(listeners[i]->getFd(), nullptr, nullptr);
-
-			if (client_fd != -1) {
-				std::cout << "✔ client connected on listener "
-						<< i << std::endl;
-				close(client_fd);
-			}
-		}
-	}
 	//for (size_t i = 0; i < listeners.size(); i++) {
 	//	delete listeners[i];
 	//}

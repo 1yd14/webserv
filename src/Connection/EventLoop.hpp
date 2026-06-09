@@ -6,26 +6,27 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:32 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/08 12:08:08 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 15:54:12 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <memory>
-#include <unordered_map>
 #include <vector>
 #include "../server_setup/ASocket.hpp"
-#include "Connection.hpp"
-#include <poll.h>
+#include <sys/epoll.h>
 
 class EventLoop {
 	private:
-	std::vector<pollfd> _epollFds;
-	std::vector
+	int _epollFd;
+	std::vector<std::unique_ptr<ASocket>> _sockets;
 
 	public:
-	void addSocket(std::unique_ptr<ASocket> socket);
+	EventLoop();
+	void addListeningSocket(std::unique_ptr<ASocket> socket);
+	void addConnection(std::unique_ptr<ASocket> socket);
+	void run();
 	void removeSocket(int fd);
 	
 };
