@@ -6,11 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 10:53:55 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 18:00:00 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Utils.hpp"
+#include "HttpStatus.hpp"
 #include <cctype>
 #include <climits>
 #include <cstddef>
@@ -49,7 +50,8 @@ int	compareStr(const std::string& str1 , const std::string& str2 )
 
 const LocationBlock* findMatchingLocation(const std::string& target, const Server& server)
 {
-	for (const auto& location : server.getLocationBlocks())
+	const auto& locationBlocks = server.getLocationBlocks();
+	for (const auto& location : locationBlocks)
 	{
 		if (target.find(location.getPath()) == 0)
 		{
@@ -113,4 +115,76 @@ long safeConvertLong(const std::string& str)
 		}
 	}
 	 return std::stol(str);
+}
+std::string getReasonPhrase(HttpStatus status)
+{
+	switch (status)
+	{
+		case HttpStatus::NONE:
+		{
+			return "NONE";
+		}
+		case HttpStatus::CONTINUE:
+		{
+			return "Continue";
+		}
+		case HttpStatus::OK:
+		{
+			return "OK";
+		}
+		case HttpStatus::CREATED:
+		{
+			return "Created";
+		}
+		case HttpStatus::NO_CONTENT:
+		{
+			return "No Content";
+		}
+		case HttpStatus::MOVED_PERMANETLY:
+		{
+			return "Moved Permanetly";
+		}
+		case HttpStatus::FOUND:
+		{
+			return "Found";
+		}
+		case HttpStatus::BAD_REQUEST:
+		{
+			return "Bad Request";
+		}
+		case HttpStatus::NOT_FOUND:
+		{
+			return "Not Found";
+		}
+		case HttpStatus::GONE:
+		{
+			return "Gone";
+		}
+		case HttpStatus::LENGTH_REQUIRED:
+		{
+			return "Length Required";
+		}
+		case HttpStatus::PAYLOAD_TOO_LARGE:
+		{
+			return "Payload Too Large";
+		}
+		case HttpStatus::METHOD_NOT_ALLOWED:
+		{
+			return "Method Not Allowed";
+		}
+		case HttpStatus::INTERNAL_SERVER_ERROR:
+		{
+			return "Internal Server Error";
+		}
+		case HttpStatus::NOT_IMPLEMENTED:
+		{
+			return "Not Implemented";
+		}
+		case HttpStatus::HTTP_VERSION_NOT_SUPPOERTED:
+		{
+			return "HTTP Version Not Supported";
+		}
+		default:
+			return"Unknown";
+	}
 }

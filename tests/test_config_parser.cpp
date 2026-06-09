@@ -3,15 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   test_config_parser.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 11:52:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/05/27 14:52:14 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/09 15:21:51 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include <iostream>
 #include "../src/Config/Config.hpp"
+#include "../src/server_setup/ListeningSocket.hpp"
+#include <vector>
+#include <unistd.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {

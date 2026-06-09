@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 10:18:17 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 17:11:19 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,10 @@ void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpR
 			return;	
 		}
 	const std::string scriptPath = (block->getRoot().has_value() ? block->getRoot().value() + request.getTarget() : server.getRoot() + request.getTarget());
-	std::string extention = block->getCgiExtension().value();
+	std::string extention = (block->getCgiExtension().has_value() ? block->getCgiExtension().value() : "");
+	std::cout << "MARKER! ='" << extention << "'\n";
 	std::string interpreter;
-	if (extention ==".py")
+	if (extention == ".py")
 	{
 		interpreter = "/usr/bin/python3";
 	} else if (extention == ".php") 

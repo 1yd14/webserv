@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 14:58:47 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 16:49:47 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "LocationBlock.hpp"
 #include <sstream>
 #include <stdexcept>
+
+#include <iostream>
 
 int Server::getPort() const {
 	return (_port);

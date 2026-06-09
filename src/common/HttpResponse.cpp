@@ -6,12 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:45:17 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 10:52:26 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/09 15:50:42 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
+#include "Utils.hpp"
 #include <map>
 #include <string>
 
@@ -35,3 +36,18 @@ void HttpResponse::setBody(const std::string& value){_body = value;}
 void HttpResponse::setHeader(const std::string& key, const std::string& value ){_header[key] = value;}
 void HttpResponse::setHeader(const std::map<std::string, std::string>&value){_header = value;}
 void HttpResponse::setStatus( HttpStatus value){ _status_code = value;}
+
+
+std::string HttpResponse::serlialize() const
+{
+	std::string response;
+	
+	response = _protocol + " " + std::to_string((int)_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
+	for(const auto& header : _header)
+	{
+		response += header.first + ": "	+ header.second +"\r\n";
+	}
+	response += "\r\n";
+	response += _body;
+	return response;
+};
