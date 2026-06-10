@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:32 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 12:55:53 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/10 13:19:13 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,4 @@ class EventLoop {
 	void addConnection(std::unique_ptr<Connection> connection);
 	void run();
 	void removeConnection(int fd);
-	
 };

@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 12:55:07 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/10 13:19:45 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,6 @@ class Connection : public ASocket {
 	State getState();
 	time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
+	void handleRead(EventLoop &loop);
+	void handleWrite(EventLoop &loop);
 };
