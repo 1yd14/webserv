@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 18:39:45 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/10 12:55:07 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "../server_setup/ASocket.hpp"
 #include "../Config/Server.hpp"
+#include <ctime>
 
 enum State { READING, WRITING, CLOSING };
 
@@ -23,11 +24,13 @@ class Connection : public ASocket {
 	std::string		_readBuffer;
 	std::string		_writeBuffer;
 	State			_state;
+	time_t			_lastActivity;
 	
 	public:
 	Connection(int fd, const Server& server);
 	~Connection();
 	void setState(State newState);
 	State getState();
+	time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
 };
