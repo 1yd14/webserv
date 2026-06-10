@@ -1,33 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   EventLoop.hpp                                      :+:      :+:    :+:   */
+/*   signals.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/05 16:53:32 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 10:37:27 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/10 10:21:36 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/06/10 10:38:46 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "signals.hpp"
+#include <iostream>
 
-#include <memory>
-#include <vector>
-#include "../server_setup/ASocket.hpp"
-#include <sys/epoll.h>
+volatile sig_atomic_t g_sig_val = 0;
 
-class EventLoop {
-	private:
-	int _epollFd;
-	std::vector<std::unique_ptr<ASocket>> _sockets;
-
-	public:
-	EventLoop();
-	~EventLoop();
-	void addListeningSocket(std::unique_ptr<ASocket> socket);
-	void addConnection(std::unique_ptr<ASocket> socket);
-	void run();
-	void removeConnection(int fd);
-	
-};
+void signalHandler(int sigVal) {
+	(void) sigVal;
+	g_sig_val = 1;
+}

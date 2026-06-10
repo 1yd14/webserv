@@ -6,15 +6,16 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 17:03:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 17:05:54 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/10 10:48:14 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <csignal>
 #include <iostream>
 #include "Config/Config.hpp"
 #include "Connection/EventLoop.hpp"
 #include "server_setup/ListeningSocket.hpp"
-
+#include "Signals/signals.hpp"
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -24,7 +25,10 @@ int main(int argc, char *argv[]) {
 
     Config conf(argv[1]);
     std::vector<Server> servers = conf.getServers();
-
+	
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN);
     EventLoop loop;
 
     for (size_t i = 0; i < servers.size(); i++) {

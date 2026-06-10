@@ -6,27 +6,31 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 18:49:25 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/10 10:37:52 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "EventLoop.hpp"
 #include <algorithm>
+#include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <sys/epoll.h>
-#include <csignal>
+#include "../Signals/signals.hpp"
 #include <array>
 
 #define MAX_EVENTS 1024
 
-EventLoop::EventLoop(){
+EventLoop::EventLoop() {
 	_epollFd = epoll_create1(0);
 	if (_epollFd == -1) {
 		throw std::runtime_error("epoll cannot be created");
 	}
+}
+EventLoop::~EventLoop() {
+	close(_epollFd);
 }
 
 // this function throws an exception because these ones are added before creating up epoll loop
@@ -56,19 +60,18 @@ void EventLoop::addConnection(std::unique_ptr<ASocket> socket) {
 
 void EventLoop::run() {
 	std::array<epoll_event, MAX_EVENTS> events;
-	sigset_t	mask;
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGINT);
-	sigaddset(&mask, SIGTERM);
 
-	while(true) {
-		int readyFds = epoll_pwait(_epollFd, events.data(), events.size(), -1, &mask);
+	
+	while(g_sig_val == 0) {
+		int readyFds = epoll_wait(_epollFd, events.data(), events.size(), -1);
 		if (readyFds < 0) {
+			if (errno == EINTR) {
+				break ;
+			}
 			//hanlde the error
 			continue;
 		}
-		for (int i = 0; i < readyFds; ++i)
-		{
+		for (int i = 0; i < readyFds; ++i) {
 			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
 			socket->handleEvent(*this);
 		}
