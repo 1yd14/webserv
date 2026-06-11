@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 13:11:15 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/11 14:44:49 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,7 @@ EventLoop::~EventLoop() {
 
 // this function throws an exception because these ones are added before creating up epoll loop
 void EventLoop::addListeningSocket(std::unique_ptr<ASocket> socket) {
-	epoll_event event{};
-	event.events = EPOLLIN;
-	event.data.ptr = socket.get();
-	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, socket->getFd(), &event) == -1) {
+	if (!setReading(socket.get(), EPOLL_CTL_ADD)) {
 		throw std::runtime_error("epoll_ctl failed: " + std::string(strerror(errno)));
 	}
 	_listeners.push_back(std::move(socket));
@@ -49,17 +46,12 @@ void EventLoop::addListeningSocket(std::unique_ptr<ASocket> socket) {
 
 // this function is similar to addListeningSocket but does not throw an exception because of time sensitivity
 void EventLoop::addConnection(std::unique_ptr<Connection> connection) {
-	epoll_event event{};
-	event.events = EPOLLIN;
-	event.data.ptr = connection.get();
-	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, connection->getFd(), &event) == -1) {
+	if (!setReading(connection.get(), EPOLL_CTL_ADD)) {
 		std::cerr << "epoll_ctl failed for connection: " << strerror(errno) << "\n";
 		return;
 	}
 	_connections.push_back(std::move(connection));
 }
-
-//still need to gracefully exit the loop when a signal is used.
 
 void EventLoop::run() {
 	std::array<epoll_event, MAX_EVENTS> events;
@@ -75,7 +67,20 @@ void EventLoop::run() {
 			continue;
 		}
 		for (int i = 0; i < readyFds; ++i) {
-			auto* socket = static_cast<Connection*>(events[i].data.ptr);
+			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
+			std::cout << "fd=" << socket->getFd() 
+				<< " events=" << events[i].events
+				<< " EPOLLIN=" << (events[i].events & EPOLLIN)
+				<< " EPOLLHUP=" << (events[i].events & EPOLLHUP)
+				<< " EPOLLRDHUP=" << (events[i].events & EPOLLRDHUP)
+				<< "\n";
+		}
+		for (int i = 0; i < readyFds; ++i) {
+			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
+			if ((events[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) != 0) {
+				removeConnection(socket->getFd());
+				continue;
+			}
 			socket->handleEvent(*this);
 		}
 		std::vector<int> timeoutFds;
@@ -100,4 +105,20 @@ void EventLoop::removeConnection(int fd) {
 				return s->getFd() == fd;
 			}),
 		_connections.end());
+}
+
+bool EventLoop::setReading(ASocket *socket, int op) const {
+	epoll_event event{};
+	event.events = EPOLLIN | EPOLLHUP | EPOLLERR | EPOLLRDHUP;
+	event.data.ptr = socket;
+	return epoll_ctl(_epollFd, op, socket->getFd(), &event) != -1;
+}
+
+bool EventLoop::setWriting(ASocket *socket, int op) const {
+	epoll_event event{};
+	event.events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP;
+	event.data.ptr = socket;
+	bool result = (epoll_ctl(_epollFd, op, socket->getFd(), &event) != -1);
+	std::cout << "setWriting fd=" << socket->getFd() << " result=" << result << " errno=" << strerror(errno) << "\n";
+	return result;
 }

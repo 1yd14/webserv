@@ -6,13 +6,14 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 13:25:23 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/11 14:22:21 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Connection.hpp"
 #include "EventLoop.hpp"
 #include <ctime>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <iostream>
 #include <sys/types.h>
@@ -38,10 +39,12 @@ State Connection::getState() {
 time_t Connection::getLastActivity() const {
 	return _lastActivity;
 }
+//this function needs to check if everything is read or if more needs to be read to change the epoll event that triggers waking up from EPOLLIN TO EPOLLOUT
 
 void Connection::handleRead(EventLoop &loop) {
 	char buffer[4096];
 	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);
+	std::cout << "recv returned: " << bytes << "\n";
 	if (bytes == 0) {
 		loop.removeConnection(getFd());
 		return;
@@ -53,12 +56,14 @@ void Connection::handleRead(EventLoop &loop) {
 	_readBuffer.append(buffer, bytes);
 	if (_readBuffer.find("\r\n\r\n") != std::string::npos) {
 		// full request received, ready to process
-		std::cout << _readBuffer << std::endl;
+		//std::cout << _readBuffer << std::endl;
 		_writeBuffer = "HTTP/1.1 200 OK\r\n"
 			"Content-Length: 13\r\n"
 			"\r\n"
 			"Hello, World!";
+		std::cout << "switching to WRITING, buffer size=" << _writeBuffer.size() << "\n";
 		_state = WRITING;
+		loop.setWriting(this, EPOLL_CTL_MOD);
 	}
 }
 
@@ -72,6 +77,7 @@ void Connection::handleWrite(EventLoop &loop) {
 	_writeBuffer.erase(0, bytes);
 	if (_writeBuffer.empty()) {
 		_state = READING;
+		loop.setReading(this, EPOLL_CTL_MOD);
 	}
 }
 
@@ -81,7 +87,7 @@ void Connection::handleEvent(EventLoop &loop) {
 	if (_state == READING) {
 		handleRead(loop);
 	}
-	if (_state == WRITING) {
+	else if (_state == WRITING) {
 		handleWrite(loop);
 	}
 	(void)_server;

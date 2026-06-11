@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 17:03:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 10:48:14 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/11 13:56:15 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "server_setup/ListeningSocket.hpp"
 #include "Signals/signals.hpp"
 
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         std::cerr << "Usage: ./webserver <config_file>" << std::endl;
@@ -25,7 +26,6 @@ int main(int argc, char *argv[]) {
 
     Config conf(argv[1]);
     std::vector<Server> servers = conf.getServers();
-	
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 	signal(SIGPIPE, SIG_IGN);
