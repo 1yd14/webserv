@@ -6,7 +6,7 @@
 #    By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/04 17:30:11 by lyvan-de         ###   ########.fr        #
+#    Updated: 2026/06/10 10:32:17 by lyvan-de         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,10 @@ SRC = src/main.cpp \
 	  src/Config/LocationBlock.cpp \
 	  src/Config/Server.cpp \
 	  src/server_setup/ASocket.cpp \
-	  src/server_setup/ListeningSocket.cpp
+	  src/server_setup/ListeningSocket.cpp \
+	  src/Connection/Connection.cpp \
+	  src/Connection/EventLoop.cpp \
+	  src/Signals/signals.cpp
 
 TEST_SRC = tests/test_parser.cpp \
            src/common/HttpRequest.cpp \
