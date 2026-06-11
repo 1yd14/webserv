@@ -1,29 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ListeningSocket.hpp                                :+:      :+:    :+:   */
+/*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/01 17:56:26 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 10:37:13 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/06/10 13:19:45 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "ASocket.hpp"
+#include "../server_setup/ASocket.hpp"
 #include "../Config/Server.hpp"
+#include <ctime>
 
-class EventLoop; 
+enum State { READING, WRITING, CLOSING };
 
-class ListeningSocket : public ASocket {
+class Connection : public ASocket {
 	private:
-	const Server& _server;
-
+	const Server&	_server;
+	std::string		_readBuffer;
+	std::string		_writeBuffer;
+	State			_state;
+	time_t			_lastActivity;
+	
 	public:
-	ListeningSocket(const Server& server);
-	void bindSocket();
-	void listenSocket();
+	Connection(int fd, const Server& server);
+	~Connection();
+	void setState(State newState);
+	State getState();
+	time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
+	void handleRead(EventLoop &loop);
+	void handleWrite(EventLoop &loop);
 };

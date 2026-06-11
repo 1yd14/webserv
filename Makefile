@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/09 16:09:42 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/06/11 16:06:30 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,10 @@ TEST_VALIDATOR_SRC = tests/test_validator.cpp \
 				src/Config/LocationBlock.cpp \
 				src/Config/Server.cpp \
 	 			src/server_setup/ASocket.cpp \
-	  			src/server_setup/ListeningSocket.cpp
+	  			src/server_setup/ListeningSocket.cpp \
+	  src/Connection/Connection.cpp \
+	  src/Connection/EventLoop.cpp \
+	  src/Signals/signals.cpp
 
 TEST_HTTP_PIPELINE_SRC = tests/test_http_pipeline.cpp \
                 src/common/HttpRequest.cpp \

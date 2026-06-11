@@ -1,29 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ListeningSocket.hpp                                :+:      :+:    :+:   */
+/*   signals.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/01 17:56:26 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 10:37:13 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/10 10:21:36 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/06/10 10:38:46 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "signals.hpp"
+#include <iostream>
 
-#include "ASocket.hpp"
-#include "../Config/Server.hpp"
+volatile sig_atomic_t g_sig_val = 0;
 
-class EventLoop; 
-
-class ListeningSocket : public ASocket {
-	private:
-	const Server& _server;
-
-	public:
-	ListeningSocket(const Server& server);
-	void bindSocket();
-	void listenSocket();
-	void handleEvent(EventLoop &loop) override;
-};
+void signalHandler(int sigVal) {
+	(void) sigVal;
+	g_sig_val = 1;
+}
