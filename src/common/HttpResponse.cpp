@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:45:17 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 15:50:42 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/10 12:54:46 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Utils.hpp"
 #include <map>
 #include <string>
-
+#include <iostream>
 
 
 HttpResponse::HttpResponse()

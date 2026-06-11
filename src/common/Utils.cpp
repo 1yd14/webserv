@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 18:00:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/10 12:46:03 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <climits>
 #include <cstddef>
 #include <string>
+#include <iostream>
 
 
 // Removes leading and trailing whitespace (\r, \n, \t, space) from a string
@@ -50,15 +51,19 @@ int	compareStr(const std::string& str1 , const std::string& str2 )
 
 const LocationBlock* findMatchingLocation(const std::string& target, const Server& server)
 {
-	const auto& locationBlocks = server.getLocationBlocks();
-	for (const auto& location : locationBlocks)
-	{
-		if (target.find(location.getPath()) == 0)
-		{
-			return &location;
-		}
-	}
-	return nullptr;
+	const LocationBlock* best = nullptr;
+    size_t bestLen = 0;
+    
+    for (const auto& location : server.getLocationBlocks())
+    {
+        const std::string& path = location.getPath();
+        if (target.find(path) == 0 && path.length() > bestLen)
+        {
+            best = &location;
+            bestLen = path.length();
+        }
+    }
+    return best;
 }
 
 std::map<std::string, std::string> parseHeaders(const std::string& headerStr)

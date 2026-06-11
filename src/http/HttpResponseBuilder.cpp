@@ -6,12 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/08 13:22:01 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/10 15:11:45 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponseBuilder.hpp"
 #include "../common/Utils.hpp"
+#include "CGiHandler.hpp"
 #include <array>
 #include <ctime>
 #include <filesystem>
@@ -28,8 +29,17 @@ HttpResponseBuilder::~HttpResponseBuilder(){};
 HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const &server, RouteType routeType )
 {
 	HttpResponse response;
-
-	buildProtocol(request,response);
+	
+	response.setProtocol("HTTP/1.1");
+	if (request.getStatusCode() != HttpStatus::OK )
+	{
+		response.setStatus(request.getStatusCode());
+		// buildProtocol(request,response);
+		buildHeader(request, response);
+		return  response;
+	}
+	response.setStatus(request.getStatusCode());
+	// buildProtocol(request,response);
 	buildBody(request, response, server, routeType);
 	buildHeader(request, response);
 
@@ -38,6 +48,7 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 
 void HttpResponseBuilder::buildProtocol(const HttpRequest& request,HttpResponse& response)
 {
+	// TO BE DELETED
 	response.setProtocol(request.getProtocol());
 };
 
@@ -99,8 +110,8 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 		case RouteType::DIRECTORY_LISTING:
 			manageDirectory(response, request, path);
 			break;
-		// case RouteType::CGI:
-		//     manageCGI(response, request, server);
+		case RouteType::CGI:
+		    CGIHanlder::execute(request, server, response);
 			break;
 		default:
 			manageErrorPage(response, server);
@@ -110,7 +121,17 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 
 void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path)
 {
-		std::ifstream file(path);
+		std::string filePath = path;
+
+		if (std::filesystem::is_directory(filePath))
+		{
+			if (filePath.back() != '/')
+			{
+				filePath += "/";
+			}
+			filePath += "index.html";
+		}		
+		std::ifstream file(filePath);
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::NOT_FOUND);
@@ -119,6 +140,7 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 		std::string body((std::istreambuf_iterator<char>(file)),
 						  std::istreambuf_iterator<char>());
 		response.setBody(body);
+		response.setStatus(HttpStatus::OK);
 		file.close();
 }
 void HttpResponseBuilder::manageDelete(HttpResponse& response, const std::string& path)

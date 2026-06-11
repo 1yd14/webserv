@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 17:11:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/10 12:57:25 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -31,12 +30,12 @@ void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpR
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 	if (block == nullptr)
 		{
+			std::cout << "MARKER!\n";
 			response.setStatus(HttpStatus::NOT_FOUND);
 			return;	
 		}
 	const std::string scriptPath = (block->getRoot().has_value() ? block->getRoot().value() + request.getTarget() : server.getRoot() + request.getTarget());
 	std::string extention = (block->getCgiExtension().has_value() ? block->getCgiExtension().value() : "");
-	std::cout << "MARKER! ='" << extention << "'\n";
 	std::string interpreter;
 	if (extention == ".py")
 	{

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 17:03:42 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/10 14:49:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,25 +23,30 @@
 std::string processRequest(const std::string& rawRequest, const Server& server)
 {
 	HttpRequest request;
-
 	HttpParser parser;
-
+	HttpResponseBuilder builder;
+	
 	request = parser.parseHttp(rawRequest);
+	
+	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
+	{
+		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
+		return response.serlialize();
+	}
 	HttpValidator validator;
 	
 	HttpStatus status = validator.validate(request, server.getMaxBodySize());
-
-	if (status != HttpStatus::OK && status != HttpStatus::CONTINUE)
+	
+	if (status != HttpStatus::OK)
 	{
-		// do i need to do something here ?
+
+		std::cout << "checking status !='" << (int)request.getStatusCode() << "\n";
+		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
+		return response.serlialize();
 	}
 	Router router;
 	const RouteType routeType = router.route(request, server);
-	
-	HttpResponseBuilder builder;
 	HttpResponse response = builder.build(request, server, routeType);
 
-	CGIHanlder::execute(request, server, response);
-	
 	return response.serlialize();
 };
