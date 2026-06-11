@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 14:22:21 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/06/11 16:22:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <sys/types.h>
+#include "../http/HttpPipeline.hpp"
 
 
 Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)) {
@@ -55,12 +56,7 @@ void Connection::handleRead(EventLoop &loop) {
 	}
 	_readBuffer.append(buffer, bytes);
 	if (_readBuffer.find("\r\n\r\n") != std::string::npos) {
-		// full request received, ready to process
-		//std::cout << _readBuffer << std::endl;
-		_writeBuffer = "HTTP/1.1 200 OK\r\n"
-			"Content-Length: 13\r\n"
-			"\r\n"
-			"Hello, World!";
+		_writeBuffer = processRequest(_readBuffer, _server);
 		std::cout << "switching to WRITING, buffer size=" << _writeBuffer.size() << "\n";
 		_state = WRITING;
 		loop.setWriting(this, EPOLL_CTL_MOD);
