@@ -1,20 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.cpp                                        :+:      :+:    :+:   */
+/*   HttpPipeline.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/10 10:21:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 16:10:42 by rmhazres         ###   ########.fr       */
+/*   Created: 2026/06/09 14:37:11 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/09 14:40:15 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "signals.hpp"
+#pragma once
+#include <string>
+#include "../Config/Server.hpp"
 
-volatile sig_atomic_t g_sig_val = 0;
+std::string processRequest(const std::string& rawRequest, const Server& server);
 
-void signalHandler(int sigVal) {
-	(void) sigVal;
-	g_sig_val = 1;
-}

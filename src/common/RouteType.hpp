@@ -1,20 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.cpp                                        :+:      :+:    :+:   */
+/*   RouteType.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/10 10:21:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 16:10:42 by rmhazres         ###   ########.fr       */
+/*   Created: 2026/06/03 12:38:23 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/04 15:06:53 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "signals.hpp"
+#pragma once
 
-volatile sig_atomic_t g_sig_val = 0;
-
-void signalHandler(int sigVal) {
-	(void) sigVal;
-	g_sig_val = 1;
-}
+enum class RouteType{
+		STATIC_FILE,
+    	UPLOAD,
+    	DELETE_FILE,
+    	CGI,
+    	DIRECTORY_LISTING,
+    	NOT_FOUND,
+		REDIRECT
+};

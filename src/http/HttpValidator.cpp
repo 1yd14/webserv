@@ -1,0 +1,174 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpValidator.cpp                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/09 14:48:00 by rmhazres         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "./HttpValidator.hpp"
+#include <cctype>
+#include <cstddef>
+#include <string>
+HttpValidator::HttpValidator()= default;
+HttpValidator::~HttpValidator(){};
+
+
+// Main entry point to the validator
+HttpStatus HttpValidator::validate(HttpRequest& request, size_t max_size) const
+{
+	HttpStatus status;
+	
+	status = HttpStatus::OK;
+	status = isValidMethod(request);
+	if (status != HttpStatus::OK)
+	{
+		request.setStatusCode(status);
+		return status;
+	}
+	status = isValidTarget(request);
+	if (status != HttpStatus::OK)
+	{
+		request.setStatusCode(status);
+		return status;
+	}
+	status = isValidProtocol(request);
+	{
+		if (status != HttpStatus::OK)
+		{
+			request.setStatusCode(status);
+			return status;
+		}
+	}
+	status = isValidHeader(request);
+	{
+		if (status != HttpStatus::OK)
+		{
+			request.setStatusCode(status);
+			return  status;
+		}
+	}
+	status = isValidBody(request, max_size);
+	{
+		if (status != HttpStatus::OK)
+		{
+			request.setStatusCode(status);
+			return status;
+		}
+	}
+	return status;
+};
+
+HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
+{
+	const std::string method = request.getMethod();
+	
+	if (method == "GET" || method == "POST" || method == "DELETE")
+	{
+		return HttpStatus::OK;
+	}
+	for (const auto &cha : method)
+	{
+		if (isupper(cha) ==  0)
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+	}
+	return HttpStatus::METHOD_NOT_ALLOWED;
+}
+
+HttpStatus HttpValidator::isValidTarget(const HttpRequest& request)
+{
+	std::string target = request.getTarget();
+	
+	if (target.empty() || !target.starts_with('/'))
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+	return unsafeCharCheck(target);
+}
+
+HttpStatus HttpValidator::unsafeCharCheck(const std::string& target)
+{
+	const std::string unsafe = "<>#%{}|\\^~[] ";
+
+	for (const auto &cha : unsafe)
+	{
+		if (target.find(cha) != std::string::npos)
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+	}
+	size_t found = target.find("..");
+	if (found != std::string::npos)
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+	return HttpStatus::OK;
+}
+
+HttpStatus HttpValidator::isValidProtocol(const HttpRequest& request)
+{
+	const std::string protocol = request.getProtocol();
+	
+	if (protocol.empty())
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+	
+	if (protocol.compare(0,5, "HTTP/") != 0)
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+		
+	if (protocol != "HTTP/1.0" && protocol != "HTTP/1.1")
+	{
+		return HttpStatus::HTTP_VERSION_NOT_SUPPOERTED;
+	}
+	return HttpStatus::OK;
+}
+
+HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
+{
+	std::map<std::string, std::string> header = request.getHeader();
+	
+	if (request.getProtocol().ends_with("1"))
+	{
+		if(!header.contains("host") || header.at("host").empty())
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+	}
+	if (request.getMethod() == "POST")
+	{
+		if(!header.contains("content-length") || header.at("content-length").empty())
+		{
+			return HttpStatus::LENGTH_REQUIRED;
+		}
+	}
+	return HttpStatus::OK;
+}
+HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size)
+{
+	if(request.getMethod() != "POST")
+	{
+		return HttpStatus::OK;
+	}
+	if (request.getContentLength() == -1)
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
+	if (request.getBody().length() != (size_t)request.getContentLength())
+	{		
+		return HttpStatus::BAD_REQUEST;
+	}
+	if(request.getBody().length() > max_size)
+	{
+		return HttpStatus::PAYLOAD_TOO_LARGE;
+	}
+	return HttpStatus::OK;
+}

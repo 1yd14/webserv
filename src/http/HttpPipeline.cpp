@@ -1,0 +1,53 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpPipeline.cpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/11 10:52:18 by rmhazres         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "./HttpPipeline.hpp"
+#include "../common/HttpRequest.hpp"
+#include "./HttpParser.hpp"
+#include "CGiHandler.hpp"
+#include "HttpValidator.hpp"
+#include "Router.hpp"
+#include "HttpResponseBuilder.hpp"
+
+#include <iostream>
+
+std::string processRequest(const std::string& rawRequest, const Server& server)
+{
+	HttpRequest request;
+	HttpParser parser;
+	HttpResponseBuilder builder;
+	
+	request = parser.parseHttp(rawRequest);
+	
+	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
+	{
+		
+		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
+		return response.serlialize();
+	}
+	HttpValidator validator;
+	
+	HttpStatus status = validator.validate(request, server.getMaxBodySize());
+	
+	if (status != HttpStatus::OK)
+	{
+		
+		std::cout << "checking status !='" << (int)request.getStatusCode() << "\n";
+		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
+		return response.serlialize();
+	}
+	Router router;
+	const RouteType routeType = router.route(request, server);
+	HttpResponse response = builder.build(request, server, routeType);
+
+	return response.serlialize();
+};

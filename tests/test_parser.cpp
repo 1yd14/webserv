@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 10:42:19 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/05/21 13:22:24 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/05/22 11:23:50 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,46 +15,35 @@
 #include <string>
 #include "../src/common/HttpRequest.hpp"
 #include "../src/http/HttpParser.hpp"
-
-
-void assert_equal_str(const std::string &expected, const std::string &actual, const std::string &label)
-{
-	if(expected == actual)
-	{
-		std::cout << "[PASSED] " << label << "\n";		
-	}
-	else 
-	{
-		std::cout << "[FAILED] " << label << " - expected: " << expected << " 'got: " << actual <<"'\n";
-	}
-}
-void assert_equal_int(int expected, int actual, const std::string &label)
-{
-	if(expected == actual)
-	{
-		std::cout << "[PASSED] " << label << "\n";		
-	}
-	else 
-	{
-		std::cout << "[FAILED] " << label << " - expected: " << expected << " 'got: " << actual <<"'\n";
-	}
-}
+#include "./test_utils.hpp"
 
 void test_valid_get_request()
 {
-	// Arrange
+	std::cout << "=================testing valid get request====================\n";
 	HttpParser parser;
 	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
-	// Act 
 	HttpRequest req = parser.parseHttp(raw);
-	// Assert
 	assert_equal_str("GET", req.getMethod(), "GET");
 	assert_equal_str("/index.html", req.getTarget(), "target");
 	assert_equal_str("HTTP/1.1", req.getProtocol(), "protocol");
-}
+	assert_equal_int( 0,(int)req.getStatusCode(), "Code");
 
+}
+void test_valid_post_request()
+{
+	std::cout << "=================testing valid post request====================\n";
+
+	HttpParser parser;
+	std::string raw = "POST /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+	HttpRequest req = parser.parseHttp(raw);
+	assert_equal_str("POST", req.getMethod(), "POST");
+	assert_equal_str("/index.html", req.getTarget(), "target");
+	assert_equal_str("HTTP/1.1", req.getProtocol(), "protocol");
+}
 void test_empty_request()
 {
+	std::cout << "=================testing empty request====================\n";
+
 	HttpParser parser;
 	std::string raw;
 	HttpRequest req = parser.parseHttp(raw);
@@ -63,20 +52,48 @@ void test_empty_request()
 
 void test_missing_first_line()
 {
+	std::cout << "=================testing missing first line====================\n";
+
 	HttpParser parser;
-	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r";
+	std::string raw = "GET /index.html HTTP/1.1\r\nHost: localhost";
 	
 	HttpRequest req = parser.parseHttp(raw);
 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)req.getStatusCode(), "missing first line");
-	
 }
 
-//Todo - test the parser with blocking code
 
+void test_post_with_content()
+{
+	std::cout << "=================testing post with content====================\n";
+	
+	HttpParser parser;
+	std::string raw ="GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n field1=value1&field2=value2";
+
+	HttpRequest req = parser.parseHttp(raw);
+	assert_equal_str("field1=value1&field2=value2", req.getBody(), "post with content");
+}
+//this doesnt make sens
+// void test_with_missing_parts()
+// {
+// 	std::cout << "=================testing missing some parts ====================\n";	
+// 	HttpParser parser;
+// 	std::string raw ="GET/index.html HTTP/1.1\r\nHost: localhost\r\n\r\n field1=value1&field2=value2";
+
+// 	HttpRequest req = parser.parseHttp(raw);
+// 	assert_equal_int((int)HttpStatus::BAD_REQUEST, (int)req.getStatusCode(), "missing parts");
+
+
+// }
 int main()
 {
 	test_valid_get_request();
 	test_empty_request();
 	test_missing_first_line();
-	return 0;	
+	test_valid_post_request();
+	// test_multiple_headers();
+	test_post_with_content();
+	// test_with_missing_parts();
+
+
+	return 0;
 }

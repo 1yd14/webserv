@@ -1,20 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signals.cpp                                        :+:      :+:    :+:   */
+/*   Router.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/10 10:21:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 16:10:42 by rmhazres         ###   ########.fr       */
+/*   Created: 2026/06/03 12:42:30 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/06/03 12:51:25 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "signals.hpp"
+#pragma once
 
-volatile sig_atomic_t g_sig_val = 0;
+#include "../common/RouteType.hpp"
+#include "../Config/Server.hpp"
+#include "../common/HttpRequest.hpp"
 
-void signalHandler(int sigVal) {
-	(void) sigVal;
-	g_sig_val = 1;
-}
+class Router
+{
+	public:
+						Router() = default;
+						~Router() = default;
+						Router(const Router &other) = delete;
+						Router& operator=(const Router &other) = delete;
+[[nodiscard]]			RouteType route(const HttpRequest& request, const Server &server) const;
+	private:
+};
