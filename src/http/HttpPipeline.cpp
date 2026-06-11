@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/10 14:49:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/11 10:52:18 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
+		
 		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
 		return response.serlialize();
 	}
@@ -39,7 +40,7 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	
 	if (status != HttpStatus::OK)
 	{
-
+		
 		std::cout << "checking status !='" << (int)request.getStatusCode() << "\n";
 		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
 		return response.serlialize();

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 15:12:47 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/10 16:36:40 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/11 14:48:21 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     Config conf(argv[1]);
     std::vector<Server> servers = conf.getServers();
 
-	std::string raw = "   / HT5TP/1.1\r\nHost: localhost\r\n\r\n";
+	std::string raw = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 10\r\n\r\nhelloworld";
 	
 	std::cout << processRequest(raw, servers[0]) << std::endl;
 	

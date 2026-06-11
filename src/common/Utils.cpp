@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/10 12:46:03 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/11 15:29:59 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,19 +51,24 @@ int	compareStr(const std::string& str1 , const std::string& str2 )
 
 const LocationBlock* findMatchingLocation(const std::string& target, const Server& server)
 {
-	const LocationBlock* best = nullptr;
-    size_t bestLen = 0;
+	// const LocationBlock* best = nullptr;
+    // size_t bestLen = 0;
     
     for (const auto& location : server.getLocationBlocks())
     {
         const std::string& path = location.getPath();
-        if (target.find(path) == 0 && path.length() > bestLen)
-        {
-            best = &location;
-            bestLen = path.length();
-        }
+        // if (target.find(path) == 0 && path.length() > bestLen)
+        // {
+        //     best = &location;
+        //     bestLen = path.length();
+        // }
+		if(path == target)
+		{
+			std::cout << "location =" << location.getUploadDir().has_value() << "\n"; 
+			return &location;
+		}
     }
-    return best;
+     return nullptr;
 }
 
 std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
