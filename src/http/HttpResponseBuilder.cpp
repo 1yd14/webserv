@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 12:36:33 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 15:35:48 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,6 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	return response;
 };
 
-void HttpResponseBuilder::buildProtocol(const HttpRequest& request,HttpResponse& response)
-{
-	// TO BE DELETED
-	response.setProtocol(request.getProtocol());
-};
 
 void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& response)
 {		
@@ -87,19 +82,22 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
 	const std::string path = server.getRoot() + request.getTarget();
+
 	switch (routeType)
 	{
 		case RouteType::STATIC_FILE:
 			manageStatic(response, path);
 			break;
 		case RouteType::DELETE_FILE:
-			manageDelete(response, path);
+			manageDelete(response, *block, request.getTarget());
 			break;
 		case RouteType::UPLOAD:
 			if(block != nullptr)
 			{
 				manageUpload(response, request, *block);
-			}else {
+			}
+			else 
+			{
 				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			}
 			break;
@@ -108,7 +106,8 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			{
 				manageRedirect(response, *block);
 			}
-			else{
+			else
+			{
 				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			}
 			break;
@@ -123,10 +122,9 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			{
 				CGIHanlder::execute(request, server, response, *block);
 			}
-			else {
+			else 
 			{
 				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
-			}
 			}
 			break;
 		default:
@@ -160,9 +158,13 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 		response.setStatus(HttpStatus::OK);
 		file.close();
 }
-void HttpResponseBuilder::manageDelete(HttpResponse& response, const std::string& path)
+void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target)
 {
-	std::cout << "path in delete =" << path <<"\n";
+	std::string path;
+	if(block.getUploadDir().has_value())
+	{
+		path = "./" + block.getUploadDir().value() + target;
+	}
 	int status = std::remove(path.c_str());
 	if (status != 0)
 	{

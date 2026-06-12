@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 12:10:16 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 16:47:26 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
-
+#include <iostream>
 
 void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpResponse& response, const LocationBlock& block)
 {
@@ -30,9 +30,13 @@ void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpR
 	std::string extention;
 	std::string interpreter;
 
+	
 	if (block.getRoot().has_value())
 	{
-		scriptPath = block.getRoot().value() + request.getTarget();
+		std::string target = request.getTarget();
+		std::string locationPath = block.getPath();
+		std::string relative = target.substr(locationPath.size());
+		scriptPath = block.getRoot().value() + relative;
 		
 	}else {
 		scriptPath =  server.getRoot() + request.getTarget();
@@ -91,7 +95,7 @@ void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& 
 	argv.push_back(const_cast<char*>(scriptPath.c_str()));
 	argv.push_back(nullptr);
 	int status;
-
+	
 	if (pipe(pipe_in.data()) < 0)
 	{
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
@@ -164,6 +168,7 @@ void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& respons
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		return;
 	}
+	std::cout << " oputput " << output << "\n";
 	response.setHeader(parseHeaders(output.substr(0,separator)));
 	response.setBody(output.substr(separator+4));
 	

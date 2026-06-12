@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/11 10:52:18 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 15:56:11 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 #include "HttpValidator.hpp"
 #include "Router.hpp"
 #include "HttpResponseBuilder.hpp"
-
-#include <iostream>
 
 std::string processRequest(const std::string& rawRequest, const Server& server)
 {
@@ -32,7 +30,7 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	{
 		
 		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
-		return response.serlialize();
+		return response.serialize();
 	}
 	HttpValidator validator;
 	
@@ -40,14 +38,12 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	
 	if (status != HttpStatus::OK)
 	{
-		
-		std::cout << "checking status !='" << (int)request.getStatusCode() << "\n";
 		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
-		return response.serlialize();
+		return response.serialize();
 	}
 	Router router;
 	const RouteType routeType = router.route(request, server);
 	HttpResponse response = builder.build(request, server, routeType);
 
-	return response.serlialize();
+	return response.serialize();
 };

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 12:36:49 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 14:23:19 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,8 @@ const LocationBlock* findMatchingLocation(const std::string& target, const Serve
     for (const auto& location : server.getLocationBlocks())
     {
         const std::string& path = location.getPath();
-        if (target.find(path) == 0 && path.length() > bestLen)
+        if (target.compare(0, path.size(), path) == 0 &&
+    	(target.size() == path.size() || target[path.size()] == '/'))
         {
             best = &location;
             bestLen = path.length();
