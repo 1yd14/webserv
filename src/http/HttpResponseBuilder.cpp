@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/11 15:30:42 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 12:36:33 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,18 +29,17 @@ HttpResponseBuilder::~HttpResponseBuilder(){};
 HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const &server, RouteType routeType )
 {
 	HttpResponse response;
-	
+	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
+
 	response.setProtocol("HTTP/1.1");
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE )
 	{
 		response.setStatus(request.getStatusCode());
-		// buildProtocol(request,response);
 		buildHeader(request, response);
 		return  response;
 	}
 	response.setStatus(HttpStatus::OK);
-	// buildProtocol(request,response);
-	buildBody(request, response, server, routeType);
+	buildBody(request, response, server, routeType, block);
 	buildHeader(request, response);
 	return response;
 };
@@ -85,7 +84,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 	}
 }
 
-void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType)
+void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
 	const std::string path = server.getRoot() + request.getTarget();
 	switch (routeType)
@@ -97,10 +96,21 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			manageDelete(response, path);
 			break;
 		case RouteType::UPLOAD:
-			manageUpload(response, request, server);
+			if(block != nullptr)
+			{
+				manageUpload(response, request, *block);
+			}else {
+				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+			}
 			break;
 		case RouteType::REDIRECT:
-			manageRedirect(response, request, server);
+			if (block != nullptr)
+			{
+				manageRedirect(response, *block);
+			}
+			else{
+				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+			}
 			break;
 		case RouteType::NOT_FOUND:
 			manageErrorPage(response, server);
@@ -109,7 +119,15 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			manageDirectory(response, request, path);
 			break;
 		case RouteType::CGI:
-		    CGIHanlder::execute(request, server, response);
+			if(block != nullptr)
+			{
+				CGIHanlder::execute(request, server, response, *block);
+			}
+			else {
+			{
+				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+			}
+			}
 			break;
 		default:
 			manageErrorPage(response, server);
@@ -129,6 +147,7 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 			}
 			filePath += "index.html";
 		}		
+		std::cout << "manage static " << path<< " \n";
 		std::ifstream file(filePath);
 		if(!file.is_open())
 		{
@@ -153,17 +172,13 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const std::string
 	response.setStatus(HttpStatus::NO_CONTENT);
 }
 
-void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpRequest& request, const Server& server)
+void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpRequest& request, const LocationBlock& block)
 {
-	const LocationBlock *block = findMatchingLocation(request.getTarget(), server);
-	
-	std::cout << "Marker! " << block->getUploadDir().has_value() << "\n";
-	if (block != nullptr && block->getUploadDir().has_value())
+	if (block.getUploadDir().has_value())
 	{
 		std::string filename = std::filesystem::path(request.getTarget()).filename();
-		std::ofstream file(block->getUploadDir().value() + "/" + filename);
-		// std::ofstream file( "./www/uploads/" + filename);
-		std::cout << "file name is ="<< filename << "\n"; 
+		std::ofstream file("./" + block.getUploadDir().value() + "/" + filename);
+		std::cout << "file name is ="<< block.getUploadDir().value() + "/" + filename << "\n"; 
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
@@ -174,18 +189,17 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 		response.setStatus(HttpStatus::CREATED);
 		return;		
 	}
-	response.setStatus(HttpStatus::NOT_FOUND);
+	response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 }
 
-void HttpResponseBuilder::manageRedirect(HttpResponse& response, const HttpRequest& request, const Server& server)
+void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationBlock& block )
 {
-	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
-		if (block != nullptr)
-			{
-				response.setStatus((HttpStatus)block->getRedirectCode().value());
-				response.setHeader("Location", block->getRedirectUrl().value());
-				return;
-			}
+		if (block.getRedirectCode().has_value() && block.getRedirectUrl().has_value())
+		{
+			response.setStatus((HttpStatus)block.getRedirectCode().value());
+			response.setHeader("Location", block.getRedirectUrl().value());
+			return;
+		}
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 }
 void HttpResponseBuilder::manageErrorPage(HttpResponse& response, const Server& server)

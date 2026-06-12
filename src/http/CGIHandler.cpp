@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/10 12:57:25 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 12:10:16 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
@@ -25,18 +24,23 @@
 #include <sys/wait.h>
 
 
-void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpResponse& response)
+void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpResponse& response, const LocationBlock& block)
 {
-	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
-	if (block == nullptr)
-		{
-			std::cout << "MARKER!\n";
-			response.setStatus(HttpStatus::NOT_FOUND);
-			return;	
-		}
-	const std::string scriptPath = (block->getRoot().has_value() ? block->getRoot().value() + request.getTarget() : server.getRoot() + request.getTarget());
-	std::string extention = (block->getCgiExtension().has_value() ? block->getCgiExtension().value() : "");
+	std::string scriptPath;
+	std::string extention;
 	std::string interpreter;
+
+	if (block.getRoot().has_value())
+	{
+		scriptPath = block.getRoot().value() + request.getTarget();
+		
+	}else {
+		scriptPath =  server.getRoot() + request.getTarget();
+	}
+	if (block.getCgiExtension().has_value())
+	{
+		extention = block.getCgiExtension().value();
+	}
 	if (extention == ".py")
 	{
 		interpreter = "/usr/bin/python3";
@@ -149,7 +153,6 @@ void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& 
 		close(pipe_out[0]);
 		waitpid(pid, &status, 0);
 	}
-	
 }
 
 void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response)

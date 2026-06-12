@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/11 15:29:59 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 12:36:49 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,43 +32,21 @@ std::string trim(const std::string &str)
 	return str.substr(start, (end- start + 1));
 }
 
-//Compare case-insensative strings
-int	compareStr(const std::string& str1 , const std::string& str2 )
-{
-	if (str1.length() != str2.length())
-	{
-		return -1;
-	}
-	for (size_t i = 0; i < str1.length(); i++)
-	{
-		if(std::tolower(str2[i]) !=  std::tolower(str1[i]))
-		{
-			return  -1;
-		}
-	}
-	return 0;
-}
-
 const LocationBlock* findMatchingLocation(const std::string& target, const Server& server)
 {
-	// const LocationBlock* best = nullptr;
-    // size_t bestLen = 0;
+	const LocationBlock* best = nullptr;
+    size_t bestLen = 0;
     
     for (const auto& location : server.getLocationBlocks())
     {
         const std::string& path = location.getPath();
-        // if (target.find(path) == 0 && path.length() > bestLen)
-        // {
-        //     best = &location;
-        //     bestLen = path.length();
-        // }
-		if(path == target)
-		{
-			std::cout << "location =" << location.getUploadDir().has_value() << "\n"; 
-			return &location;
-		}
+        if (target.find(path) == 0 && path.length() > bestLen)
+        {
+            best = &location;
+            bestLen = path.length();
+        }
     }
-     return nullptr;
+    return best;
 }
 
 std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
