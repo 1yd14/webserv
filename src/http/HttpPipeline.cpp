@@ -6,14 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 15:56:11 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/22 13:22:05 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./HttpPipeline.hpp"
 #include "../common/HttpRequest.hpp"
 #include "./HttpParser.hpp"
-#include "CGiHandler.hpp"
 #include "HttpValidator.hpp"
 #include "Router.hpp"
 #include "HttpResponseBuilder.hpp"
@@ -34,7 +33,7 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	}
 	HttpValidator validator;
 	
-	HttpStatus status = validator.validate(request, server.getMaxBodySize());
+	HttpStatus status = validator.validate(request, server);
 	
 	if (status != HttpStatus::OK)
 	{

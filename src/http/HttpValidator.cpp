@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 14:48:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/22 11:57:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,16 @@
 #include <cctype>
 #include <cstddef>
 #include <string>
+#include <vector>
+#include <algorithm>
+#include "../common/Utils.hpp"
+
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
 
 
 // Main entry point to the validator
-HttpStatus HttpValidator::validate(HttpRequest& request, size_t max_size) const
+HttpStatus HttpValidator::validate(HttpRequest& request,const Server& server) const
 {
 	HttpStatus status;
 	
@@ -30,7 +34,7 @@ HttpStatus HttpValidator::validate(HttpRequest& request, size_t max_size) const
 		request.setStatusCode(status);
 		return status;
 	}
-	status = isValidTarget(request);
+	status = isValidTarget(request, server);
 	if (status != HttpStatus::OK)
 	{
 		request.setStatusCode(status);
@@ -52,7 +56,7 @@ HttpStatus HttpValidator::validate(HttpRequest& request, size_t max_size) const
 			return  status;
 		}
 	}
-	status = isValidBody(request, max_size);
+	status = isValidBody(request, server.getMaxBodySize());
 	{
 		if (status != HttpStatus::OK)
 		{
@@ -69,6 +73,7 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 	
 	if (method == "GET" || method == "POST" || method == "DELETE")
 	{
+		
 		return HttpStatus::OK;
 	}
 	for (const auto &cha : method)
@@ -81,15 +86,29 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 	return HttpStatus::METHOD_NOT_ALLOWED;
 }
 
-HttpStatus HttpValidator::isValidTarget(const HttpRequest& request)
+HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server& server)
 {
 	std::string target = request.getTarget();
 	
-	if (target.empty() || !target.starts_with('/'))
+	if (target.empty() || target[0] != '/')
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
-	return unsafeCharCheck(target);
+	if (unsafeCharCheck(target) == HttpStatus::BAD_REQUEST)
+	{
+		return  HttpStatus::BAD_REQUEST;
+	}
+	const LocationBlock* block = findMatchingLocation(target, server);
+	if (block != nullptr)
+	{
+		std::vector<std::string> methods = block->getMethods();
+		auto itt = std::find(methods.begin(), methods.end(),request.getMethod());
+		if (itt == methods.end())
+		{
+			return (HttpStatus::METHOD_NOT_ALLOWED);
+		}
+	}
+	return HttpStatus::OK;
 }
 
 HttpStatus HttpValidator::unsafeCharCheck(const std::string& target)

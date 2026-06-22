@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 14:23:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/22 13:21:58 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <climits>
 #include <cstddef>
 #include <string>
-#include <iostream>
 
 
 // Removes leading and trailing whitespace (\r, \n, \t, space) from a string

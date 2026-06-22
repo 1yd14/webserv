@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 16:41:07 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 10:26:09 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ class Server {
 	std::string getRoot() const;
 	std::string getIndex() const;
 	size_t getMaxBodySize() const;
-	std::map<int, std::string> getErrorPages() const;
-	std::vector<LocationBlock> getLocationBlocks() const;
+	const std::map<int, std::string>& getErrorPages() const;
+	const std::vector<LocationBlock>& getLocationBlocks() const;
 	void setPort(std::vector<std::string> values);
 	void setHost(std::vector<std::string> values);
 	void setRoot(std::vector<std::string> values);

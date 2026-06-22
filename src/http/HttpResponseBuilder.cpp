@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 15:35:48 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/22 13:41:22 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 
 	response.setProtocol("HTTP/1.1");
-	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE )
+	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
 		response.setStatus(request.getStatusCode());
 		buildHeader(request, response);
@@ -86,7 +86,7 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 	switch (routeType)
 	{
 		case RouteType::STATIC_FILE:
-			manageStatic(response, path);
+			manageStatic(response, path ,block, server);
 			break;
 		case RouteType::DELETE_FILE:
 			manageDelete(response, *block, request.getTarget());
@@ -112,6 +112,7 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			}
 			break;
 		case RouteType::NOT_FOUND:
+			response.setStatus(HttpStatus::NOT_FOUND);
 			manageErrorPage(response, server);
 			break;
 		case RouteType::DIRECTORY_LISTING:
@@ -133,7 +134,7 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 	}
 }
 
-void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path)
+void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path, const LocationBlock* block, const Server& server)
 {
 		std::string filePath = path;
 
@@ -143,9 +144,18 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 			{
 				filePath += "/";
 			}
-			filePath += "index.html";
-		}		
-		std::cout << "manage static " << path<< " \n";
+			if(block != nullptr && block->getIndex().has_value())
+			{
+				filePath += block->getIndex().value();
+			}
+			else if (!server.getIndex().empty())
+			{
+				filePath += server.getIndex();
+			}
+			else {
+				filePath += "index.html";
+			}
+		}
 		std::ifstream file(filePath);
 		if(!file.is_open())
 		{
@@ -163,7 +173,7 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlo
 	std::string path;
 	if(block.getUploadDir().has_value())
 	{
-		path = "./" + block.getUploadDir().value() + target;
+		path =  block.getUploadDir().value() + target;
 	}
 	int status = std::remove(path.c_str());
 	if (status != 0)
@@ -179,8 +189,7 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 	if (block.getUploadDir().has_value())
 	{
 		std::string filename = std::filesystem::path(request.getTarget()).filename();
-		std::ofstream file("./" + block.getUploadDir().value() + "/" + filename);
-		std::cout << "file name is ="<< block.getUploadDir().value() + "/" + filename << "\n"; 
+		std::ofstream file( block.getUploadDir().value() + "/" + filename);
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
