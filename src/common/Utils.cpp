@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/22 13:21:58 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/01 14:21:14 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <cctype>
 #include <climits>
 #include <cstddef>
+#include <iostream>
 #include <string>
 
 
@@ -128,9 +129,9 @@ std::string getReasonPhrase(HttpStatus status)
 		{
 			return "No Content";
 		}
-		case HttpStatus::MOVED_PERMANETLY:
+		case HttpStatus::MOVED_PERMANENTLY:
 		{
-			return "Moved Permanetly";
+			return "Moved Permanently";
 		}
 		case HttpStatus::FOUND:
 		{

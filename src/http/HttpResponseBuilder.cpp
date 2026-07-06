@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/22 13:41:22 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/01 14:19:52 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <map>
 #include <string>
@@ -41,6 +42,7 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	response.setStatus(HttpStatus::OK);
 	buildBody(request, response, server, routeType, block);
 	buildHeader(request, response);
+
 	return response;
 };
 
@@ -53,14 +55,13 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 		{
 			response.setHeader(itt->first, itt->second);
 		}
-	response.setHeader("Content-Length", std::to_string(response.getBody().length()));
-		
+	
 	std::time_t time = std::time(nullptr);
 	std::array<char, 100> mbstr;
 	std::strftime(mbstr.data(), sizeof(mbstr), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
 	response.setHeader("Date", std::string(mbstr.data()));
 	response.setHeader("Server", "WebServ");
-
+	
 	auto itt1 = headers.find("connection");
 	if (itt1 != headers.end())
 	{
@@ -77,6 +78,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 			response.setHeader("Connection", "close");
 		}
 	}
+
 }
 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
@@ -207,6 +209,7 @@ void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationB
 {
 		if (block.getRedirectCode().has_value() && block.getRedirectUrl().has_value())
 		{
+			std::cout << " block redirect url =" <<  block.getRedirectUrl().value()<< "\n";
 			response.setStatus((HttpStatus)block.getRedirectCode().value());
 			response.setHeader("Location", block.getRedirectUrl().value());
 			return;
