@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/22 11:57:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/01 12:21:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,10 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 	if (block != nullptr)
 	{
 		std::vector<std::string> methods = block->getMethods();
+		if (methods.empty())
+		{
+			return HttpStatus::OK;
+		}
 		auto itt = std::find(methods.begin(), methods.end(),request.getMethod());
 		if (itt == methods.end())
 		{
