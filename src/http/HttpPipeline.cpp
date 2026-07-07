@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 14:56:09 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 17:54:06 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,19 +30,23 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 		
 		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
 		return response.serialize();
+		return response.serialize();
 	}
 	HttpValidator validator;
 	
+	HttpStatus status = validator.validate(request, server);
 	HttpStatus status = validator.validate(request, server);
 	
 	if (status != HttpStatus::OK)
 	{
 		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
 		return response.serialize();
+		return response.serialize();
 	}
 	Router router;
 	const RouteType routeType = router.route(request, server);
 	HttpResponse response = builder.build(request, server, routeType);
 
+	return response.serialize();
 	return response.serialize();
 };
