@@ -21,4 +21,6 @@ Diagnostics:
       - modernize-use-starts-ends-with
       - readability-magic-numbers
       - modernize-use-ranges
-
+      - readability-identifier-length
+      - bugprone-easily-swappable-parameters
+      - modernize-use-emplace

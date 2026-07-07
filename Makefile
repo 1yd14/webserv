@@ -6,7 +6,7 @@
 #    By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/05/07 11:50:34 by lyvan-de          #+#    #+#              #
-#    Updated: 2026/06/11 16:12:39 by rmhazres         ###   ########.fr        #
+#    Updated: 2026/07/07 14:57:55 by rmhazres         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ SRC =			src/main.cpp \
 				src/Connection/Connection.cpp \
 				src/Connection/EventLoop.cpp \
 				src/http/CGIHandler.cpp \
+				src/http/CGIProcess.cpp \
 				src/http/HttpParser.cpp \
 				src/http/HttpPipeline.cpp \
 				src/http/HttpResponseBuilder.cpp \

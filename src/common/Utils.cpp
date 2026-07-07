@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/01 14:21:14 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 16:45:30 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <cctype>
 #include <climits>
 #include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <ios>
 #include <iostream>
 #include <string>
 
@@ -63,7 +66,11 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 		lineStart = pos;
 		pos = headerStr.find("\r\n", lineStart);
 		delim = headerStr.find(":", lineStart);
-		if (pos == std::string::npos || delim == std::string::npos || delim > pos )
+		if(pos == std::string::npos)
+		{
+			pos = headerStr.length();
+		}
+		if (delim == std::string::npos || delim > pos )
 		{
 			break;
 		}
@@ -176,4 +183,19 @@ std::string getReasonPhrase(HttpStatus status)
 		default:
 			return"Unknown";
 	}
+}
+
+size_t extractContentLength(const std::string& buffer)
+{
+	size_t num;
+	const auto& it = buffer.find("content-length:");
+	if (it != std::string::npos)
+	{
+		std::string sub = buffer.substr( it +15);
+		auto itt =  sub.find_first_of("\r\n");
+		num = std::stoul(trim(sub.substr(0,itt)));
+		return num;
+	}
+	return  0;
+	
 }

@@ -6,21 +6,19 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 12:50:57 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/12 15:54:24 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 14:54:34 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Router.hpp"
 #include <filesystem>
 #include <string>
-#include <iostream>
 
 #include "../common/Utils.hpp"
 
 RouteType Router::route(const HttpRequest& request, const Server &server) const
 {
 	const std::string target = request.getTarget();
-	std::cout << "REQUEST TARGET: " << request.getTarget() << std::endl;
 	const LocationBlock* block = findMatchingLocation(target, server);
 	if (block == nullptr)
 	{

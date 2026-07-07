@@ -6,59 +6,26 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/22 12:27:14 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 16:58:20 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./CGiHandler.hpp"
 #include "../common/Utils.hpp"
+#include "CGIProcess.hpp"
 
 #include <array>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <iostream>
 
-void CGIHanlder::execute(const HttpRequest& request, const Server& server, HttpResponse& response, const LocationBlock& block)
-{
-	std::string scriptPath;
-	std::string extention;
-	std::string interpreter;
-
-	
-	if (block.getRoot().has_value())
-	{
-		std::string target = request.getTarget();
-		std::string locationPath = block.getPath();
-		std::string relative = target.substr(locationPath.size());
-		scriptPath = block.getRoot().value() + relative;
-		
-	}else {
-		scriptPath =  server.getRoot() + request.getTarget();
-	}
-	if (block.getCgiExtension().has_value())
-	{
-		extention = block.getCgiExtension().value();
-	}
-	if (extention == ".py")
-	{
-		interpreter = "/usr/bin/python3";
-	} else if (extention == ".php") 
-	{
-		interpreter = "/usr/bin/php-cgi";
-	}
-	else {
-		response.setStatus(HttpStatus::NOT_IMPLEMENTED);
-		return;
-	}
-	std::vector<std::string> env = buildEnv(request, server);
-	executeCGI(interpreter,scriptPath, env, response, request.getBody());
-}
 
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
 {
@@ -85,38 +52,100 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
 	return env;
 };
 
-void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& scriptPath,const std::vector<std::string>& env, HttpResponse& response, const std::string& body)
+
+std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const Server& server)
 {
+	std::string scriptPath;
+	std::string extention;
+	std::string interpreter;
+	std::vector<std::string> argv;
+	const LocationBlock* block = findMatchingLocation(request.getTarget(),server);
+	if (block == nullptr)
+	{
+		return argv;
+	}
+	
+	if (block->getRoot().has_value())
+	{
+		std::string target = request.getTarget();
+		std::string locationPath = block->getPath();
+		std::string relative = target.substr(locationPath.size());
+		scriptPath = block->getRoot().value() + relative;
+		
+	}else {
+		scriptPath =  server.getRoot() + request.getTarget();
+	}
+	if (block->getCgiExtension().has_value())
+	{
+		extention = block->getCgiExtension().value();
+	}
+	if (extention == ".py")
+	{
+		interpreter = "/usr/bin/python3";
+	} else if (extention == ".php") 
+	{
+		interpreter = "/usr/bin/php-cgi";
+	}
+	else 
+	{
+		return argv; 
+	}
+	argv.push_back(interpreter);
+	argv.push_back(scriptPath);
+	return  argv;
+}
+
+HttpResponse CGIHanlder::buildError()
+{
+	HttpResponse errorResponse;
+	
+	errorResponse.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+	errorResponse.setProtocol("HTTP/1.1");
+	errorResponse.setHeader("Content-Length", "0");
+	return errorResponse;
+}
+
+void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventLoop& loop, Connection& connection)
+{
+	std::vector<std::string> env = buildEnv(request, server);
+	std::vector<std::string> argv = buildArgs(request, server);
+	
+	std::string errorResponse = buildError().serialize();
+	
+	if (argv.empty())
+	{
+		connection.setWriterBuffer(errorResponse);
+		connection.setState(WRITING);
+		return;
+	}
 	std::array<int, 2> pipe_in;
 	std::array<int, 2> pipe_out;
-	
-	std::vector<char*> argv;
-	argv.push_back(const_cast<char*>(interpreter.c_str()));
-	argv.push_back(const_cast<char*>(scriptPath.c_str()));
-	argv.push_back(nullptr);
-	int status;
-	
+
+
 	if (pipe(pipe_in.data()) < 0)
 	{
-		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		connection.setWriterBuffer(errorResponse);
+		connection.setState(WRITING);
 		return;
 	}
 	if (pipe(pipe_out.data()) < 0)
 	{
+		connection.setWriterBuffer(errorResponse);
+		connection.setState(WRITING);
 		close(pipe_in[0]);
 		close(pipe_in[1]);
-		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		return;
 	}
 
 	pid_t pid = fork();
 	if (pid < 0)
 	{
+		connection.setWriterBuffer(errorResponse);
+		connection.setState(WRITING);
 		close(pipe_in[0]);
 		close(pipe_in[1]);
 		close(pipe_out[0]);
 		close(pipe_out[1]);
-		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		return;
 	}
 	if (pid == 0)
@@ -134,8 +163,16 @@ void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& 
 			envp.push_back(const_cast<char*>(ett.c_str()));
 		}
 		envp.push_back(nullptr);
+
+		std::vector<char *> argvp;
+		for (const auto& ett:argv)
+		{
+			argvp.push_back(const_cast<char*>(ett.c_str()));
+		}
+		argvp.push_back(nullptr);
 		
-		execve(argv[0], const_cast<char* const*>(argv.data()), envp.data());
+		
+		execve(argvp[0], argvp.data(), envp.data());
 		exit(1);
 	}
 	else 
@@ -143,19 +180,10 @@ void CGIHanlder::executeCGI(const std::string& interpreter , const std::string& 
 		close(pipe_in[0]);
 		close(pipe_out[1]);
 		
-		write(pipe_in[1],body.c_str(),body.length());
+		write(pipe_in[1],request.getBody().c_str(),request.getBody().length());
 		close(pipe_in[1]);
 		
-		std::string output;
-		std::array<char, 4096> buffer;
-		ssize_t bytes;
-		while((bytes = read(pipe_out[0], buffer.data(), sizeof(buffer))) > 0)
-		{
-			output.append(buffer.data(), bytes);
-		}
-		parseCGIOutput(output, response);
-		close(pipe_out[0]);
-		waitpid(pid, &status, 0);
+		loop.addCgi(std::make_unique<CGIProcess>(pipe_out[0], pid, connection));
 	}
 }
 
@@ -163,15 +191,18 @@ void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& respons
 {
 	size_t separator = output.find("\r\n\r\n");
 	
+	response.setProtocol("HTTP/1.1");
+
 	if (separator == std::string::npos)
 	{
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 		return;
 	}
-	std::cout << " oputput " << output << "\n";
+
 	response.setHeader(parseHeaders(output.substr(0,separator)));
 	response.setBody(output.substr(separator+4));
-	
+	response.setStatus(HttpStatus::OK);
+	response.setHeader("content-length", std::to_string(response.getBody().length()));
 	const auto& header = response.getHeader();
 	auto itt = header.find("status");
 	if (itt != header.end())

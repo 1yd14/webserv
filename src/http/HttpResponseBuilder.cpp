@@ -6,13 +6,12 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/01 14:19:52 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 14:54:31 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponseBuilder.hpp"
 #include "../common/Utils.hpp"
-#include "CGiHandler.hpp"
 #include <array>
 #include <ctime>
 #include <filesystem>
@@ -121,14 +120,7 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 			manageDirectory(response, request, path);
 			break;
 		case RouteType::CGI:
-			if(block != nullptr)
-			{
-				CGIHanlder::execute(request, server, response, *block);
-			}
-			else 
-			{
-				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
-			}
+    		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			break;
 		default:
 			manageErrorPage(response, server);

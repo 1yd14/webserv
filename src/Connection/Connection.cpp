@@ -6,18 +6,23 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 16:22:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 15:04:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Connection.hpp"
 #include "EventLoop.hpp"
+#include <cstddef>
 #include <ctime>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <iostream>
 #include <sys/types.h>
 #include "../http/HttpPipeline.hpp"
+#include "../http/HttpParser.hpp"
+#include "../common/Utils.hpp"
+#include "../http/Router.hpp"
+#include "../http/CGiHandler.hpp"
 
 
 Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)) {
@@ -44,6 +49,8 @@ time_t Connection::getLastActivity() const {
 
 void Connection::handleRead(EventLoop &loop) {
 	char buffer[4096];
+	std::cout << "handleRead called\n";
+
 	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);
 	std::cout << "recv returned: " << bytes << "\n";
 	if (bytes == 0) {
@@ -55,12 +62,29 @@ void Connection::handleRead(EventLoop &loop) {
 		return;
 	}
 	_readBuffer.append(buffer, bytes);
-	if (_readBuffer.find("\r\n\r\n") != std::string::npos) {
+	size_t headerEnd = _readBuffer.find("\r\n\r\n");
+	if (headerEnd == std::string::npos) 
+	{
+		return;
+	}		
+	size_t totalExpected = headerEnd + 4 + extractContentLength(_readBuffer);
+	
+	if(_readBuffer.size() < totalExpected)
+	{
+		return;
+	}
+
+		HttpRequest request = HttpParser::parseHttp(_readBuffer);
+		Router router;
+		if (router.route(request,_server) == RouteType::CGI)
+		{
+			CGIHanlder::execute(request,_server, loop, *this);
+			return;
+		}
 		_writeBuffer = processRequest(_readBuffer, _server);
 		std::cout << "switching to WRITING, buffer size=" << _writeBuffer.size() << "\n";
 		_state = WRITING;
 		loop.setWriting(this, EPOLL_CTL_MOD);
-	}
 }
 
 void Connection::handleWrite(EventLoop &loop) {
@@ -89,3 +113,8 @@ void Connection::handleEvent(EventLoop &loop) {
 	(void)_server;
 }
 
+
+void Connection::setWriterBuffer(const std::string& data)
+{
+	_writeBuffer = data;
+}
