@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:04:24 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 15:07:58 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 13:23:32 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ class HttpResponse
 					void setHeader(const std::map<std::string, std::string>& value);
 					void setBody(const std::string &value);
 
-[[nodiscard]]		std::string serlialize() const;
+[[nodiscard]]		std::string serialize() const;
 	private:
 					std::string _protocol;
 					HttpStatus	_status_code;

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:41:39 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 09:46:53 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 11:36:31 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class CGIHanlder
 	public:
 		CGIHanlder() = delete;
 		
-		static void execute(const HttpRequest& request, const Server& server, HttpResponse& response);
+		static void execute(const HttpRequest& request, const Server& server, HttpResponse& response, const LocationBlock& block);
 	private:
 		static std::vector<std::string>buildEnv(const HttpRequest& request, const Server& server);
 		static void executeCGI(const std::string& interpreter , const std::string& scriptPath,const std::vector<std::string>& env, HttpResponse& response, const std::string& body);

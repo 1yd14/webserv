@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 16:49:47 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 10:26:03 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,11 @@ size_t Server::getMaxBodySize() const {
 	return (_max_body_size);
 }
 
-std::map<int, std::string> Server::getErrorPages() const {
+const std::map<int, std::string>& Server::getErrorPages() const {
 	return (_error_pages);
 }
 
-std::vector<LocationBlock> Server::getLocationBlocks() const {
+const std::vector<LocationBlock>& Server::getLocationBlocks() const{
 	return (_location_blocks);
 }
 

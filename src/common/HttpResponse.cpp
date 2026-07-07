@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 15:45:17 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/10 12:54:46 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/06/12 13:23:28 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void HttpResponse::setHeader(const std::map<std::string, std::string>&value){_he
 void HttpResponse::setStatus( HttpStatus value){ _status_code = value;}
 
 
-std::string HttpResponse::serlialize() const
+std::string HttpResponse::serialize() const
 {
 	std::string response;
 	
