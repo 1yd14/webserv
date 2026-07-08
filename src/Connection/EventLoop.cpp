@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 14:44:49 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/07 16:06:29 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include "../Signals/signals.hpp"
 #include "Connection.hpp"
 #include <array>
+#include <vector>
 
 #define MAX_EVENTS 1024
 #define TIMEOUT_MS 5000
@@ -52,6 +53,14 @@ void EventLoop::addConnection(std::unique_ptr<Connection> connection) {
 	}
 	_connections.push_back(std::move(connection));
 }
+void EventLoop::addCgi(std::unique_ptr<CGIProcess> cgiProcess)
+{
+	if (!setReading(cgiProcess.get(), EPOLL_CTL_ADD)) {
+		std::cerr << "epoll_ctl failed for connection: " << strerror(errno) << "\n";
+		return;
+	}
+	_cgiProcesses.push_back(std::move(cgiProcess));
+}
 
 void EventLoop::run() {
 	std::array<epoll_event, MAX_EVENTS> events;
@@ -78,8 +87,15 @@ void EventLoop::run() {
 		for (int i = 0; i < readyFds; ++i) {
 			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
 			if ((events[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) != 0) {
-				removeConnection(socket->getFd());
-				continue;
+				if (isCGIProcess(socket->getFd()))
+				{
+					socket->handleEvent(*this);
+					continue;
+				}
+				else {
+					removeConnection(socket->getFd());
+					continue;
+				}
 			}
 			socket->handleEvent(*this);
 		}
@@ -106,6 +122,17 @@ void EventLoop::removeConnection(int fd) {
 			}),
 		_connections.end());
 }
+void EventLoop::removeCGIProcess(int fd)
+{
+	std::cout << "removing cgi for fd: " << fd << std::endl;
+		epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
+	_cgiProcesses.erase(
+		std::remove_if(_cgiProcesses.begin(), _cgiProcesses.end(), 
+			[fd](const std::unique_ptr<CGIProcess> &s){
+				return s->getFd() == fd;
+			}),
+		_cgiProcesses.end());
+}
 
 bool EventLoop::setReading(ASocket *socket, int op) const {
 	epoll_event event{};
@@ -121,4 +148,16 @@ bool EventLoop::setWriting(ASocket *socket, int op) const {
 	bool result = (epoll_ctl(_epollFd, op, socket->getFd(), &event) != -1);
 	std::cout << "setWriting fd=" << socket->getFd() << " result=" << result << " errno=" << strerror(errno) << "\n";
 	return result;
+}
+
+bool EventLoop::isCGIProcess(int fd)
+{
+	for( auto&& process : _cgiProcesses)
+	{
+		if (process->getFd() == fd)
+		{
+			return true;
+		}
+	}
+	return false;
 }

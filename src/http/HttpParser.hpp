@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:23:49 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 10:03:02 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 14:51:28 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class HttpParser
 				~HttpParser();
 				HttpParser(const HttpParser &other) = delete;
 				HttpParser& operator=(const HttpParser &other) = delete;
-[[nodiscard]]	HttpRequest parseHttp(const std::string &rawRequest) const;
+[[nodiscard]]	static HttpRequest parseHttp(const std::string &rawRequest);
 
 	private:
 				static void extractFirstLine(const std::string &line, HttpRequest &req);

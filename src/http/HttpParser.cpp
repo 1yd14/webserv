@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/06/09 10:14:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/07 14:55:32 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ HttpParser::HttpParser() = default;
 HttpParser::~HttpParser(){};
 
 
-HttpRequest HttpParser::parseHttp(const std::string &rawRequest) const
+HttpRequest HttpParser::parseHttp(const std::string &rawRequest)
 {
 	HttpRequest request;
 
