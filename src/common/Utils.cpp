@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 17:52:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/08 17:39:16 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
-#include <ios>
 #include <iostream>
 #include <string>
 
@@ -44,7 +43,7 @@ const LocationBlock* findMatchingLocation(const std::string& target, const Serve
     {
         const std::string& path = location.getPath();
         if (target.compare(0, path.size(), path) == 0 &&
-    	(target.size() == path.size() || target[path.size()] == '/'))
+    	(path =="/" || target.size() == path.size() || target[path.size()] == '/'))
         {
             best = &location;
             bestLen = path.length();
@@ -179,6 +178,10 @@ std::string getReasonPhrase(HttpStatus status)
 		case HttpStatus::HTTP_VERSION_NOT_SUPPOERTED:
 		{
 			return "HTTP Version Not Supported";
+		}
+		case HttpStatus::FORBIDDEN:
+		{
+			return "Forbidden";
 		}
 		default:
 			return"Unknown";

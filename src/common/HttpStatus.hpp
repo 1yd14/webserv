@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/01 12:24:25 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/08 15:35:46 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ enum class HttpStatus {
 		MOVED_PERMANENTLY = 301,
 		FOUND = 302,
 		BAD_REQUEST = 400,
+		FORBIDDEN = 403,
 		NOT_FOUND = 404,
 		METHOD_NOT_ALLOWED = 405,
 		GONE = 410,

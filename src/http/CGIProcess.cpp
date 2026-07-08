@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 13:05:09 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 16:25:39 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/08 16:21:34 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,11 @@ CGIProcess::~CGIProcess(){}
 void CGIProcess::handleEvent(EventLoop &loop)
 {
 	std::array<char, 4096> buffer;
-
 	ssize_t state = read(getFd(), buffer.data(), sizeof(buffer));
-	std::cout <<"State is === '" << state << "\n";
+	
 	if (state == -1)
 	{
-		std::string errorResponse = CGIHanlder::buildError().serialize();
-
+		std::string errorResponse = CGIHanlder::buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
 		_connection.setWriterBuffer(errorResponse);
 		_connection.setState(WRITING);
 		loop.removeCGIProcess(getFd());
@@ -40,22 +38,14 @@ void CGIProcess::handleEvent(EventLoop &loop)
 	}
 	if ( state == 0)
 	{
-		
 		HttpResponse response;
 		waitpid(_pid, nullptr,0);
-
-
 		CGIHanlder::parseCGIOutput(_output, response);
-		std::cout << "Serialized: '" << response.serialize() << "'\n";
-
 		_connection.setWriterBuffer(response.serialize());
-
 		_connection.setState(WRITING);
 		loop.setWriting(&_connection, EPOLL_CTL_MOD);
 		loop.removeCGIProcess(getFd());
 		return;
-	}	
-
+	}
 	_output.append(buffer.data(), state);
-	
 }
