@@ -6,21 +6,25 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:59:03 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 17:11:25 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/08 18:06:01 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "ConfigParser.hpp"
+#include "PathUtils.hpp"
 #include "Server.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <stdexcept>
+#include <iostream>
 
 Config::Config(std::string filename) {
 	std::ifstream file(filename);
+	std::cout << PathUtils::getConfDir(filename) << std::endl;
 	if (!file) {
-		//handle error
+		throw std::runtime_error("config file cannot be opened");
 	}
 	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	std::istringstream stream(content);

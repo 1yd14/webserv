@@ -1,25 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   PathUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/08 17:55:44 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/07/08 13:39:57 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/07/08 17:53:26 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#include "PathUtils.hpp"
 
-#include "Server.hpp"
+std::string PathUtils::getConfDir(std::string &configPath) {
+	size_t pos = configPath.find_last_of('/');
+	if (pos == std::string::npos) {
+		return ".";
+	}
+	if (pos == 0) {
+		return "/";
+	}
+	return configPath.substr(0, pos);
+}
 
-class Config {
-	public:
-	Config (std::string filename);
-	std::vector<Server> getServers();
+//std::string PathUtils::normalizePath(std::string &path) {
 	
-	private:
-	std::vector<Server> _servers;
-	std::string			_configPath;
-};
+//}
