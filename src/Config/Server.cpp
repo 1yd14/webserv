@@ -3,19 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/12 10:26:03 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 16:27:05 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "LocationBlock.hpp"
+#include "PathUtils.hpp"
 #include <sstream>
 #include <stdexcept>
 
 #include <iostream>
+
+Server::Server() 
+    : _port(0),
+      _max_body_size(0),
+      _finalized(false) {}
 
 int Server::getPort() const {
 	return (_port);
@@ -45,6 +51,10 @@ const std::vector<LocationBlock>& Server::getLocationBlocks() const{
 	return (_location_blocks);
 }
 
+void Server::setConfigDirectory(std::string configPath) {
+	_configDirectory = configPath;
+}
+
 void Server::setPort(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("listen directive requires only one value");
@@ -71,7 +81,7 @@ void Server::setRoot(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("root directive requires at least one value");
 	}
-	_root = values[0];
+	_root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, values[0]));
 }
 
 void Server::setIndex(std::vector<std::string> values) {
@@ -118,10 +128,10 @@ void Server::setErrorPages(std::vector<std::string> values) {
 	if (code < 400 || code > 599) {
 		throw std::runtime_error("error_page: code must be 4xx or 5xx, got: " + values[0]);
 	}
-	_error_pages[code] = values[1];
+	_error_pages[code] = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, values[1]));
 }
 
-void Server::addLocation(LocationBlock location) {
+void Server::addLocation(const LocationBlock& location) {
 	_location_blocks.push_back(location);
 }
 

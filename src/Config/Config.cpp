@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:59:03 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/08 18:06:01 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/09 15:14:49 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@
 
 Config::Config(std::string filename) {
 	std::ifstream file(filename);
-	std::cout << PathUtils::getConfDir(filename) << std::endl;
+	std::string configPath = PathUtils::getConfDir(filename);
 	if (!file) {
 		throw std::runtime_error("config file cannot be opened");
 	}
 	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	std::istringstream stream(content);
-	_servers = ConfigParser::parseConfig(stream);
+	_servers = ConfigParser::parseConfig(stream, configPath);
 }
 
 std::vector<Server> Config::getServers() {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlock.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 14:58:51 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 16:50:05 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 class LocationBlock {
 	public:
+	LocationBlock();
 	std::string	getPath() const ;
 	std::vector<std::string> getMethods() const ;
 	std::optional<std::string>	getRoot() const ;
@@ -27,6 +28,7 @@ class LocationBlock {
 	std::optional<bool> getAutoIndex() const ;
 	std::optional<int>	getRedirectCode() const ;
 	std::optional<std::string>	getRedirectUrl() const ;
+	void setConfigDirectory(std::string configPath);
 	void setPath(std::string path);
 	void setMethods(std::vector<std::string> value);
 	void setRoot(std::vector<std::string> value);
@@ -42,6 +44,7 @@ class LocationBlock {
 	void freeze();
 
 	private:
+	std::string					_configDirectory;
 	std::string					_path;
 	std::vector<std::string>	_methods;
 	std::optional<std::string>	_root;
