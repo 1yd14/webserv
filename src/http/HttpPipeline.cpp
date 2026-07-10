@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpPipeline.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 17:54:06 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 13:23:44 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	}
 	HttpValidator validator;
 	
-	HttpStatus status = validator.validate(request, server);
 	HttpStatus status = validator.validate(request, server);
 	
 	if (status != HttpStatus::OK)

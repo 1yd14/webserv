@@ -6,11 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2026/07/07 15:04:38 by rmhazres         ###   ########.fr       */
-=======
-/*   Updated: 2026/07/10 12:56:20 by lyvan-de         ###   ########.fr       */
->>>>>>> b02d6d9 (removed print statements for debugging, also created a config_file directory to check if relative paths are working:)
+/*   Updated: 2026/07/10 13:21:39 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

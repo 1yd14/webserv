@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponseBuilder.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 17:54:35 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 16:09:47 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,7 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	HttpResponse response;
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 
-	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
-
 	response.setProtocol("HTTP/1.1");
-	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
 		response.setStatus(request.getStatusCode());

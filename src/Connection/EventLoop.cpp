@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2026/07/07 16:06:29 by rmhazres         ###   ########.fr       */
-=======
-/*   Updated: 2026/07/10 12:55:11 by lyvan-de         ###   ########.fr       */
->>>>>>> b02d6d9 (removed print statements for debugging, also created a config_file directory to check if relative paths are working:)
+/*   Updated: 2026/07/10 13:21:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
