@@ -1,27 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigParser.hpp                                   :+:      :+:    :+:   */
+/*   PathUtils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/07 12:59:25 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:52:13 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/07/08 13:40:04 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/07/09 16:42:45 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "Server.hpp"
+#include <string>
 
-
-class ConfigParser {
+class PathUtils {
 	public:
-	static std::vector<Server> parseConfig(std::istringstream& input, const std::string& configDirectory);
-
-	private:
-	static Server parseServer(std::istringstream& input, const std::string& configDirectory);
-	static LocationBlock	parseLocation(std::istringstream& input, const std::string& configDirectory);
-	static std::vector<std::string> readValues(std::istringstream& input);
+	static std::string getConfDir(std::string& configPath);
+	static std::string normalizePath(const std::string& path);
+	static std::string joinPath(const std::string& configPath, const std::string& path);
 };
-

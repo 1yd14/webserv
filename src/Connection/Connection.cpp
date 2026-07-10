@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/07 15:04:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 13:21:39 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,6 @@ void Connection::handleRead(EventLoop &loop) {
 			return;
 		}
 		_writeBuffer = processRequest(_readBuffer, _server);
-		std::cout << "switching to WRITING, buffer size=" << _writeBuffer.size() << "\n";
 		_state = WRITING;
 		loop.setWriting(this, EPOLL_CTL_MOD);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/07 16:06:29 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 13:21:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,15 +77,6 @@ void EventLoop::run() {
 		}
 		for (int i = 0; i < readyFds; ++i) {
 			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
-			std::cout << "fd=" << socket->getFd() 
-				<< " events=" << events[i].events
-				<< " EPOLLIN=" << (events[i].events & EPOLLIN)
-				<< " EPOLLHUP=" << (events[i].events & EPOLLHUP)
-				<< " EPOLLRDHUP=" << (events[i].events & EPOLLRDHUP)
-				<< "\n";
-		}
-		for (int i = 0; i < readyFds; ++i) {
-			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
 			if ((events[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) != 0) {
 				if (isCGIProcess(socket->getFd()))
 				{
@@ -146,7 +137,6 @@ bool EventLoop::setWriting(ASocket *socket, int op) const {
 	event.events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP;
 	event.data.ptr = socket;
 	bool result = (epoll_ctl(_epollFd, op, socket->getFd(), &event) != -1);
-	std::cout << "setWriting fd=" << socket->getFd() << " result=" << result << " errno=" << strerror(errno) << "\n";
 	return result;
 }
 
