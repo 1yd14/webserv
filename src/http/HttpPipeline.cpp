@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpPipeline.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/10 13:23:44 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:14:42 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "HttpValidator.hpp"
 #include "Router.hpp"
 #include "HttpResponseBuilder.hpp"
+#include <iostream>
 
 std::string processRequest(const std::string& rawRequest, const Server& server)
 {
@@ -30,7 +31,6 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 		
 		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
 		return response.serialize();
-		return response.serialize();
 	}
 	HttpValidator validator;
 	
@@ -39,13 +39,12 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	if (status != HttpStatus::OK)
 	{
 		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
-		return response.serialize();
+		response.setHeader("Connection", "close");
 		return response.serialize();
 	}
 	Router router;
 	const RouteType routeType = router.route(request, server);
 	HttpResponse response = builder.build(request, server, routeType);
 
-	return response.serialize();
 	return response.serialize();
 };

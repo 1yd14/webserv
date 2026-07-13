@@ -6,18 +6,18 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 17:52:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 15:09:29 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Utils.hpp"
 #include "HttpStatus.hpp"
+#include <algorithm>
 #include <cctype>
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
-#include <ios>
 #include <iostream>
 #include <string>
 
@@ -44,7 +44,7 @@ const LocationBlock* findMatchingLocation(const std::string& target, const Serve
     {
         const std::string& path = location.getPath();
         if (target.compare(0, path.size(), path) == 0 &&
-    	(target.size() == path.size() || target[path.size()] == '/'))
+    	(path =="/" || target.size() == path.size() || target[path.size()] == '/'))
         {
             best = &location;
             bestLen = path.length();
@@ -77,7 +77,6 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 		std::string key = headerStr.substr(lineStart, delim - lineStart);
 		std::string value;
 		
-		key = trim(key);
 		if (delim + 2 < pos)
 		{
 			value = trim(headerStr.substr(delim + 2, pos - (delim + 2)));
@@ -86,7 +85,13 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 		{
 			cha = (char)std::tolower(cha);	
 		}
-		header.insert({key, value});
+		if (header.contains(key) && header[key] != value)
+		{
+			header[key] = "DUPLICATE_CONFLICT";
+		}
+		else {
+			header.insert({key, value});
+		}
 		pos+=2;
 	}
 	return header;
@@ -94,6 +99,10 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 
 long safeConvertLong(const std::string& str)
 {
+	if(str.length() > 20)
+	{
+		return -1;
+	}
 	const int msize = 19;
 	if (str.empty())
 	{
@@ -180,6 +189,18 @@ std::string getReasonPhrase(HttpStatus status)
 		{
 			return "HTTP Version Not Supported";
 		}
+		case HttpStatus::FORBIDDEN:
+		{
+			return "Forbidden";
+		}
+		case HttpStatus::URI_TOO_LONG:
+		{
+			return "URI Too Long";
+		}
+		case HttpStatus::REQUEST_HEADER_LARGE:
+		{
+			return "Request Header Fields Too Large";
+		}
 		default:
 			return"Unknown";
 	}
@@ -198,4 +219,60 @@ size_t extractContentLength(const std::string& buffer)
 	}
 	return  0;
 	
+}
+
+std::string unchunkBody(const std::string &chunckedBody)
+{
+	std::string result;
+	std::string line;
+	size_t end;
+
+	size_t position = 0;
+	while (position != std::string::npos) 
+	{
+		end = chunckedBody.find("\r\n", position);
+		if (end == std::string::npos)
+		{
+			return result;
+		}
+		line = chunckedBody.substr(position, end -position);
+		size_t chunckSize = std::stoul(line, nullptr, 16);
+		if (chunckSize == 0)
+		{
+			return result;
+		}
+		result += chunckedBody.substr(end +2, chunckSize);
+		position = end + 2 + chunckSize + 2;
+	}
+	return result;
+}
+
+std::string getMimeType(const std::string& path)
+{
+	size_t pos = path.find_last_of(".");
+	if (pos == std::string::npos)
+	{
+		return "application/octet-stream";
+	}
+	std::string ext = path.substr(pos);
+	
+	std::map<std::string, std::string> mimeTypes = {
+		{".html", "text/html"},
+        {".css", "text/css"},
+        {".js", "application/javascript"},
+        {".jpg", "image/jpeg"},
+        {".jpeg", "image/jpeg"},
+        {".png", "image/png"},
+        {".gif", "image/gif"},
+        {".txt", "text/plain"},
+        {".pdf", "application/pdf"},
+        {".ico", "image/x-icon"},
+        {".py", "text/plain"}
+	};
+	auto it = mimeTypes.find(ext);
+	if (it != mimeTypes.end())
+	{
+		return it->second;
+	}
+	return "application/octet-stream";
 }

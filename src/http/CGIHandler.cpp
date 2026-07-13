@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 17:53:15 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 10:42:49 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <iostream>
 
 
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
@@ -86,6 +85,10 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 	{
 		interpreter = "/usr/bin/php-cgi";
 	}
+	else if (extention == ".bla")
+	{
+		interpreter = "/path/to/var/www/cgi-bin/cgi_test";
+	}
 	else 
 	{
 		return argv; 
@@ -95,11 +98,11 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 	return  argv;
 }
 
-HttpResponse CGIHanlder::buildError()
+HttpResponse CGIHanlder::buildError(const HttpStatus& status)
 {
 	HttpResponse errorResponse;
 	
-	errorResponse.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+	errorResponse.setStatus(status);
 	errorResponse.setProtocol("HTTP/1.1");
 	errorResponse.setHeader("Content-Length", "0");
 	return errorResponse;
@@ -109,29 +112,43 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 {
 	std::vector<std::string> env = buildEnv(request, server);
 	std::vector<std::string> argv = buildArgs(request, server);
-	
-	std::string errorResponse = buildError().serialize();
+	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
+
 	
 	if (argv.empty())
 	{
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
+		loop.setWriting(&connection, EPOLL_CTL_MOD);
 		return;
 	}
 	std::array<int, 2> pipe_in;
 	std::array<int, 2> pipe_out;
 
-
-	if (pipe(pipe_in.data()) < 0)
+	if (access(argv[1].c_str(), X_OK) != 0)
 	{
+   		errorResponse = buildError(HttpStatus::FORBIDDEN).serialize();
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
+		loop.setWriting(&connection, EPOLL_CTL_MOD);
+
+		return;
+	}
+	if (pipe(pipe_in.data()) < 0)
+	{
+
+		connection.setWriterBuffer(errorResponse);
+		connection.setState(WRITING);
+		connection.setState(WRITING);
+		loop.setWriting(&connection, EPOLL_CTL_MOD);
+
 		return;
 	}
 	if (pipe(pipe_out.data()) < 0)
 	{
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
+		loop.setWriting(&connection, EPOLL_CTL_MOD);
 		close(pipe_in[0]);
 		close(pipe_in[1]);
 		return;
@@ -142,6 +159,8 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 	{
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
+		loop.setWriting(&connection, EPOLL_CTL_MOD);
+
 		close(pipe_in[0]);
 		close(pipe_in[1]);
 		close(pipe_out[0]);

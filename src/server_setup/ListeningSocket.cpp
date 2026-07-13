@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 19:45:49 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/10 12:13:01 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/13 13:17:41 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,5 @@ void ListeningSocket::handleEvent(EventLoop &loop) {
 		std::cerr << "accept failed: " << strerror(errno) << "\n";
 		return;
 	}
-	std::cout << "New connection accepted, fd=" << clientFd << "\n";
 	loop.addConnection(std::make_unique<Connection>(clientFd, _server));
 }

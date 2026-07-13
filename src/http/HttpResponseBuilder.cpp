@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponseBuilder.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/10 16:09:47 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/13 15:10:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <iostream>
 #include <iterator>
 #include <map>
 #include <string>
 #include <bits/stdc++.h>
 #include <cstdio>
+#include <unistd.h>
 
 HttpResponseBuilder::HttpResponseBuilder() = default;
 HttpResponseBuilder::~HttpResponseBuilder(){};
@@ -42,7 +42,6 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	response.setStatus(HttpStatus::OK);
 	buildBody(request, response, server, routeType, block);
 	buildHeader(request, response);
-
 	return response;
 };
 
@@ -61,6 +60,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 	std::strftime(mbstr.data(), sizeof(mbstr), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
 	response.setHeader("Date", std::string(mbstr.data()));
 	response.setHeader("Server", "WebServ");
+	response.setHeader("Content-Length", std::to_string(response.getBody().length()));
 	
 	auto itt1 = headers.find("connection");
 	if (itt1 != headers.end())
@@ -84,6 +84,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
 	const std::string path = server.getRoot() + request.getTarget();
+
 
 	switch (routeType)
 	{
@@ -132,8 +133,17 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path, const LocationBlock* block, const Server& server)
 {
 		std::string filePath = path;
+		bool isDir = false;
 
-		if (std::filesystem::is_directory(filePath))
+		try {
+		  isDir = std::filesystem::is_directory(filePath);
+		}catch (const std::filesystem::filesystem_error&) {
+			response.setStatus(HttpStatus::NOT_FOUND);
+			manageErrorPage(response, server);
+    		return;
+		}
+
+		if (isDir)
 		{
 			if (filePath.back() != '/')
 			{
@@ -155,12 +165,19 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::NOT_FOUND);
+			manageErrorPage(response,server);
 			return ;
+		}
+		if (access(filePath.c_str(), R_OK) != 0)
+		{
+ 			response.setStatus(HttpStatus::FORBIDDEN);
+    		return;
 		}
 		std::string body((std::istreambuf_iterator<char>(file)),
 						  std::istreambuf_iterator<char>());
 		response.setBody(body);
 		response.setStatus(HttpStatus::OK);
+		response.setHeader("content-type", getMimeType(filePath));
 		file.close();
 }
 void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target)
@@ -169,6 +186,16 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlo
 	if(block.getUploadDir().has_value())
 	{
 		path =  block.getUploadDir().value() + target;
+	}
+	if (path.empty())
+	{
+		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	if (access(path.c_str(), W_OK) != 0)
+	{
+		response.setStatus(HttpStatus::FORBIDDEN);
+		return;
 	}
 	int status = std::remove(path.c_str());
 	if (status != 0)
@@ -184,6 +211,11 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 	if (block.getUploadDir().has_value())
 	{
 		std::string filename = std::filesystem::path(request.getTarget()).filename();
+		if(access(block.getUploadDir().value().c_str(), W_OK) != 0)
+		{
+			response.setStatus(HttpStatus::FORBIDDEN);
+			return;
+		}
 		std::ofstream file( block.getUploadDir().value() + "/" + filename);
 		if(!file.is_open())
 		{
@@ -202,7 +234,6 @@ void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationB
 {
 		if (block.getRedirectCode().has_value() && block.getRedirectUrl().has_value())
 		{
-			std::cout << " block redirect url =" <<  block.getRedirectUrl().value()<< "\n";
 			response.setStatus((HttpStatus)block.getRedirectCode().value());
 			response.setHeader("Location", block.getRedirectUrl().value());
 			return;
@@ -236,7 +267,16 @@ void HttpResponseBuilder::manageDirectory(HttpResponse& response, const HttpRequ
 {
 	std::string html = "<html><body><h1>Index of " + request.getTarget() + "</h1><ul>";
 
-	if(std::filesystem::is_directory(path))
+	bool isDir = false;
+
+	try {
+	isDir = std::filesystem::is_directory(path);
+	} catch (const std::filesystem::filesystem_error&) {
+	 	response.setStatus(HttpStatus::NOT_FOUND);
+   		// manageErrorPage(response, server);
+    	return;
+	}
+	if(isDir)
 	{
 		for (const auto& entry :std::filesystem::directory_iterator(path))
 		{

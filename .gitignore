@@ -5,3 +5,5 @@ test_http_pipeline
 test_parser
 test_validator
 tester
+.gitmodules
+tests_framework

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/01 12:21:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:01:33 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <vector>
 #include <algorithm>
 #include "../common/Utils.hpp"
+#include <iostream>
 
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
@@ -70,11 +71,15 @@ HttpStatus HttpValidator::validate(HttpRequest& request,const Server& server) co
 HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 {
 	const std::string method = request.getMethod();
-	
 	if (method == "GET" || method == "POST" || method == "DELETE")
 	{
-		
 		return HttpStatus::OK;
+	}
+	if (method == "OPTIONS" || method == "PUT" ||
+		 method == "TRACE" || method == "PATCH" || method == "CONNECT" || method == "HEAD")
+	{
+		
+    	return HttpStatus::NOT_IMPLEMENTED;
 	}
 	for (const auto &cha : method)
 	{
@@ -83,13 +88,17 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-	return HttpStatus::METHOD_NOT_ALLOWED;
+	return HttpStatus::BAD_REQUEST;
 }
 
 HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server& server)
 {
 	std::string target = request.getTarget();
 	
+	if(target.length() > 2048)
+	{
+		return HttpStatus::URI_TOO_LONG;
+	}
 	if (target.empty() || target[0] != '/')
 	{
 		return HttpStatus::BAD_REQUEST;
@@ -106,7 +115,9 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 		{
 			return HttpStatus::OK;
 		}
-		auto itt = std::find(methods.begin(), methods.end(),request.getMethod());
+		std::string methodToCheck = request.getMethod() == "HEAD" ? "GET" : request.getMethod();
+
+		auto itt = std::find(methods.begin(), methods.end(),methodToCheck);
 		if (itt == methods.end())
 		{
 			return (HttpStatus::METHOD_NOT_ALLOWED);
@@ -157,18 +168,42 @@ HttpStatus HttpValidator::isValidProtocol(const HttpRequest& request)
 
 HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 {
-	std::map<std::string, std::string> header = request.getHeader();
-	
-	if (request.getProtocol().ends_with("1"))
+	std::map<std::string, std::string> headers = request.getHeader();
+
+	for (const auto& header : headers)
 	{
-		if(!header.contains("host") || header.at("host").empty())
+		if (header.first.find(" ") != std::string::npos || header.first.empty())
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+		if (header.first.length() > 256 || header.second.length() > 4096)
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+		if (header.first == "content-length")
+		{
+			if(header.second == "DUPLICATE_CONFLICT")
+			{
+				return  HttpStatus::BAD_REQUEST;
+			}
+			if (safeConvertLong(header.second) < 0 )
+			{
+				return HttpStatus::BAD_REQUEST;
+			}
+		}
+		
+	}
+	
+	if (request.getProtocol() == "HTTP/1.1")
+	{
+		if(headers.find("host") == headers.end() || headers.at("host").empty())
 		{
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
 	if (request.getMethod() == "POST")
 	{
-		if(!header.contains("content-length") || header.at("content-length").empty())
+		if(!headers.contains("content-length") || headers.at("content-length").empty())
 		{
 			return HttpStatus::LENGTH_REQUIRED;
 		}

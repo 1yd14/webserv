@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/10 13:21:39 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/13 16:50:50 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "EventLoop.hpp"
 #include <cstddef>
 #include <ctime>
+#include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <iostream>
@@ -26,10 +27,7 @@
 
 
 Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)) {
-	_writeBuffer = "HTTP/1.1 200 OK\r\n"
-			"Content-Length: 13\r\n"
-			"\r\n"
-			"Hello, World!";
+
 }
 
 Connection::~Connection() {}
@@ -47,46 +45,125 @@ time_t Connection::getLastActivity() const {
 }
 //this function needs to check if everything is read or if more needs to be read to change the epoll event that triggers waking up from EPOLLIN TO EPOLLOUT
 
-void Connection::handleRead(EventLoop &loop) {
+void Connection::handleRead(EventLoop& loop)
+{
 	char buffer[4096];
-	std::cout << "handleRead called\n";
-
-	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);
-	std::cout << "recv returned: " << bytes << "\n";
-	if (bytes == 0) {
-		loop.removeConnection(getFd());
-		return;
-	}
-	if (bytes == -1) {
-		loop.removeConnection(getFd());
-		return;
-	}
-	_readBuffer.append(buffer, bytes);
-	size_t headerEnd = _readBuffer.find("\r\n\r\n");
-	if (headerEnd == std::string::npos) 
-	{
-		return;
-	}		
-	size_t totalExpected = headerEnd + 4 + extractContentLength(_readBuffer);
 	
-	if(_readBuffer.size() < totalExpected)
+	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);
+	if (bytes <= 0)
+	{
+		loop.removeConnection(getFd());
+		return;
+	}
+	
+	_readBuffer.append(buffer,bytes);
+	  if (_readBuffer.size() > 8192 && _readBuffer.find("\r\n\r\n") == std::string::npos)
+    {
+
+        _pendingError = "HTTP/1.1 414 URI Too Long\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+        _state = ERROR_PENDING;
+        _readBuffer.clear();
+        return;
+    }
+	
+	if (_state == ERROR_PENDING)
+	{
+		handleErrorPending(loop);
+		return;		
+	}
+	if (!isRequestComplete())
 	{
 		return;
 	}
+	std::string requestToParse = prepareRequest();
+ 	std::cout << "==============REQUEST================" << std::endl;
+	std::cout << requestToParse << std::endl;
+	std::cout << "==============================" << std::endl;
+	
+	dispatch(requestToParse, loop);
+	std::cout << "==============RESPONSE================" << std::endl;
+	std::cout << _writeBuffer << std::endl;
+	std::cout << "==============================" << std::endl;
+ 	
+}
 
-		HttpRequest request = HttpParser::parseHttp(_readBuffer);
-		Router router;
-		if (router.route(request,_server) == RouteType::CGI)
-		{
-			CGIHanlder::execute(request,_server, loop, *this);
-			return;
-		}
-		_writeBuffer = processRequest(_readBuffer, _server);
+bool Connection::isRequestComplete()
+{
+	size_t headerEnd = _readBuffer.find("\r\n\r\n");
+	if (headerEnd == std::string::npos)
+	{
+		return false;
+	}
+	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
+	{
+		return  _readBuffer.find("0\r\n\r\n") != std::string::npos || _readBuffer.find("0\r\n") != std::string::npos;
+	}
+	size_t contentLength = extractContentLength(_readBuffer);
+	return  _readBuffer.size() >= headerEnd + 4 + contentLength;
+}
+
+void Connection::handleErrorPending(EventLoop& loop)
+{
+	_lastActivity = time(nullptr); 
+	if (_readBuffer.find("\r\n\r\n") != std::string::npos)
+	{
+		_writeBuffer = _pendingError;
+		_readBuffer.clear();
 		_state = WRITING;
 		loop.setWriting(this, EPOLL_CTL_MOD);
+	}
+	else {
+		_readBuffer.clear();
+	}
+}
+
+std::string Connection::prepareRequest()
+{
+	size_t headerEnd = _readBuffer.find("\r\n\r\n");
+	size_t totalExpected;
+	if (_readBuffer.find("Transfer-Encoding: chuncked") != std::string::npos)
+	{
+		totalExpected = _readBuffer.find("0\r\n\r") + 5;
+	}
+	else
+	{
+		totalExpected = headerEnd + 4 + extractContentLength(_readBuffer);
+	}
+	std::string requestToParse = _readBuffer.substr(0, totalExpected);
+	_readBuffer.erase(0, totalExpected);
+	
+	if(requestToParse.find("Transfer-Encoding: chuncked") != std::string::npos)
+	{
+		size_t bodyStart = requestToParse.find("\r\n\r\n") + 4;
+		std::string unchuncked = unchunkBody(requestToParse.substr(bodyStart));
+		requestToParse = requestToParse.substr(0, bodyStart) + unchuncked;
+	}
+	return  requestToParse;
+}
+
+void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
+{
+
+	HttpRequest request = HttpParser::parseHttp(requestToParse);
+	Router router;
+	if (router.route(request, _server) == RouteType::CGI)
+	{
+		CGIHanlder::execute(request,_server, loop, *this);
+		return;
+	}
+	_writeBuffer = processRequest(requestToParse, _server);
+	
+	if (_writeBuffer.find("Connection: close") != std::string::npos || 
+		_writeBuffer.find("connection: close") != std::string::npos)
+		{
+			_shouldClose = true;
+		}
+	_state = WRITING;
+	loop.setWriting(this, EPOLL_CTL_MOD);
 }
 
 void Connection::handleWrite(EventLoop &loop) {
+
 	ssize_t bytes = send(getFd(), _writeBuffer.c_str(), _writeBuffer.size(), 0);
 	if (bytes == -1) {
 		loop.removeConnection(getFd());
@@ -94,9 +171,16 @@ void Connection::handleWrite(EventLoop &loop) {
 	}
 	_lastActivity = time(nullptr);
 	_writeBuffer.erase(0, bytes);
-	if (_writeBuffer.empty()) {
-		_state = READING;
-		loop.setReading(this, EPOLL_CTL_MOD);
+	if (_writeBuffer.empty())
+	{
+		if (_shouldClose)
+		{
+			loop.removeConnection(getFd());
+		}
+		else {
+			_state = READING;
+			loop.setReading(this, EPOLL_CTL_MOD);
+		}
 	}
 }
 
