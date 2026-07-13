@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/12 10:26:09 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 16:26:51 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 class Server {
 	public:
+	Server();
 	int getPort() const;
 	std::string	getHost() const;
 	std::string getRoot() const;
@@ -28,16 +29,18 @@ class Server {
 	size_t getMaxBodySize() const;
 	const std::map<int, std::string>& getErrorPages() const;
 	const std::vector<LocationBlock>& getLocationBlocks() const;
+	void setConfigDirectory(std::string configPath);
 	void setPort(std::vector<std::string> values);
 	void setHost(std::vector<std::string> values);
 	void setRoot(std::vector<std::string> values);
 	void setIndex(std::vector<std::string> values);
 	void setMaxBodySize(std::vector<std::string> values);
 	void setErrorPages(std::vector<std::string> values);
-	void addLocation(LocationBlock location);
+	void addLocation(const LocationBlock& location);
 	void finalize();
 
 	private:
+	std::string					_configDirectory;
 	int							_port;
 	std::string					_host;
 	std::string					_root;

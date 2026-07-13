@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 17:03:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/11 13:56:15 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/08 18:05:40 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,14 @@ int main(int argc, char *argv[]) {
         std::cerr << "Usage: ./webserver <config_file>" << std::endl;
         return 1;
     }
-
-    Config conf(argv[1]);
-    std::vector<Server> servers = conf.getServers();
+	std::vector<Server> servers;
+	try {
+	    Config conf(argv[1]);
+		servers = conf.getServers();
+	} catch (const std::exception& e) {
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 	signal(SIGPIPE, SIG_IGN);

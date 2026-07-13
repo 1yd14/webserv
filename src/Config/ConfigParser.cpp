@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/04 14:59:01 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 16:52:38 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,11 @@ std::vector<std::string> ConfigParser::readValues(std::istringstream& input) {
     return values;
 }
 
-LocationBlock ConfigParser::parseLocation(std::istringstream &input) {
+LocationBlock ConfigParser::parseLocation(std::istringstream &input, const std::string& configDirectory) {
 	LocationBlock result;
 	std::string word;
 
+	result.setConfigDirectory(configDirectory);
 	if (!(input>>word)) {
 		throw std::runtime_error("expected location path");
 	};
@@ -79,10 +80,11 @@ LocationBlock ConfigParser::parseLocation(std::istringstream &input) {
 	return result;
 }
 
-Server ConfigParser::parseServer(std::istringstream& input) {
+Server ConfigParser::parseServer(std::istringstream& input, const std::string& configDirectory) {
 	Server result;
 	std::string word;
-
+	
+	result.setConfigDirectory(configDirectory);
     using Setter = void (Server::*)(std::vector<std::string>);
     const std::map<std::string, Setter> dispatch = {
         { "listen",        &Server::setPort        },
@@ -98,7 +100,7 @@ Server ConfigParser::parseServer(std::istringstream& input) {
 			break ;
 		}
 		if (word == "location") {
-			result.addLocation(parseLocation(input));
+			result.addLocation(parseLocation(input, configDirectory));
 			continue ;
 		}
 		std::vector<std::string> values = readValues(input);
@@ -114,7 +116,7 @@ Server ConfigParser::parseServer(std::istringstream& input) {
 	return result;
 }
 
-std::vector<Server> ConfigParser::parseConfig(std::istringstream& input) {
+std::vector<Server> ConfigParser::parseConfig(std::istringstream& input, const std::string& configDirectory) {
 	std::vector<Server> result;
 	std::string word;
 	
@@ -122,11 +124,11 @@ std::vector<Server> ConfigParser::parseConfig(std::istringstream& input) {
 		if (word == "server") {
 			std::string next;
 			if (input >> next && next == "{") {
-				result.push_back(parseServer(input));
+				result.push_back(parseServer(input, configDirectory));
 			}
 		}
 		else if (word == "server{"){
-			result.push_back(parseServer(input));
+			result.push_back(parseServer(input, configDirectory));
 		}
 	}
 	return result;

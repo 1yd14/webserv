@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 12:40:08 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 10:20:08 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,19 @@
 #include <algorithm>
 #include <stdexcept>
 #include <set>
+#include "PathUtils.hpp"
+
+LocationBlock::LocationBlock()
+:     _root(std::nullopt),
+	  _index(std::nullopt),
+	  _upload_dir(std::nullopt),
+	  _cgi_extension(std::nullopt),
+      _autoindex(std::nullopt),
+      _redirect_code(std::nullopt),
+      _redirect_url(std::nullopt),
+      _finalized(false)
+{
+}
 
 std::string	LocationBlock::getPath() const {
 	return (_path);
@@ -49,6 +62,10 @@ std::optional<int>	LocationBlock::getRedirectCode() const {
 
 std::optional<std::string>	LocationBlock::getRedirectUrl() const {
 	return (_redirect_url);
+}
+
+void LocationBlock::setConfigDirectory(std::string configPath) {
+	_configDirectory = configPath;
 }
 
 void LocationBlock::setPath(std::string path) {
@@ -94,11 +111,11 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 	if (values[0].empty()) {
 	    throw std::runtime_error("root cannot be empty");
 	}
-	_root = values[0];
+	_root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, values[0]));
 }
 
 void LocationBlock::setResolvedRoot(std::string root) {
-	_root = root;
+	_root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, root));;
 }
 
 void LocationBlock::setIndex(std::vector<std::string> values) {
@@ -125,10 +142,7 @@ void LocationBlock::setUploadDir(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("upload_dir directive requires exactly one value");
 	}
-	if (values[0][0] != '/') {
-	    throw std::runtime_error("path must be absolute");
-	}
-	_upload_dir = values[0];
+	_upload_dir = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, values[0]));
 }
 
 void LocationBlock::setCgiExtension(std::vector<std::string> values) {
