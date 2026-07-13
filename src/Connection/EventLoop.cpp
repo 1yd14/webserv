@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/07 16:06:29 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 14:12:30 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,15 +75,15 @@ void EventLoop::run() {
 			//hanlde the error
 			continue;
 		}
-		for (int i = 0; i < readyFds; ++i) {
-			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
-			std::cout << "fd=" << socket->getFd() 
-				<< " events=" << events[i].events
-				<< " EPOLLIN=" << (events[i].events & EPOLLIN)
-				<< " EPOLLHUP=" << (events[i].events & EPOLLHUP)
-				<< " EPOLLRDHUP=" << (events[i].events & EPOLLRDHUP)
-				<< "\n";
-		}
+		// for (int i = 0; i < readyFds; ++i) {
+		// 	auto* socket = static_cast<ASocket*>(events[i].data.ptr);
+		// 	std::cout << "fd=" << socket->getFd() 
+		// 		<< " events=" << events[i].events
+		// 		<< " EPOLLIN=" << (events[i].events & EPOLLIN)
+		// 		<< " EPOLLHUP=" << (events[i].events & EPOLLHUP)
+		// 		<< " EPOLLRDHUP=" << (events[i].events & EPOLLRDHUP)
+		// 		<< "\n";
+		// }
 		for (int i = 0; i < readyFds; ++i) {
 			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
 			if ((events[i].events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) != 0) {

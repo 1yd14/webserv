@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 12:56:01 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/06 15:15:44 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 17:25:11 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "../Connection/Connection.hpp"
 #include "../Connection/EventLoop.hpp"
 
+class Connection;
 class CGIProcess : public ASocket
 {
 	public:

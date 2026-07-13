@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 15:58:23 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 10:42:49 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,10 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 	} else if (extention == ".php") 
 	{
 		interpreter = "/usr/bin/php-cgi";
+	}
+	else if (extention == ".bla")
+	{
+		interpreter = "/path/to/var/www/cgi-bin/cgi_test";
 	}
 	else 
 	{

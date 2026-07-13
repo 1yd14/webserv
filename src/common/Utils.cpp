@@ -6,12 +6,13 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 17:39:16 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 15:54:44 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Utils.hpp"
 #include "HttpStatus.hpp"
+#include <algorithm>
 #include <cctype>
 #include <climits>
 #include <cstddef>
@@ -93,6 +94,10 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 
 long safeConvertLong(const std::string& str)
 {
+	if(str.length() > 20)
+	{
+		return -1;
+	}
 	const int msize = 19;
 	if (str.empty())
 	{
@@ -183,6 +188,10 @@ std::string getReasonPhrase(HttpStatus status)
 		{
 			return "Forbidden";
 		}
+		case HttpStatus::URI_TOO_LONG:
+		{
+			return "URI Too Long";
+		}
 		default:
 			return"Unknown";
 	}
@@ -201,4 +210,30 @@ size_t extractContentLength(const std::string& buffer)
 	}
 	return  0;
 	
+}
+
+std::string unchunkBody(const std::string &chunckedBody)
+{
+	std::string result;
+	std::string line;
+	size_t end;
+
+	size_t position = 0;
+	while (position != std::string::npos) 
+	{
+		end = chunckedBody.find("\r\n", position);
+		if (end == std::string::npos)
+		{
+			return result;
+		}
+		line = chunckedBody.substr(position, end -position);
+		size_t chunckSize = std::stoul(line, nullptr, 16);
+		if (chunckSize == 0)
+		{
+			return result;
+		}
+		result += chunckedBody.substr(end +2, chunckSize);
+		position = end + 2 + chunckSize + 2;
+	}
+	return result;
 }

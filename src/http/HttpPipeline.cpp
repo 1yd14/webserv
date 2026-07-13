@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 16:13:32 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 14:10:44 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "HttpValidator.hpp"
 #include "Router.hpp"
 #include "HttpResponseBuilder.hpp"
+#include <iostream>
 
 std::string processRequest(const std::string& rawRequest, const Server& server)
 {

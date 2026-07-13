@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/01 12:21:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/10 18:14:52 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <vector>
 #include <algorithm>
 #include "../common/Utils.hpp"
+#include <iostream>
 
 HttpValidator::HttpValidator()= default;
 HttpValidator::~HttpValidator(){};
@@ -70,11 +71,15 @@ HttpStatus HttpValidator::validate(HttpRequest& request,const Server& server) co
 HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 {
 	const std::string method = request.getMethod();
-	
-	if (method == "GET" || method == "POST" || method == "DELETE")
+	if (method == "GET" || method == "POST" || method == "DELETE" || method == "HEAD")
+	{
+		return HttpStatus::OK;
+	}
+	if (method == "OPTIONS" || method == "PUT" ||
+		 method == "TRACE" || method == "PATCH" || method == "CONNECT")
 	{
 		
-		return HttpStatus::OK;
+    	return HttpStatus::METHOD_NOT_ALLOWED;
 	}
 	for (const auto &cha : method)
 	{
@@ -90,6 +95,10 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 {
 	std::string target = request.getTarget();
 	
+	if(target.length() > 2048)
+	{
+		return HttpStatus::URI_TOO_LONG;
+	}
 	if (target.empty() || target[0] != '/')
 	{
 		return HttpStatus::BAD_REQUEST;
@@ -106,7 +115,9 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 		{
 			return HttpStatus::OK;
 		}
-		auto itt = std::find(methods.begin(), methods.end(),request.getMethod());
+		std::string methodToCheck = request.getMethod() == "HEAD" ? "GET" : request.getMethod();
+
+		auto itt = std::find(methods.begin(), methods.end(),methodToCheck);
 		if (itt == methods.end())
 		{
 			return (HttpStatus::METHOD_NOT_ALLOWED);

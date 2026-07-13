@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 17:42:21 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 14:13:20 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,6 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path, const LocationBlock* block, const Server& server)
 {
 		std::string filePath = path;
-		std::cout << "filePath: " << filePath << "\n";
 
 		if (std::filesystem::is_directory(filePath))
 		{

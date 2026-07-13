@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:29:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/07 12:16:02 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/09 11:44:44 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,3 +26,4 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr);
 long safeConvertLong(const std::string& str);
 std::string getReasonPhrase(HttpStatus status);
 size_t extractContentLength(const std::string& buffer);
+std::string unchunkBody(const std::string& chunckedBody);
