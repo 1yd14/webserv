@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 10:21:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 17:14:42 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	if (status != HttpStatus::OK)
 	{
 		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
+		response.setHeader("Connection", "close");
 		return response.serialize();
 	}
 	Router router;

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/13 10:21:21 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 16:27:35 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,6 @@ void EventLoop::run() {
 		std::vector<int> timeoutFds;
 		for (size_t i = 0; i < _connections.size(); i++) {
 			if(time(nullptr) - _connections[i]->getLastActivity() > TIMEOUT_SECONDS) {
-				std::cout << "connection timed out for fd: " <<_connections[i]->getFd() << std::endl;
 				timeoutFds.push_back(_connections[i]->getFd());
 			}
 		}
@@ -104,7 +103,6 @@ void EventLoop::run() {
 }
 
 void EventLoop::removeConnection(int fd) {
-	std::cout << "removing connection for fd: " << fd << std::endl;
 	epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
 	_connections.erase(
 		std::remove_if(_connections.begin(), _connections.end(), 

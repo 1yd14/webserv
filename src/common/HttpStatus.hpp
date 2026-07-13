@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 15:57:12 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/10 15:32:45 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 11:47:03 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ enum class HttpStatus {
 		LENGTH_REQUIRED = 411,
 		URI_TOO_LONG = 414,
 		PAYLOAD_TOO_LARGE = 413,
+		REQUEST_HEADER_LARGE = 431,
 		INTERNAL_SERVER_ERROR = 500,
 		NOT_IMPLEMENTED = 501,
 		HTTP_VERSION_NOT_SUPPOERTED = 505,

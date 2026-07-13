@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/10 17:17:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 16:46:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Connection : public ASocket {
 	State			_state;
 	time_t			_lastActivity;
 	std::string		_pendingError;
+	bool			_shouldClose = false;
 	
 	public:
 	Connection(int fd, const Server& server);

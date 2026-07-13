@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 10:21:37 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 15:10:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,8 +133,17 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
 void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path, const LocationBlock* block, const Server& server)
 {
 		std::string filePath = path;
+		bool isDir = false;
 
-		if (std::filesystem::is_directory(filePath))
+		try {
+		  isDir = std::filesystem::is_directory(filePath);
+		}catch (const std::filesystem::filesystem_error&) {
+			response.setStatus(HttpStatus::NOT_FOUND);
+			manageErrorPage(response, server);
+    		return;
+		}
+
+		if (isDir)
 		{
 			if (filePath.back() != '/')
 			{
@@ -168,6 +177,7 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 						  std::istreambuf_iterator<char>());
 		response.setBody(body);
 		response.setStatus(HttpStatus::OK);
+		response.setHeader("content-type", getMimeType(filePath));
 		file.close();
 }
 void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target)
@@ -257,7 +267,16 @@ void HttpResponseBuilder::manageDirectory(HttpResponse& response, const HttpRequ
 {
 	std::string html = "<html><body><h1>Index of " + request.getTarget() + "</h1><ul>";
 
-	if(std::filesystem::is_directory(path))
+	bool isDir = false;
+
+	try {
+	isDir = std::filesystem::is_directory(path);
+	} catch (const std::filesystem::filesystem_error&) {
+	 	response.setStatus(HttpStatus::NOT_FOUND);
+   		// manageErrorPage(response, server);
+    	return;
+	}
+	if(isDir)
 	{
 		for (const auto& entry :std::filesystem::directory_iterator(path))
 		{

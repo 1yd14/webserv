@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:29:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/09 11:44:44 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 15:00:11 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,3 +27,4 @@ long safeConvertLong(const std::string& str);
 std::string getReasonPhrase(HttpStatus status);
 size_t extractContentLength(const std::string& buffer);
 std::string unchunkBody(const std::string& chunckedBody);
+std::string getMimeType(const std::string& path);

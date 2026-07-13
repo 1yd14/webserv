@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/03 12:50:57 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 16:30:40 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/13 10:26:50 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ RouteType Router::route(const HttpRequest& request, const Server &server) const
 	}
 	if (block->getAutoIndex().has_value() && block->getAutoIndex().value())
 	{
+	
 	if(std::filesystem::is_directory(server.getRoot() + target))
 	{
 		return RouteType::DIRECTORY_LISTING;

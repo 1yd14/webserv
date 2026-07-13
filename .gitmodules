@@ -1,0 +1,3 @@
+[submodule "tests_framework"]
+	path = tests_framework
+	url = https://github.com/ulsgks/webserv-tester.git
