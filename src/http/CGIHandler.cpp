@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/09 10:42:49 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:04:46 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,76 +25,89 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
 {
 	std::vector<std::string> env;
 	std::string path = request.getTarget();
 	size_t qmark =path.find("?");
+	const LocationBlock* block = findMatchingLocation(path, server);
+	std::string scriptPath = getScriptPath(request, server, *block);
+	std::string scriptName = (qmark != std::string::npos) ? path.substr(0, qmark) : path;
+    std::string query      = (qmark != std::string::npos) ? path.substr(qmark + 1) : "";
 
-	env.emplace_back("REQUEST_METHOD="+ request.getMethod());
-	
-	env.emplace_back("PATH_INFO="+ (qmark != std::string::npos ? path.substr(0,qmark) : path));
-	env.emplace_back("QUERY_STRING="+ (qmark != std::string::npos ? path.substr(qmark+1) : ""));
-	env.emplace_back("CONTENT_LENGTH="+ std::to_string(request.getContentLength()));
+	env.emplace_back("GATEWAY_INTERFACE=CGI/1.1");
+    env.emplace_back("SERVER_SOFTWARE=webserv/1.0");
+	env.emplace_back("SERVER_PROTOCOL=" + request.getProtocol());
+	env.emplace_back("SERVER_NAME=" + server.getHost());
+	env.emplace_back("SERVER_PORT=" + std::to_string(server.getPort()));
+	env.emplace_back("REQUEST_METHOD=" + request.getMethod());
+	env.emplace_back("SCRIPT_NAME=" + scriptName);
+	env.emplace_back("SCRIPT_FILENAME=" + scriptPath);
+	env.emplace_back("PATH_INFO=");
+	env.emplace_back("QUERY_STRING=" + query);
+	env.emplace_back("CONTENT_LENGTH=" + std::to_string(request.getContentLength()));
 	
 	std::map<std::string, std::string>  header = request.getHeader();
 	auto itt = header.find("content-type");
 	env.emplace_back("CONTENT_TYPE="+ (itt != header.end() ? itt->second : ""));
-	env.emplace_back("SCRIPT_FILENAME=" + server.getRoot() + path);
-	env.emplace_back("SERVER_PROTOCOL=" + request.getProtocol());
-	env.emplace_back("SERVER_NAME="+server.getHost());
-	env.emplace_back("SERVER_PORT="+ std::to_string(server.getPort()));
 	env.emplace_back("REDIRECT_STATUS=200");
 	// redirect status ? 
 	// all other envs ?
 	return env;
 };
 
-
-std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const Server& server)
+std::string CGIHanlder::getScriptPath(const HttpRequest& request, const Server& server, const LocationBlock& block)
 {
 	std::string scriptPath;
-	std::string extention;
-	std::string interpreter;
-	std::vector<std::string> argv;
-	const LocationBlock* block = findMatchingLocation(request.getTarget(),server);
-	if (block == nullptr)
-	{
-		return argv;
-	}
-	
-	if (block->getRoot().has_value())
+	if (block.getRoot().has_value())
 	{
 		std::string target = request.getTarget();
-		std::string locationPath = block->getPath();
+		std::string locationPath = block.getPath();
 		std::string relative = target.substr(locationPath.size());
-		scriptPath = block->getRoot().value() + relative;
+		scriptPath = block.getRoot().value() + relative;
 		
 	}else {
 		scriptPath =  server.getRoot() + request.getTarget();
 	}
+	return scriptPath;
+}
+
+std::string CGIHanlder::getInterpreter(std::string extension)
+{
+	if (extension == ".py")
+	{
+		return "/usr/bin/python3" ;
+	} 
+	else if (extension == ".php") 
+	{
+		return "/usr/bin/php-cgi";
+	}
+	else {
+		return "";
+	}
+}
+
+
+std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const Server& server)
+{
+	std::vector<std::string> argv;
+	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
+	if (block == nullptr)
+	{
+		return argv;
+	}
+	std::string scriptPath = getScriptPath(request, server, *block);
+	std::string extension;
 	if (block->getCgiExtension().has_value())
 	{
-		extention = block->getCgiExtension().value();
+		extension = block->getCgiExtension().value();
 	}
-	if (extention == ".py")
-	{
-		interpreter = "/usr/bin/python3";
-	} else if (extention == ".php") 
-	{
-		interpreter = "/usr/bin/php-cgi";
-	}
-	else if (extention == ".bla")
-	{
-		interpreter = "/path/to/var/www/cgi-bin/cgi_test";
-	}
-	else 
-	{
-		return argv; 
-	}
+	std::string interpreter = getInterpreter(extension);
 	argv.push_back(interpreter);
-	argv.push_back(scriptPath);
+	if (extension == ".py")
+	{
+		argv.push_back(scriptPath);
+	}
 	return  argv;
 }
 
@@ -113,8 +126,6 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 	std::vector<std::string> env = buildEnv(request, server);
 	std::vector<std::string> argv = buildArgs(request, server);
 	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
-
-	
 	if (argv.empty())
 	{
 		connection.setWriterBuffer(errorResponse);
@@ -122,16 +133,21 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
 		return;
 	}
+	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
+	if (block == nullptr)
+	{
+		//error;
+	}
+	std::string scriptPath = getScriptPath(request, server, *block);
 	std::array<int, 2> pipe_in;
 	std::array<int, 2> pipe_out;
 
-	if (access(argv[1].c_str(), X_OK) != 0)
+	if (access(scriptPath.c_str(), X_OK) != 0)
 	{
    		errorResponse = buildError(HttpStatus::FORBIDDEN).serialize();
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
-
 		return;
 	}
 	if (pipe(pipe_in.data()) < 0)
@@ -141,7 +157,6 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		connection.setState(WRITING);
 		connection.setState(WRITING);
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
-
 		return;
 	}
 	if (pipe(pipe_out.data()) < 0)
