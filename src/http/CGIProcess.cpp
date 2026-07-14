@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIProcess.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 13:05:09 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 16:21:34 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:41:04 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 #include "../common/HttpResponse.hpp"
 #include "CGiHandler.hpp"
 #include <array>
-#include <iostream>
-CGIProcess::CGIProcess(int fd, pid_t pid, Connection& connection) : ASocket(fd), _pid(pid), _connection(connection)
+
+CGIProcess::CGIProcess(int fd, pid_t pid, int connectionFd) : ASocket(fd), _pid(pid), _connectionFd(connectionFd)
 {
 }
 
@@ -27,12 +27,13 @@ void CGIProcess::handleEvent(EventLoop &loop)
 {
 	std::array<char, 4096> buffer;
 	ssize_t state = read(getFd(), buffer.data(), sizeof(buffer));
+	Connection* conn = loop.getConnection(_connectionFd);
 	
 	if (state == -1)
 	{
 		std::string errorResponse = CGIHanlder::buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
-		_connection.setWriterBuffer(errorResponse);
-		_connection.setState(WRITING);
+		conn->setWriterBuffer(errorResponse);
+		conn->setState(WRITING);
 		loop.removeCGIProcess(getFd());
 		return;
 	}
@@ -41,9 +42,9 @@ void CGIProcess::handleEvent(EventLoop &loop)
 		HttpResponse response;
 		waitpid(_pid, nullptr,0);
 		CGIHanlder::parseCGIOutput(_output, response);
-		_connection.setWriterBuffer(response.serialize());
-		_connection.setState(WRITING);
-		loop.setWriting(&_connection, EPOLL_CTL_MOD);
+		conn->setWriterBuffer(response.serialize());
+		conn->setState(WRITING);
+		loop.setWriting(conn, EPOLL_CTL_MOD);
 		loop.removeCGIProcess(getFd());
 		return;
 	}

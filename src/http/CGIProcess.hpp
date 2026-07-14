@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIProcess.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 12:56:01 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/10 17:25:11 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/14 16:39:06 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,18 @@
 
 #include <csignal>
 #include "../server_setup/ASocket.hpp"
-#include "../Connection/Connection.hpp"
 #include "../Connection/EventLoop.hpp"
 
 class Connection;
 class CGIProcess : public ASocket
 {
 	public:
-		CGIProcess(int fd, pid_t pid, Connection& connection);
+		CGIProcess(int fd, pid_t pid, int connectionFd);
 		~CGIProcess();
 		void handleEvent(EventLoop &loop) override;
 	private:
 		pid_t _pid;
 		std::string _output;
-		Connection& _connection;
+		int _connectionFd;
 		
 };
