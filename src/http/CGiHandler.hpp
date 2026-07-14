@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGiHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:41:39 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/08 15:44:41 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/14 15:58:20 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,4 +32,6 @@ class CGIHanlder
 	private:
 		static std::vector<std::string>buildEnv(const HttpRequest& request, const Server& server);
 		static std::vector<std::string>buildArgs(const HttpRequest& request, const Server& server);
+		static std::string getScriptPath(const HttpRequest& request, const Server& server, const LocationBlock& block);
+		static std::string getInterpreter(std::string extension);
 };
