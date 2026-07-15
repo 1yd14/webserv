@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/13 16:27:35 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:13:29 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void EventLoop::addConnection(std::unique_ptr<Connection> connection) {
 	}
 	_connections.push_back(std::move(connection));
 }
+
 void EventLoop::addCgi(std::unique_ptr<CGIProcess> cgiProcess)
 {
 	if (!setReading(cgiProcess.get(), EPOLL_CTL_ADD)) {
@@ -121,6 +122,15 @@ void EventLoop::removeCGIProcess(int fd)
 				return s->getFd() == fd;
 			}),
 		_cgiProcesses.end());
+}
+
+Connection *EventLoop::getConnection(uint64_t id) {
+	for (auto &c : _connections) {
+		if (c->getId() == id) {
+			return c.get();
+		}
+	}
+	return nullptr;
 }
 
 bool EventLoop::setReading(ASocket *socket, int op) const {

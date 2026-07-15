@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 11:22:43 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 16:23:19 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,9 @@
 #include "../http/Router.hpp"
 #include "../http/CGiHandler.hpp"
 
+uint64_t Connection::s_nextId = 1;
 
-Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)) {
+Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)), _id(s_nextId++) {
 
 }
 
@@ -200,4 +201,8 @@ void Connection::handleEvent(EventLoop &loop) {
 void Connection::setWriterBuffer(const std::string& data)
 {
 	_writeBuffer = data;
+}
+
+uint64_t Connection::getId() {
+	return (_id);
 }
