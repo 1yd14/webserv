@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:32 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/14 16:36:21 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:12:40 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class EventLoop {
 	void run();
 	void removeConnection(int fd);
 	void removeCGIProcess(int fd);
-	Connection *getConnection(int fd);
+	Connection *getConnection(uint64_t id);
 	bool setReading(ASocket *socket, int op) const ;
 	bool setWriting(ASocket *socket, int op) const ;
 	bool isCGIProcess(int fd);

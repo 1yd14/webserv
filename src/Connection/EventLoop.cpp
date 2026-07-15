@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/14 16:45:30 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:13:29 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,9 +124,9 @@ void EventLoop::removeCGIProcess(int fd)
 		_cgiProcesses.end());
 }
 
-Connection *EventLoop::getConnection(int fd) {
+Connection *EventLoop::getConnection(uint64_t id) {
 	for (auto &c : _connections) {
-		if (c->getFd() == fd) {
+		if (c->getId() == id) {
 			return c.get();
 		}
 	}

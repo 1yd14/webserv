@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/14 16:48:25 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/15 15:06:51 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		write(pipe_in[1],request.getBody().c_str(),request.getBody().length());
 		close(pipe_in[1]);
 		
-		loop.addCgi(std::make_unique<CGIProcess>(pipe_out[0], pid, connection.getFd()));
+		loop.addCgi(std::make_unique<CGIProcess>(pipe_out[0], pid, connection.getId()));
 	}
 }
 

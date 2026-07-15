@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 12:56:01 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/14 16:39:06 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:11:54 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ class Connection;
 class CGIProcess : public ASocket
 {
 	public:
-		CGIProcess(int fd, pid_t pid, int connectionFd);
+		CGIProcess(int fd, pid_t pid, uint64_t connectionId);
 		~CGIProcess();
 		void handleEvent(EventLoop &loop) override;
 	private:
 		pid_t _pid;
 		std::string _output;
-		int _connectionFd;
+		uint64_t _connectionId;
 		
 };
