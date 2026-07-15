@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:52:38 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/15 18:05:20 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,10 +116,30 @@ Server ConfigParser::parseServer(std::istringstream& input, const std::string& c
 	return result;
 }
 
+void ConfigParser::checkBrackets(const std::string& config) {
+	int balance = 0;
+
+	for (size_t i = 0; i < config.size(); i++)
+	{
+		if (config[i] == '{') {
+			balance++;
+		}
+		else if (config[i] == '}') {
+			balance--;
+			if (balance < 0) {
+				throw std::runtime_error("Unexpected '}'");
+			}
+		}
+	}
+	if (balance != 0){
+		throw std::runtime_error("Unbalanced brackets");
+	}
+}
+
 std::vector<Server> ConfigParser::parseConfig(std::istringstream& input, const std::string& configDirectory) {
 	std::vector<Server> result;
 	std::string word;
-	
+
 	while (input >> word) {
 		if (word == "server") {
 			std::string next;
@@ -130,6 +150,12 @@ std::vector<Server> ConfigParser::parseConfig(std::istringstream& input, const s
 		else if (word == "server{"){
 			result.push_back(parseServer(input, configDirectory));
 		}
+		else {
+			throw std::runtime_error("Unexpected token: " + word);
+		}
+	}
+	if (result.empty()) {
+		throw std::runtime_error("No server config found");
 	}
 	return result;
 }

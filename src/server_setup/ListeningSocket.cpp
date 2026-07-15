@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ListeningSocket.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 19:45:49 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/13 13:17:41 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 17:27:52 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@ void ListeningSocket::bindSocket() {
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(_server.getPort());
 	addr.sin_addr.s_addr = inet_addr(_server.getHost().c_str()); 
+	if (addr.sin_addr.s_addr == INADDR_NONE) {
+		throw std::runtime_error("invalid IP address: " + _server.getHost());
+	}
 	if (bind(getFd(),
 			reinterpret_cast<sockaddr*>(&addr),
 			sizeof(addr)) == -1)
