@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/13 16:46:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:51:50 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "../server_setup/ASocket.hpp"
 #include "../Config/Server.hpp"
 #include "EventLoop.hpp"
+#include <cstdint>
 #include <ctime>
 #include <string>
 
@@ -29,6 +30,8 @@ class Connection : public ASocket {
 	time_t			_lastActivity;
 	std::string		_pendingError;
 	bool			_shouldClose = false;
+	uint64_t		_id;
+	static uint64_t	s_nextId;
 	
 	public:
 	Connection(int fd, const Server& server);
@@ -44,4 +47,5 @@ class Connection : public ASocket {
 	void handleErrorPending(EventLoop& loop);
 	std::string prepareRequest();
 	void dispatch(const std::string& requestToParse, EventLoop& loop);
+	uint64_t getId();
 };
