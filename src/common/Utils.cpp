@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 15:09:29 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 14:47:30 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,11 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 	while(pos < headerStr.length())
 	{
 		lineStart = pos;
+		if (lineStart < headerStr.length() && (headerStr[lineStart] == ' ' || headerStr[lineStart] == '\t'))
+		{
+			header["FOLDED_HEADER"] = "true";
+			break;
+		}
 		pos = headerStr.find("\r\n", lineStart);
 		delim = headerStr.find(":", lineStart);
 		if(pos == std::string::npos)
@@ -75,6 +80,8 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 			break;
 		}
 		std::string key = headerStr.substr(lineStart, delim - lineStart);
+		
+
 		std::string value;
 		
 		if (delim + 2 < pos)

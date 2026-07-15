@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 17:01:33 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 15:32:41 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 		{
 			return HttpStatus::OK;
 		}
-		std::string methodToCheck = request.getMethod() == "HEAD" ? "GET" : request.getMethod();
+		std::string methodToCheck = request.getMethod();
 
 		auto itt = std::find(methods.begin(), methods.end(),methodToCheck);
 		if (itt == methods.end())
@@ -154,7 +154,7 @@ HttpStatus HttpValidator::isValidProtocol(const HttpRequest& request)
 		return HttpStatus::BAD_REQUEST;
 	}
 	
-	if (protocol.compare(0,5, "HTTP/") != 0)
+	if (protocol.compare(0,5, "HTTP/") != 0 || protocol.length() > 8)
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
@@ -170,9 +170,17 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 {
 	std::map<std::string, std::string> headers = request.getHeader();
 
+	if (headers.find("FOLDED_HEADER") != headers.end())
+	{
+		return HttpStatus::BAD_REQUEST;
+	}
 	for (const auto& header : headers)
 	{
 		if (header.first.find(" ") != std::string::npos || header.first.empty())
+		{
+			return HttpStatus::BAD_REQUEST;
+		}
+		if (header.first.find(":") != std::string::npos || header.second[0] == ':')
 		{
 			return HttpStatus::BAD_REQUEST;
 		}
@@ -208,6 +216,10 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 			return HttpStatus::LENGTH_REQUIRED;
 		}
 	}
+	if (headers.size() > 50)
+	{
+		return HttpStatus::REQUEST_HEADER_LARGE;
+	}
 	return HttpStatus::OK;
 }
 HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size)
@@ -224,7 +236,8 @@ HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size
 	{		
 		return HttpStatus::BAD_REQUEST;
 	}
-	if(request.getBody().length() > max_size)
+	size_t bodySize = request.getBody().size();
+	if(bodySize > max_size || bodySize > 51200)
 	{
 		return HttpStatus::PAYLOAD_TOO_LARGE;
 	}

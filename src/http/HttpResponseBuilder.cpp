@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 15:10:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 15:40:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../common/Utils.hpp"
 #include <array>
 #include <ctime>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -35,6 +36,16 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	response.setProtocol("HTTP/1.1");
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
+		if (request.getStatusCode() == HttpStatus::METHOD_NOT_ALLOWED)
+		{
+			if (block != nullptr)
+			{
+				std::string allow;
+				for (const auto& m : block->getMethods())
+					allow += (allow.empty() ? "" : ", ") + m;
+				response.setHeader("Allow", allow);
+			}
+		}
 		response.setStatus(request.getStatusCode());
 		buildHeader(request, response);
 		return  response;
@@ -54,7 +65,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 		{
 			response.setHeader(itt->first, itt->second);
 		}
-	
+
 	std::time_t time = std::time(nullptr);
 	std::array<char, 100> mbstr;
 	std::strftime(mbstr.data(), sizeof(mbstr), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
@@ -83,7 +94,16 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
-	const std::string path = server.getRoot() + request.getTarget();
+	std::string path;
+
+	if (block != nullptr && block->getRoot().has_value())
+	{
+		path = block->getRoot().value() + request.getTarget().substr(findMatchingLocation(request.getTarget(), server)->getPath().length());
+	}
+	else
+	{
+		path = server.getRoot() + request.getTarget();
+	}
 
 
 	switch (routeType)
@@ -134,7 +154,6 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 {
 		std::string filePath = path;
 		bool isDir = false;
-
 		try {
 		  isDir = std::filesystem::is_directory(filePath);
 		}catch (const std::filesystem::filesystem_error&) {
@@ -161,24 +180,34 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 				filePath += "index.html";
 			}
 		}
-		std::ifstream file(filePath);
-		if(!file.is_open())
-		{
+		
+		try {
+			std::ifstream file(filePath);
+			if(!file.is_open())
+			{
+				response.setStatus(HttpStatus::NOT_FOUND);
+				manageErrorPage(response,server);
+				return ;
+			}
+			if (access(filePath.c_str(), R_OK) != 0)
+			{
+				 response.setStatus(HttpStatus::FORBIDDEN);
+				return;
+			}
+			std::string body((std::istreambuf_iterator<char>(file)),
+							  std::istreambuf_iterator<char>());
+			response.setBody(body);
+			response.setStatus(HttpStatus::OK);
+			response.setHeader("Content-Type", getMimeType(filePath));
+			file.close();
+			
+		} catch (const std::exception& e) {
+			    std::cout << "manageStatic exception: " << e.what() << "\n";
+
 			response.setStatus(HttpStatus::NOT_FOUND);
-			manageErrorPage(response,server);
-			return ;
-		}
-		if (access(filePath.c_str(), R_OK) != 0)
-		{
- 			response.setStatus(HttpStatus::FORBIDDEN);
+			manageErrorPage(response, server);
     		return;
 		}
-		std::string body((std::istreambuf_iterator<char>(file)),
-						  std::istreambuf_iterator<char>());
-		response.setBody(body);
-		response.setStatus(HttpStatus::OK);
-		response.setHeader("content-type", getMimeType(filePath));
-		file.close();
 }
 void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target)
 {
@@ -251,6 +280,7 @@ void HttpResponseBuilder::manageErrorPage(HttpResponse& response, const Server& 
 		std::ifstream file(itt->second);
 		if(!file.is_open())
 		{
+			std::cout <<"maybe this\n" ;
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			return;
 			}
