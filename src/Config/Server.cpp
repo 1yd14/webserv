@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 17:38:09 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/16 15:26:05 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ void Server::finalize() {
 		return ;
 	}
 	if (_host.empty()) {
-		throw std::runtime_error("server: missing host");
+		_host = "0.0.0.0";
 	}
 	if (_port == 0) {
 		throw std::runtime_error("server: missing port");
@@ -155,9 +155,9 @@ void Server::finalize() {
 	if (_root.empty()) {
 		throw std::runtime_error("server: missing root");
 	}
-	if (_location_blocks.empty()) {
-		throw std::runtime_error("server: no locations defined");
-	}
+	//if (_location_blocks.empty()) {
+	//	throw std::runtime_error("server: no locations defined");
+	//}
 	for (size_t i = 0; i < _location_blocks.size(); i ++) {
 		LocationBlock &loc = _location_blocks[i];
 		if (! loc.getRoot()) {

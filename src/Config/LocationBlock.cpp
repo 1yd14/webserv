@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 18:10:16 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/16 15:29:52 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,6 +224,9 @@ void LocationBlock::validate() {
 	if (_redirect_code) {
 		if (!_redirect_url) {
 			throw std::runtime_error("redirect requires URL");
+		}
+		if (_autoindex == true || _index.has_value() || _root.has_value() || _upload_dir.has_value()) {
+			throw std::runtime_error("invalid redirect block.");
 		}
 	}
 }
