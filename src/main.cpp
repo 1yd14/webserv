@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 17:03:36 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/08 18:05:40 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:38:35 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,10 @@ int main(int argc, char *argv[]) {
 
     for (size_t i = 0; i < servers.size(); i++) {
         try {
-            loop.addListeningSocket(std::make_unique<ListeningSocket>(servers[i]));
-            std::cout << "✔ listening on " << servers[i].getHost() << ":" << servers[i].getPort() << "\n";
+			for (int port : servers[i].getPort()) {
+	            loop.addListeningSocket(std::make_unique<ListeningSocket>(servers[i], port));
+	            std::cout << "✔ listening on " << servers[i].getHost() << ":" << port << "\n";
+			}
         }
         catch (const std::exception& e) {
             std::cerr << "✖ failed to create socket: " << e.what() << "\n";

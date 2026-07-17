@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/16 15:26:05 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:26:13 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Server::Server()
       _max_body_size(0),
       _finalized(false) {}
 
-int Server::getPort() const {
+std::vector<int> Server::getPort() const {
 	return (_port);
 }
 
@@ -56,18 +56,21 @@ void Server::setConfigDirectory(std::string configPath) {
 }
 
 void Server::setPort(std::vector<std::string> values) {
+	int port;
+	
 	if (values.size() != 1) {
 		throw std::runtime_error("listen directive requires only one value");
 	}
 	try {
-		_port = stoi(values[0]);
+		port = stoi(values[0]);
 	}
 	catch (...) {
 		throw std::runtime_error("listen: invalid port number: " + values[0]);
 	}
-	if (_port <= 0 || _port >= 65535) {
+	if (port <= 0 || port >= 65535) {
 		throw std::runtime_error("listen: port number out of range: " + values[0]);
 	}
+	_port.push_back(port);
 }
 
 void Server::setHost(std::vector<std::string> values) {
@@ -149,7 +152,7 @@ void Server::finalize() {
 	if (_host.empty()) {
 		_host = "0.0.0.0";
 	}
-	if (_port == 0) {
+	if (_port.empty()) {
 		throw std::runtime_error("server: missing port");
 	}
 	if (_root.empty()) {

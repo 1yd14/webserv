@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 14:51:50 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:52:30 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Connection : public ASocket {
 	const Server&	_server;
 	std::string		_readBuffer;
 	std::string		_writeBuffer;
+	int				_localPort;
 	State			_state;
 	time_t			_lastActivity;
 	std::string		_pendingError;
@@ -34,10 +35,11 @@ class Connection : public ASocket {
 	static uint64_t	s_nextId;
 	
 	public:
-	Connection(int fd, const Server& server);
+	Connection(int fd, const Server& server, const int& port);
 	~Connection();
 	void setState(State newState);
-	State getState();
+	State getState() const;
+	int getLocalPort() const;
 	time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
 	void handleRead(EventLoop &loop);
