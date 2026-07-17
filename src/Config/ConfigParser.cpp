@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 18:05:20 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 13:38:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-
+#include <iostream>
 
 std::vector<std::string> ConfigParser::readValues(std::istringstream& input) {
     std::vector<std::string> values;
@@ -25,8 +25,10 @@ std::vector<std::string> ConfigParser::readValues(std::istringstream& input) {
     while (input >> word) {
         if (word.back() == ';') {
             word.pop_back();
-            if (!word.empty()) {
+            if (!word.empty() && word.back() != ';') {
                 values.push_back(word);
+			} else {
+				throw std::runtime_error("unexpected ;");
 			}
             break;
         }
