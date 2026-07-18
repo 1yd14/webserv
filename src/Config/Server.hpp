@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:26:51 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:25:55 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 class Server {
 	public:
 	Server();
-	int getPort() const;
+	std::vector<int> getPort() const;
 	std::string	getHost() const;
 	std::string getRoot() const;
 	std::string getIndex() const;
@@ -41,7 +41,7 @@ class Server {
 
 	private:
 	std::string					_configDirectory;
-	int							_port;
+	std::vector<int>			_port;
 	std::string					_host;
 	std::string					_root;
 	std::string					_index;

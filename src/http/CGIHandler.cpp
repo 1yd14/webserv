@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/15 15:06:51 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:56:40 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server)
+std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server, int localPort)
 {
 	std::vector<std::string> env;
 	std::string path = request.getTarget();
@@ -39,7 +39,7 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
     env.emplace_back("SERVER_SOFTWARE=webserv/1.0");
 	env.emplace_back("SERVER_PROTOCOL=" + request.getProtocol());
 	env.emplace_back("SERVER_NAME=" + server.getHost());
-	env.emplace_back("SERVER_PORT=" + std::to_string(server.getPort()));
+	env.emplace_back("SERVER_PORT=" + std::to_string(localPort));
 	env.emplace_back("REQUEST_METHOD=" + request.getMethod());
 	env.emplace_back("SCRIPT_NAME=" + scriptName);
 	env.emplace_back("SCRIPT_FILENAME=" + scriptPath);
@@ -123,7 +123,7 @@ HttpResponse CGIHanlder::buildError(const HttpStatus& status)
 
 void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventLoop& loop, Connection& connection)
 {
-	std::vector<std::string> env = buildEnv(request, server);
+	std::vector<std::string> env = buildEnv(request, server, connection.getLocalPort());
 	std::vector<std::string> argv = buildArgs(request, server);
 	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
 	if (argv.empty())

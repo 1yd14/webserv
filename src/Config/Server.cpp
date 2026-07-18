@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:27:05 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/17 16:26:13 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Server::Server()
       _max_body_size(0),
       _finalized(false) {}
 
-int Server::getPort() const {
+std::vector<int> Server::getPort() const {
 	return (_port);
 }
 
@@ -56,25 +56,32 @@ void Server::setConfigDirectory(std::string configPath) {
 }
 
 void Server::setPort(std::vector<std::string> values) {
+	int port;
+	
 	if (values.size() != 1) {
 		throw std::runtime_error("listen directive requires only one value");
 	}
 	try {
-		_port = stoi(values[0]);
+		port = stoi(values[0]);
 	}
 	catch (...) {
 		throw std::runtime_error("listen: invalid port number: " + values[0]);
 	}
-	if (_port <= 0 || _port >= 65535) {
+	if (port <= 0 || port >= 65535) {
 		throw std::runtime_error("listen: port number out of range: " + values[0]);
 	}
+	_port.push_back(port);
 }
 
 void Server::setHost(std::vector<std::string> values) {
 	if (values.size() != 1) {
 		throw std::runtime_error("host directive requires at least one value");
 	}
-	_host = values[0];
+	if (values[0] == "localhost") {
+		_host = "127.0.0.1";
+	} else {
+		_host = values[0];
+	}
 }
 
 void Server::setRoot(std::vector<std::string> values) {
@@ -96,12 +103,15 @@ void Server::setMaxBodySize(std::vector<std::string> values) {
 		throw std::runtime_error("max_body_size directive requires exactly one value");
 	}
 	const std::string& val = values[0];
+	if (values[0][0] == '-') {
+		throw std::runtime_error("max_body_size cannot be negative");
+	}
 	char suffix = val.back();
 	std::string numberPart = (suffix == 'M' || suffix == 'K') ? val.substr(0, val.size() - 1) : val;
 
 	size_t result;
 	std::istringstream sstream(numberPart);
-	if (!(sstream >> result)) {
+	if (!(sstream >> result) || !sstream.eof()) {
 		throw std::runtime_error("max_body_size: invalid value: " + val);
 	}
 	if (suffix == 'M') {
@@ -140,17 +150,17 @@ void Server::finalize() {
 		return ;
 	}
 	if (_host.empty()) {
-		throw std::runtime_error("server: missing host");
+		_host = "0.0.0.0";
 	}
-	if (_port == 0) {
+	if (_port.empty()) {
 		throw std::runtime_error("server: missing port");
 	}
 	if (_root.empty()) {
 		throw std::runtime_error("server: missing root");
 	}
-	if (_location_blocks.empty()) {
-		throw std::runtime_error("server: no locations defined");
-	}
+	//if (_location_blocks.empty()) {
+	//	throw std::runtime_error("server: no locations defined");
+	//}
 	for (size_t i = 0; i < _location_blocks.size(); i ++) {
 		LocationBlock &loc = _location_blocks[i];
 		if (! loc.getRoot()) {
