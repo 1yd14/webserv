@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/23 14:24:19 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/23 17:06:24 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ std::string Server::getIndex() const {
 	return (_index);
 }
 
-size_t Server::getMaxBodySize() const {
+long long Server::getMaxBodySize() const {
 	return (_max_body_size);
 }
 
@@ -125,6 +125,7 @@ void Server::setMaxBodySize(std::vector<std::string> values) {
 	if (result > (std::numeric_limits<long long>::max() / multiplier)) {
 		throw std::runtime_error("max_body_size too large: overflow");
 	}
+	_max_body_size = result * multiplier;
 }
 
 void Server::setErrorPages(std::vector<std::string> values) {
