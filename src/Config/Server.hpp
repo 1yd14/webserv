@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:26:51 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/07/23 17:06:14 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,11 @@
 class Server {
 	public:
 	Server();
-	int getPort() const;
+	std::vector<int> getPort() const;
 	std::string	getHost() const;
 	std::string getRoot() const;
 	std::string getIndex() const;
-	size_t getMaxBodySize() const;
+	long long getMaxBodySize() const;
 	const std::map<int, std::string>& getErrorPages() const;
 	const std::vector<LocationBlock>& getLocationBlocks() const;
 	void setConfigDirectory(std::string configPath);
@@ -41,11 +41,11 @@ class Server {
 
 	private:
 	std::string					_configDirectory;
-	int							_port;
+	std::vector<int>			_port;
 	std::string					_host;
 	std::string					_root;
 	std::string					_index;
-	size_t						_max_body_size;
+	long long					_max_body_size;
 	std::map<int, std::string>	_error_pages;
 	std::vector<LocationBlock>	_location_blocks;
 	bool						_finalized;

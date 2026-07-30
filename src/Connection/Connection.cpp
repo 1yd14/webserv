@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 16:23:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/30 11:57:27 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 uint64_t Connection::s_nextId = 1;
 
-Connection::Connection(int fd, const Server& server) : ASocket(fd), _server(server), _state(READING), _lastActivity(time(nullptr)), _id(s_nextId++) {
+Connection::Connection(int fd, const Server& server, const int& port) : ASocket(fd), _server(server), _localPort(port), _state(READING), _lastActivity(time(nullptr)), _id(s_nextId++) {
 
 }
 
@@ -37,8 +37,12 @@ void Connection::setState(State newState) {
 	_state = newState;
 }
 
-State Connection::getState() {
+State Connection::getState() const {
 	return _state;
+}
+
+int Connection::getLocalPort() const {
+	return _localPort;
 }
 
 time_t Connection::getLastActivity() const {
