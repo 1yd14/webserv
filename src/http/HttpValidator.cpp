@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/15 15:32:41 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 16:37:47 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 		std::string methodToCheck = request.getMethod();
 
 		auto itt = std::find(methods.begin(), methods.end(),methodToCheck);
+	
 		if (itt == methods.end())
 		{
 			return (HttpStatus::METHOD_NOT_ALLOWED);

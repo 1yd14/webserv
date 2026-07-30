@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/15 15:40:27 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/07/15 16:48:51 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,12 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlo
 	if (path.empty())
 	{
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	
+	if (access(path.c_str(), F_OK) != 0)
+	{
+		response.setStatus(HttpStatus::NOT_FOUND);
 		return;
 	}
 	if (access(path.c_str(), W_OK) != 0)
