@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 17:14:42 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/04 11:27:57 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,12 @@ std::string processRequest(const std::string& rawRequest, const Server& server)
 	HttpRequest request;
 	HttpParser parser;
 	HttpResponseBuilder builder;
-	
 	request = parser.parseHttp(rawRequest);
 	
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
-		
 		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
+		response.setHeader("Connection", "close");
 		return response.serialize();
 	}
 	HttpValidator validator;

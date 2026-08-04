@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 12:53:28 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/04 13:52:10 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,16 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest)
 		request.setStatusCode(HttpStatus::BAD_REQUEST);
 		return request;
 	}
+
 	extractFirstLine(rawRequest.substr(0, firstLine), request);
-	
+
+	std::string target = request.getTarget();
+		if (target.find("http://") == 0 || target.find("https://") == 0)
+		{
+			size_t pathStart = target.find('/', 7);
+			request.setTarget(pathStart == std::string::npos ? "/" : target.substr(pathStart));
+		}
+		
 	size_t emptyHeaderLine = rawRequest.find("\r\n\r\n");
 	if (emptyHeaderLine == std::string::npos)
 	{
@@ -50,6 +58,7 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest)
 	}
 	extractHeaders(rawRequest.substr(firstLine + 2, emptyHeaderLine - firstLine ), request);
 	extractContentLength(request);
+
 
 	request.setBody(trim(rawRequest.substr(emptyHeaderLine + 4)));
 	

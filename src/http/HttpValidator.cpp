@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/15 16:37:47 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/04 14:55:03 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,11 @@ HttpStatus HttpValidator::validate(HttpRequest& request,const Server& server) co
 	status = isValidMethod(request);
 	if (status != HttpStatus::OK)
 	{
+
 		request.setStatusCode(status);
 		return status;
 	}
+	
 	status = isValidTarget(request, server);
 	if (status != HttpStatus::OK)
 	{
@@ -57,10 +59,12 @@ HttpStatus HttpValidator::validate(HttpRequest& request,const Server& server) co
 			return  status;
 		}
 	}
+	
 	status = isValidBody(request, server.getMaxBodySize());
 	{
 		if (status != HttpStatus::OK)
 		{
+
 			request.setStatusCode(status);
 			return status;
 		}
@@ -79,7 +83,7 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 		 method == "TRACE" || method == "PATCH" || method == "CONNECT" || method == "HEAD")
 	{
 		
-    	return HttpStatus::NOT_IMPLEMENTED;
+    	return HttpStatus::METHOD_NOT_ALLOWED;
 	}
 	for (const auto &cha : method)
 	{
@@ -88,12 +92,13 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-	return HttpStatus::BAD_REQUEST;
+	return HttpStatus::METHOD_NOT_ALLOWED;
 }
 
 HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server& server)
 {
 	std::string target = request.getTarget();
+
 	
 	if(target.length() > 2048)
 	{
@@ -103,9 +108,20 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
-	if (unsafeCharCheck(target) == HttpStatus::BAD_REQUEST)
+	if (unsafeCharCheck(target) != HttpStatus::OK)
 	{
 		return  HttpStatus::BAD_REQUEST;
+	}
+
+	std::string decoded = urlDecode(target);
+	
+	if (unsafeCharCheck(decoded) != HttpStatus::OK  || 
+			decoded.find("%2E") != std::string::npos ||
+			decoded.find("%2e") != std::string::npos ||
+			decoded.find("%2F") != std::string::npos ||
+			decoded.find("%2f") != std::string::npos)
+	{
+		return HttpStatus::BAD_REQUEST;	
 	}
 	const LocationBlock* block = findMatchingLocation(target, server);
 	if (block != nullptr)
@@ -129,7 +145,7 @@ HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server
 
 HttpStatus HttpValidator::unsafeCharCheck(const std::string& target)
 {
-	const std::string unsafe = "<>#%{}|\\^~[] ";
+	const std::string unsafe = "<>#{}|\\^~";
 
 	for (const auto &cha : unsafe)
 	{
@@ -138,11 +154,21 @@ HttpStatus HttpValidator::unsafeCharCheck(const std::string& target)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
+	for (unsigned char c : target)
+		{
+			if (c > 127)
+			{
+				return HttpStatus::BAD_REQUEST;
+			}
+		}
 	size_t found = target.find("..");
 	if (found != std::string::npos)
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
+	if (target.find("%00") != std::string::npos) {
+        return HttpStatus::BAD_REQUEST;
+    }
 	return HttpStatus::OK;
 }
 
@@ -175,9 +201,28 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 	{
 		return HttpStatus::BAD_REQUEST;
 	}
+	if(headers.find("content-length") != headers.end() && headers.find("transfer-encoding") != headers.end())
+	{
+				return HttpStatus::BAD_REQUEST;
+
+	}
 	for (const auto& header : headers)
 	{
-		if (header.first.find(" ") != std::string::npos || header.first.empty())
+		for (unsigned char c : header.first)
+		{
+		if (c > 127 || c < 32)
+			{
+				return HttpStatus::BAD_REQUEST;
+			}
+		}
+		for (unsigned char c : header.second)
+		{
+		if (c > 127 || c < 32)
+			{
+				return HttpStatus::BAD_REQUEST;
+			}
+		}
+		if (header.first.find(" ") != std::string::npos || header.first.empty() || header.second == "DUPLICATE_CONFLICT" )
 		{
 			return HttpStatus::BAD_REQUEST;
 		}
@@ -191,10 +236,7 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 		}
 		if (header.first == "content-length")
 		{
-			if(header.second == "DUPLICATE_CONFLICT")
-			{
-				return  HttpStatus::BAD_REQUEST;
-			}
+
 			if (safeConvertLong(header.second) < 0 )
 			{
 				return HttpStatus::BAD_REQUEST;
@@ -212,12 +254,16 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 	}
 	if (request.getMethod() == "POST")
 	{
+		if(headers.contains("transfer-encoding"))
+		{
+			return HttpStatus::OK;
+		}
 		if(!headers.contains("content-length") || headers.at("content-length").empty())
 		{
 			return HttpStatus::LENGTH_REQUIRED;
 		}
 	}
-	if (headers.size() > 50)
+	if (headers.size() > 101)
 	{
 		return HttpStatus::REQUEST_HEADER_LARGE;
 	}
@@ -225,22 +271,29 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 }
 HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size)
 {
-	if(request.getMethod() != "POST")
+ const auto& headers = request.getHeader();
+    bool isChunked = headers.find("transfer-encoding") != headers.end() && 
+                     headers.at("transfer-encoding") == "chunked";
+
+    if (!isChunked)
+    {
+        if (request.getContentLength() == -1)
+		{
+            return HttpStatus::BAD_REQUEST;
+
+		}
+        if (request.getBody().length() != (size_t)request.getContentLength())
+		{
+            return HttpStatus::BAD_REQUEST;
+
+		}
+    }
+    size_t bodySize = request.getBody().size();
+    if (bodySize > max_size)
 	{
-		return HttpStatus::OK;
+        return HttpStatus::PAYLOAD_TOO_LARGE;
+
 	}
-	if (request.getContentLength() == -1)
-	{
-		return HttpStatus::BAD_REQUEST;
-	}
-	if (request.getBody().length() != (size_t)request.getContentLength())
-	{		
-		return HttpStatus::BAD_REQUEST;
-	}
-	size_t bodySize = request.getBody().size();
-	if(bodySize > max_size || bodySize > 51200)
-	{
-		return HttpStatus::PAYLOAD_TOO_LARGE;
-	}
-	return HttpStatus::OK;
+    return HttpStatus::OK;
 }
+

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/15 16:48:51 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/03 17:26:46 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,9 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 			{
 				std::string allow;
 				for (const auto& m : block->getMethods())
+				{
 					allow += (allow.empty() ? "" : ", ") + m;
+				}
 				response.setHeader("Allow", allow);
 			}
 		}
@@ -70,7 +72,7 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 	std::array<char, 100> mbstr;
 	std::strftime(mbstr.data(), sizeof(mbstr), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
 	response.setHeader("Date", std::string(mbstr.data()));
-	response.setHeader("Server", "WebServ");
+	response.setHeader("Server", "webserv");
 	response.setHeader("Content-Length", std::to_string(response.getBody().length()));
 	
 	auto itt1 = headers.find("connection");
@@ -94,17 +96,39 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
+	
 	std::string path;
-
-	if (block != nullptr && block->getRoot().has_value())
+    std::string target = request.getTarget();
+    size_t qpos = target.find('?');
+    if (qpos != std::string::npos)
 	{
-		path = block->getRoot().value() + request.getTarget().substr(findMatchingLocation(request.getTarget(), server)->getPath().length());
+        target = target.substr(0, qpos);
 	}
-	else
-	{
-		path = server.getRoot() + request.getTarget();
-	}
+    target = urlDecode(target);
 
+    if (block != nullptr && block->getRoot().has_value())
+    {
+        std::string blockRoot = block->getRoot().value();
+        if (!blockRoot.empty() && blockRoot.back() != '/')
+		{
+            blockRoot += '/';
+		}
+        std::string locationPath = findMatchingLocation(request.getTarget(), server)->getPath();
+        path = blockRoot + target.substr(locationPath.length());
+        if (!path.empty() && path.back() == '/')
+		{
+            path.pop_back();
+		}
+    }
+    else
+    {
+        std::string root = server.getRoot();
+        if (!root.empty() && root.back() != '/')
+		{
+            root += '/';
+		}
+        path = root + target.substr(1);
+    }
 
 	switch (routeType)
 	{
@@ -214,7 +238,9 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlo
 	std::string path;
 	if(block.getUploadDir().has_value())
 	{
-		path =  block.getUploadDir().value() + target;
+		std::string blockPath = block.getPath();
+		std::string filename = target.substr(blockPath.length());
+		path = block.getUploadDir().value() + filename;
 	}
 	if (path.empty())
 	{
@@ -286,7 +312,6 @@ void HttpResponseBuilder::manageErrorPage(HttpResponse& response, const Server& 
 		std::ifstream file(itt->second);
 		if(!file.is_open())
 		{
-			std::cout <<"maybe this\n" ;
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			return;
 			}
