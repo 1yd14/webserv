@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 14:21:19 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 14:23:12 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,7 +312,6 @@ void HttpResponseBuilder::manageErrorPage(HttpResponse& response, const Server& 
 		std::ifstream file(itt->second);
 		if(!file.is_open())
 		{
-			std::cout <<"maybe this\n" ;
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			return;
 			}
