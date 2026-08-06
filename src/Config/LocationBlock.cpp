@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlock.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/16 15:29:52 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:22:32 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,7 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 }
 
 void LocationBlock::setResolvedRoot(std::string root) {
-	_root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, root));;
+	  _root = root;
 }
 
 void LocationBlock::setIndex(std::vector<std::string> values) {
