@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   PathUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 13:39:57 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/09 16:42:53 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:04:31 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PathUtils.hpp"
 #include <sstream>
 #include <vector>
+#include <iostream>
 
 std::string PathUtils::getConfDir(std::string &configPath) {
 	size_t pos = configPath.find_last_of('/');
@@ -62,10 +63,12 @@ std::string PathUtils::normalizePath(const std::string &path) {
 			result = ".";
 		}
 	}
+	std::cout << "normalizePath input: '" << path << "' output: '" << result << "'\n";
 	return result;
 }
 
 std::string PathUtils::joinPath(const std::string& configPath, const std::string &path) {
+	// std::cout << "joinPath: configPath='" << configPath << "' path='" << path << "'\n";
 	if (!path.empty() && path[0] == '/') {
 		return (path);
 	}
@@ -75,5 +78,5 @@ std::string PathUtils::joinPath(const std::string& configPath, const std::string
 	if (configPath[configPath.length() - 1] == '/') {
 		return configPath + path;
 	}
-	return configPath + "/" + path;
+	return normalizePath(configPath + "/" + path);
 }

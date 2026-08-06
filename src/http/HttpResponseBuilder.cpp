@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 14:24:15 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:14:50 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,6 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 				filePath += "index.html";
 			}
 		}
-		std::cout << "path before try " << "." + filePath << " \n";
 		try {
 			std::ifstream file(filePath);
 			if(!file.is_open())
