@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 14:23:12 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 14:24:15 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,23 +109,24 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& res
     if (block != nullptr && block->getRoot().has_value())
     {
         std::string blockRoot = block->getRoot().value();
+		
         if (!blockRoot.empty() && blockRoot.back() != '/')
 		{
-            blockRoot += '/';
+			blockRoot += '/';
 		}
         std::string locationPath = findMatchingLocation(request.getTarget(), server)->getPath();
         path = blockRoot + target.substr(locationPath.length());
         if (!path.empty() && path.back() == '/')
 		{
-            path.pop_back();
+			path.pop_back();
 		}
     }
     else
     {
-        std::string root = server.getRoot();
+		std::string root = server.getRoot();
         if (!root.empty() && root.back() != '/')
 		{
-            root += '/';
+			root += '/';
 		}
         path = root + target.substr(1);
     }
@@ -204,7 +205,7 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 				filePath += "index.html";
 			}
 		}
-		
+		std::cout << "path before try " << "." + filePath << " \n";
 		try {
 			std::ifstream file(filePath);
 			if(!file.is_open())
@@ -283,12 +284,32 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			return;
 		}
+
+		// const std::map<std::string, std::string> headers = request.getHeader();
+		// auto it = headers.find("content-type");
+
+		// if(it != request.getHeader().end() && it->second.find("multipart/form-data") != std::string::npos)
+		// {
+		// 	file << parseFormData(response, request);
+		// }
 		file << request.getBody();
 		file.close();
 		response.setStatus(HttpStatus::CREATED);
 		return;		
 	}
 	response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+}
+
+std::string HttpResponseBuilder::parseFormData(HttpResponse& response, const HttpRequest& request)
+{
+	std::map<std::string, std::string> headers = request.getHeader();
+	(void)response;
+	for (const auto& header : headers)
+	{
+		std::cout << "headers first '" << header.first << "' header second '" << header.second << "' \n";
+	}
+
+	return "bla";
 }
 
 void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationBlock& block )

@@ -528,9 +528,6 @@ run_raw_test "Header with non-ASCII returns 400" "400" "GET / HTTP/1.1\r\nHost: 
 # GET with body (should be ignored or 400)
 run_http_test "GET with body returns 200" "200" "GET" "/" "body-data"
 
-# GET with body (should be ignored or 400)
-run_http_test "GET with body returns 200" "200" "GET" "/" "body-data"
-
 # DELETE with body
 # Create file then delete it
 printf "Test %-50s : " "DELETE uploaded file returns 204"
