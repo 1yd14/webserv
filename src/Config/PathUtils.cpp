@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 13:39:57 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 15:04:31 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:23:40 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,10 @@ std::string PathUtils::normalizePath(const std::string &path) {
 			result = ".";
 		}
 	}
-	std::cout << "normalizePath input: '" << path << "' output: '" << result << "'\n";
 	return result;
 }
 
 std::string PathUtils::joinPath(const std::string& configPath, const std::string &path) {
-	// std::cout << "joinPath: configPath='" << configPath << "' path='" << path << "'\n";
 	if (!path.empty() && path[0] == '/') {
 		return (path);
 	}

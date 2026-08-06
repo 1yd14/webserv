@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 15:11:21 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:22:32 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 }
 
 void LocationBlock::setResolvedRoot(std::string root) {
-	// _root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, root));;
 	  _root = root;
 }
 
