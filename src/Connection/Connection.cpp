@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/17 16:52:33 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/04 14:48:58 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include "../common/Utils.hpp"
 #include "../http/Router.hpp"
 #include "../http/CGiHandler.hpp"
+#include "../http/HttpResponseBuilder.hpp"
+
 
 uint64_t Connection::s_nextId = 1;
 
@@ -54,7 +56,7 @@ void Connection::handleRead(EventLoop& loop)
 {
 	char buffer[4096];
 	
-	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);
+	ssize_t bytes = recv(getFd(), buffer, sizeof(buffer), 0);	
 	if (bytes <= 0)
 	{
 		loop.removeConnection(getFd());
@@ -62,48 +64,78 @@ void Connection::handleRead(EventLoop& loop)
 	}
 	
 	_readBuffer.append(buffer,bytes);
-	  if (_readBuffer.size() > 8192 && _readBuffer.find("\r\n\r\n") == std::string::npos)
+	if (_readBuffer.size() > 16384 && _readBuffer.find("\r\n\r\n") == std::string::npos)
     {
 
         _pendingError = "HTTP/1.1 414 URI Too Long\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
         _state = ERROR_PENDING;
         _readBuffer.clear();
+		loop.setWriting(this, EPOLL_CTL_MOD);
         return;
     }
 	
 	if (_state == ERROR_PENDING)
 	{
 		handleErrorPending(loop);
-		return;		
+		return;
 	}
 	if (!isRequestComplete())
 	{
 		return;
 	}
-	std::string requestToParse = prepareRequest();
- 	std::cout << "==============REQUEST================" << std::endl;
-	std::cout << requestToParse << std::endl;
-	std::cout << "==============================" << std::endl;
 	
+	if (_state == ERROR_PENDING)
+	{
+		_writeBuffer = _pendingError;
+		_readBuffer.clear();
+		_state = WRITING;
+		loop.setWriting(this, EPOLL_CTL_MOD);
+		return;
+	}
+	std::string requestToParse = prepareRequest();
+		//  std::cout << "==============REQUEST================" << std::endl;
+		// std::cout << requestToParse << std::endl;
+		// std::cout << "==============================" << std::endl;
+	if (_state == ERROR_PENDING)
+	{
+		_writeBuffer = _pendingError;
+		_readBuffer.clear();
+		_state = WRITING;
+		loop.setWriting(this, EPOLL_CTL_MOD);
+		return;
+	}
 	dispatch(requestToParse, loop);
-	std::cout << "==============RESPONSE================" << std::endl;
-	std::cout << _writeBuffer << std::endl;
-	std::cout << "==============================" << std::endl;
+		// std::cout << "==============RESPONSE================" << std::endl;
+		// std::cout << _writeBuffer << std::endl;
+		// std::cout << "==============================" << std::endl;
+	
  	
 }
 
 bool Connection::isRequestComplete()
 {
 	size_t headerEnd = _readBuffer.find("\r\n\r\n");
+
+
 	if (headerEnd == std::string::npos)
 	{
 		return false;
 	}
+
 	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
 		return  _readBuffer.find("0\r\n\r\n") != std::string::npos || _readBuffer.find("0\r\n") != std::string::npos;
 	}
 	size_t contentLength = extractContentLength(_readBuffer);
+	
+	if (contentLength > (size_t)_server.getMaxBodySize())
+	{
+		_pendingError = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+    	_state = ERROR_PENDING;
+    	_readBuffer.clear();
+    	return true;
+		
+	}
 	return  _readBuffer.size() >= headerEnd + 4 + contentLength;
 }
 
@@ -124,9 +156,10 @@ void Connection::handleErrorPending(EventLoop& loop)
 
 std::string Connection::prepareRequest()
 {
+	bool error = false;
 	size_t headerEnd = _readBuffer.find("\r\n\r\n");
 	size_t totalExpected;
-	if (_readBuffer.find("Transfer-Encoding: chuncked") != std::string::npos)
+	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
 		totalExpected = _readBuffer.find("0\r\n\r") + 5;
 	}
@@ -137,10 +170,18 @@ std::string Connection::prepareRequest()
 	std::string requestToParse = _readBuffer.substr(0, totalExpected);
 	_readBuffer.erase(0, totalExpected);
 	
-	if(requestToParse.find("Transfer-Encoding: chuncked") != std::string::npos)
+	if(requestToParse.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
 		size_t bodyStart = requestToParse.find("\r\n\r\n") + 4;
-		std::string unchuncked = unchunkBody(requestToParse.substr(bodyStart));
+		std::string unchuncked = unchunkBody(requestToParse.substr(bodyStart), error);
+		if(error)
+		{
+			
+        _pendingError = "HTTP/1.1 400 Bad request\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+        _state = ERROR_PENDING;
+        _readBuffer.clear();
+        return " ";
+		}
 		requestToParse = requestToParse.substr(0, bodyStart) + unchuncked;
 	}
 	return  requestToParse;

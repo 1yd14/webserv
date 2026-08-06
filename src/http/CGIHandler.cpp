@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/17 16:56:40 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/04 14:54:49 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <vector>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <iostream>
 
 std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const Server& server, int localPort)
 {
@@ -78,13 +79,12 @@ std::string CGIHanlder::getInterpreter(std::string extension)
 	{
 		return "/usr/bin/python3" ;
 	} 
-	else if (extension == ".php") 
+	if (extension == ".php") 
 	{
 		return "/usr/bin/php-cgi";
 	}
-	else {
-		return "";
-	}
+
+	return "";
 }
 
 
@@ -97,6 +97,11 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 		return argv;
 	}
 	std::string scriptPath = getScriptPath(request, server, *block);
+	size_t qpos = scriptPath.find('?');
+	if (qpos != std::string::npos)
+	{
+    	scriptPath = scriptPath.substr(0, qpos);
+	}
 	std::string extension;
 	if (block->getCgiExtension().has_value())
 	{
@@ -143,6 +148,11 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		return;
 	}
 	std::string scriptPath = getScriptPath(request, server, *block);
+	size_t qpos = scriptPath.find('?');
+	if (qpos != std::string::npos)
+	{
+		scriptPath = scriptPath.substr(0, qpos);
+	}
 	std::array<int, 2> pipe_in;
 	std::array<int, 2> pipe_out;
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 14:13:29 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/03 13:00:25 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ void EventLoop::removeConnection(int fd) {
 }
 void EventLoop::removeCGIProcess(int fd)
 {
-	std::cout << "removing cgi for fd: " << fd << std::endl;
 		epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
 	_cgiProcesses.erase(
 		std::remove_if(_cgiProcesses.begin(), _cgiProcesses.end(), 

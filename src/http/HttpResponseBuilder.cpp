@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 15:10:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/03 17:26:46 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../common/Utils.hpp"
 #include <array>
 #include <ctime>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -35,6 +36,18 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	response.setProtocol("HTTP/1.1");
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
+		if (request.getStatusCode() == HttpStatus::METHOD_NOT_ALLOWED)
+		{
+			if (block != nullptr)
+			{
+				std::string allow;
+				for (const auto& m : block->getMethods())
+				{
+					allow += (allow.empty() ? "" : ", ") + m;
+				}
+				response.setHeader("Allow", allow);
+			}
+		}
 		response.setStatus(request.getStatusCode());
 		buildHeader(request, response);
 		return  response;
@@ -54,12 +67,12 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 		{
 			response.setHeader(itt->first, itt->second);
 		}
-	
+
 	std::time_t time = std::time(nullptr);
 	std::array<char, 100> mbstr;
 	std::strftime(mbstr.data(), sizeof(mbstr), "%a, %d %b %Y %H:%M:%S GMT", std::gmtime(&time));
 	response.setHeader("Date", std::string(mbstr.data()));
-	response.setHeader("Server", "WebServ");
+	response.setHeader("Server", "webserv");
 	response.setHeader("Content-Length", std::to_string(response.getBody().length()));
 	
 	auto itt1 = headers.find("connection");
@@ -83,8 +96,39 @@ void HttpResponseBuilder::buildHeader(const HttpRequest& request, HttpResponse& 
 
 void HttpResponseBuilder::buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block)
 {
-	const std::string path = server.getRoot() + request.getTarget();
+	
+	std::string path;
+    std::string target = request.getTarget();
+    size_t qpos = target.find('?');
+    if (qpos != std::string::npos)
+	{
+        target = target.substr(0, qpos);
+	}
+    target = urlDecode(target);
 
+    if (block != nullptr && block->getRoot().has_value())
+    {
+        std::string blockRoot = block->getRoot().value();
+        if (!blockRoot.empty() && blockRoot.back() != '/')
+		{
+            blockRoot += '/';
+		}
+        std::string locationPath = findMatchingLocation(request.getTarget(), server)->getPath();
+        path = blockRoot + target.substr(locationPath.length());
+        if (!path.empty() && path.back() == '/')
+		{
+            path.pop_back();
+		}
+    }
+    else
+    {
+        std::string root = server.getRoot();
+        if (!root.empty() && root.back() != '/')
+		{
+            root += '/';
+		}
+        path = root + target.substr(1);
+    }
 
 	switch (routeType)
 	{
@@ -134,7 +178,6 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 {
 		std::string filePath = path;
 		bool isDir = false;
-
 		try {
 		  isDir = std::filesystem::is_directory(filePath);
 		}catch (const std::filesystem::filesystem_error&) {
@@ -161,35 +204,53 @@ void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string&
 				filePath += "index.html";
 			}
 		}
-		std::ifstream file(filePath);
-		if(!file.is_open())
-		{
+		
+		try {
+			std::ifstream file(filePath);
+			if(!file.is_open())
+			{
+				response.setStatus(HttpStatus::NOT_FOUND);
+				manageErrorPage(response,server);
+				return ;
+			}
+			if (access(filePath.c_str(), R_OK) != 0)
+			{
+				 response.setStatus(HttpStatus::FORBIDDEN);
+				return;
+			}
+			std::string body((std::istreambuf_iterator<char>(file)),
+							  std::istreambuf_iterator<char>());
+			response.setBody(body);
+			response.setStatus(HttpStatus::OK);
+			response.setHeader("Content-Type", getMimeType(filePath));
+			file.close();
+			
+		} catch (const std::exception& e) {
+			    std::cout << "manageStatic exception: " << e.what() << "\n";
+
 			response.setStatus(HttpStatus::NOT_FOUND);
-			manageErrorPage(response,server);
-			return ;
-		}
-		if (access(filePath.c_str(), R_OK) != 0)
-		{
- 			response.setStatus(HttpStatus::FORBIDDEN);
+			manageErrorPage(response, server);
     		return;
 		}
-		std::string body((std::istreambuf_iterator<char>(file)),
-						  std::istreambuf_iterator<char>());
-		response.setBody(body);
-		response.setStatus(HttpStatus::OK);
-		response.setHeader("content-type", getMimeType(filePath));
-		file.close();
 }
 void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target)
 {
 	std::string path;
 	if(block.getUploadDir().has_value())
 	{
-		path =  block.getUploadDir().value() + target;
+		std::string blockPath = block.getPath();
+		std::string filename = target.substr(blockPath.length());
+		path = block.getUploadDir().value() + filename;
 	}
 	if (path.empty())
 	{
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		return;
+	}
+	
+	if (access(path.c_str(), F_OK) != 0)
+	{
+		response.setStatus(HttpStatus::NOT_FOUND);
 		return;
 	}
 	if (access(path.c_str(), W_OK) != 0)

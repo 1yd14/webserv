@@ -7,3 +7,5 @@ test_validator
 tester
 .gitmodules
 tests_framework
+*.txt
+empty_config.conf

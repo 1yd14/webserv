@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/13 15:09:29 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/04 12:29:18 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,13 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 	while(pos < headerStr.length())
 	{
 		lineStart = pos;
+		if (lineStart < headerStr.length() && (headerStr[lineStart] == ' ' || headerStr[lineStart] == '\t'))
+		{
+			header["FOLDED_HEADER"] = "true";
+			break;
+		}
 		pos = headerStr.find("\r\n", lineStart);
-		delim = headerStr.find(":", lineStart);
+		delim = headerStr.find_first_of(":", lineStart);
 		if(pos == std::string::npos)
 		{
 			pos = headerStr.length();
@@ -75,11 +80,12 @@ std::map<std::string, std::string> parseHeaders(const std::string& headerStr)
 			break;
 		}
 		std::string key = headerStr.substr(lineStart, delim - lineStart);
+		
 		std::string value;
 		
 		if (delim + 2 < pos)
 		{
-			value = trim(headerStr.substr(delim + 2, pos - (delim + 2)));
+			value = trim(headerStr.substr(delim + 1, pos - (delim + 1)));
 		}
 		for( auto &cha : key)
 		{
@@ -208,20 +214,29 @@ std::string getReasonPhrase(HttpStatus status)
 
 size_t extractContentLength(const std::string& buffer)
 {
-	size_t num;
-	const auto& it = buffer.find("content-length:");
-	if (it != std::string::npos)
+	size_t pos = buffer.find("Content-Length:");
+	long val = 0;
+	if (pos == std::string::npos)
 	{
-		std::string sub = buffer.substr( it +15);
-		auto itt =  sub.find_first_of("\r\n");
-		num = std::stoul(trim(sub.substr(0,itt)));
-		return num;
+		pos = buffer.find("content-length:");
 	}
-	return  0;
-	
+	if (pos != std::string::npos)
+	{
+		
+		std::string sub = buffer.substr( pos +15);
+		auto itt =  sub.find_first_of("\r\n");
+
+		val = safeConvertLong(trim(sub.substr(0,itt)));
+			
+		if(val < 0)
+		{
+			return 0;
+		}
+	}
+	return  (size_t)val;
 }
 
-std::string unchunkBody(const std::string &chunckedBody)
+std::string unchunkBody(const std::string &chunckedBody, bool &error)
 {
 	std::string result;
 	std::string line;
@@ -236,13 +251,19 @@ std::string unchunkBody(const std::string &chunckedBody)
 			return result;
 		}
 		line = chunckedBody.substr(position, end -position);
-		size_t chunckSize = std::stoul(line, nullptr, 16);
-		if (chunckSize == 0)
-		{
-			return result;
+		try {
+			size_t chunckSize = std::stoul(line, nullptr, 16);		
+			if (chunckSize == 0)
+			{
+				return result;
+			}
+			result += chunckedBody.substr(end +2, chunckSize);
+			position = end + 2 + chunckSize + 2;
+		} catch (const std::exception& e) {
+		
+			error = true;
+			return "";
 		}
-		result += chunckedBody.substr(end +2, chunckSize);
-		position = end + 2 + chunckSize + 2;
 	}
 	return result;
 }
@@ -275,4 +296,27 @@ std::string getMimeType(const std::string& path)
 		return it->second;
 	}
 	return "application/octet-stream";
+}
+std::string urlDecode(const std::string& str)
+{
+    std::string result;
+    for (size_t i = 0; i < str.length(); i++)
+    {
+        if (str[i] == '%' && i + 2 < str.length())
+        {
+            std::string hex = str.substr(i + 1, 2);
+            char decoded = (char)std::stoul(hex, nullptr, 16);
+            result += decoded;
+            i += 2;
+        }
+        else if (str[i] == '+')
+		{
+            result += ' ';
+		}
+        else
+		{
+            result += str[i];
+		}
+    }
+    return result;
 }
