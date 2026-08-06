@@ -14,6 +14,10 @@ RESET="\033[0m"
 PASSED=0
 FAILED=0
 SERVER_PID=""
+VALGRIND=false
+if [ "$1" = "--valgrind" ] || [ "$1" = "-v" ]; then
+    VALGRIND=true
+fi
 
 # Cleanup function
 cleanup() {
@@ -371,7 +375,11 @@ if [ ! -f "$TEST_DIR/test_config.conf" ]; then
     exit 1
 fi
 
-$WEBSERV "$TEST_DIR/test_config.conf" &
+if [ "$VALGRIND" = true ]; then
+    valgrind --leak-check=full --show-leak-kinds=all --track-fds=yes -s --log-file=valgrind_output.txt $WEBSERV "$TEST_DIR/test_config.conf" &
+else
+    $WEBSERV "$TEST_DIR/test_config.conf" &
+fi
 SERVER_PID=$!
 
 # Wait for server to be ready
@@ -860,7 +868,7 @@ echo "============== Many Headers Test =============="
 
 printf "Test %-50s : " "100 custom headers"
 headers=""
-for i in {1..100}; do
+for i in {1..97}; do
     headers="$headers -H 'X-Header-$i: value'"
 done
 cmd="curl -s -o /dev/null -w '%{http_code}' $headers http://${HOST}:${PORT}/"

@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/04 14:55:03 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/05 14:53:48 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,7 +263,7 @@ HttpStatus HttpValidator::isValidHeader(const HttpRequest& request)
 			return HttpStatus::LENGTH_REQUIRED;
 		}
 	}
-	if (headers.size() > 101)
+	if (headers.size() > 100)
 	{
 		return HttpStatus::REQUEST_HEADER_LARGE;
 	}
