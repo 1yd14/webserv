@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpValidator.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 17:11:34 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/08 13:23:36 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,6 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 	{
 		return HttpStatus::OK;
 	}
-	if (method == "OPTIONS" || method == "PUT" ||
-		 method == "TRACE" || method == "PATCH" || method == "CONNECT" || method == "HEAD")
-	{
-		
-    	return HttpStatus::METHOD_NOT_ALLOWED;
-	}
 	for (const auto &cha : method)
 	{
 		if (isupper(cha) ==  0)
@@ -94,7 +88,7 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-	return HttpStatus::METHOD_NOT_ALLOWED;
+	return HttpStatus::NOT_IMPLEMENTED;
 }
 
 HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server& server)
