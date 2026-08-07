@@ -6,13 +6,14 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 15:14:50 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/07 15:04:35 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpResponseBuilder.hpp"
 #include "../common/Utils.hpp"
 #include <array>
+#include <cstddef>
 #include <ctime>
 #include <exception>
 #include <filesystem>
@@ -269,28 +270,37 @@ void HttpResponseBuilder::manageDelete(HttpResponse& response, const LocationBlo
 
 void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpRequest& request, const LocationBlock& block)
 {
+	
 	if (block.getUploadDir().has_value())
 	{
+		std::string uploadDir = block.getUploadDir().value();
+		
 		std::string filename = std::filesystem::path(request.getTarget()).filename();
-		if(access(block.getUploadDir().value().c_str(), W_OK) != 0)
+		if(access(uploadDir.c_str(), W_OK) != 0)
 		{
 			response.setStatus(HttpStatus::FORBIDDEN);
 			return;
 		}
-		std::ofstream file( block.getUploadDir().value() + "/" + filename);
+		std::ofstream file( uploadDir + "/" + filename);
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 			return;
 		}
-
-		// const std::map<std::string, std::string> headers = request.getHeader();
-		// auto it = headers.find("content-type");
-
-		// if(it != request.getHeader().end() && it->second.find("multipart/form-data") != std::string::npos)
-		// {
-		// 	file << parseFormData(response, request);
-		// }
+		
+		const std::map<std::string, std::string> headers = request.getHeader();
+		auto it = headers.find("content-type");
+		if(it != headers.end() && it->second.find("multipart/form-data") != std::string::npos)
+		{
+			if(!parseFormData(response, request , uploadDir))
+			{
+				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+				return;
+			}
+			
+			response.setStatus(HttpStatus::CREATED);
+			return;
+		}
 		file << request.getBody();
 		file.close();
 		response.setStatus(HttpStatus::CREATED);
@@ -299,16 +309,48 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 	response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
 }
 
-std::string HttpResponseBuilder::parseFormData(HttpResponse& response, const HttpRequest& request)
+bool HttpResponseBuilder::parseFormData(HttpResponse& response, const HttpRequest& request, const std::string& uploadDir)
 {
 	std::map<std::string, std::string> headers = request.getHeader();
+	std::string boundary;
+	std::string filename;
 	(void)response;
 	for (const auto& header : headers)
 	{
-		std::cout << "headers first '" << header.first << "' header second '" << header.second << "' \n";
+		if(header.first == "content-type")
+		{
+			boundary = header.second;
+		}
 	}
+	size_t eq = boundary.find("=");
+	if(eq == std::string::npos)
+	{
+		return false;
+	}
+	boundary = boundary.substr(eq +1);
+	std::string body = request.getBody();
+	
+	body = body.substr(body.find("--" + boundary));
+	size_t feq = body.find("filename=");
+	if(feq == std::string::npos)
+	{
+		return false;
+	}
+	filename = body.substr(feq + 10, (body.find("Content-Type")  - (feq + 13) ));
+	
+	size_t dataStart = body.find("\r\n\r\n");
+	size_t dataEnd = body.find("\r\n--" + boundary + "--");
 
-	return "bla";
+	if(dataStart == std::string::npos || dataEnd == std::string::npos)
+	{
+		return false;
+	}
+	
+	std::string data  = body.substr(dataStart + 4, dataEnd -( dataStart + 4));
+	std::ofstream outFile (uploadDir + "/" + filename, std::ios::binary);
+	outFile.write(data.c_str(), data.size());
+	outFile.close();
+	return true;
 }
 
 void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationBlock& block )

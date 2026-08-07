@@ -322,7 +322,7 @@
             <span class="card-tag">UPLOAD</span>
             <h3>File Upload</h3>
             <p>POST a file to the server. It lands in the uploads directory.</p>
-            <form class="upload-form" action="/upload" method="POST" enctype="application/octet-stream">
+            <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
                 <input type="file" name="file">
                 <button type="submit" class="btn">Upload</button>
             </form>
