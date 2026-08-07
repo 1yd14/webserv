@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 14:22:55 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/07 14:15:44 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,6 @@ size_t extractContentLength(const std::string& buffer)
 		auto itt =  sub.find_first_of("\r\n");
 
 		val = safeConvertLong(trim(sub.substr(0,itt)));
-			
 		if(val < 0)
 		{
 			return 0;

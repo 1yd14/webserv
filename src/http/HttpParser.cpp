@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:54:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 11:32:58 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 17:14:09 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ HttpRequest HttpParser::parseHttp(const std::string &rawRequest)
 	extractContentLength(request);
 
 
-	request.setBody(trim(rawRequest.substr(emptyHeaderLine + 4)));
+	request.setBody(rawRequest.substr(emptyHeaderLine + 4));
 	
 	return request;
 }

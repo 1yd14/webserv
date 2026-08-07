@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 12:05:30 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/07 12:38:28 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,5 +35,5 @@ class HttpResponseBuilder
 			static void manageRedirect(HttpResponse& response, const LocationBlock& block);
 			static void manageErrorPage(HttpResponse& response, const Server& server);
 			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path);
-			static std::string parseFormData(HttpResponse& response, const HttpRequest& request);
+			static bool parseFormData(HttpResponse& response, const HttpRequest& request, const std::string& uploadDir);
 };

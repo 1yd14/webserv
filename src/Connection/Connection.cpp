@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 14:24:09 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 17:06:54 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ void Connection::handleRead(EventLoop& loop)
 	{
 		return;
 	}
-	
 	if (_state == ERROR_PENDING)
 	{
 		_writeBuffer = _pendingError;
@@ -116,12 +115,11 @@ bool Connection::isRequestComplete()
 {
 	size_t headerEnd = _readBuffer.find("\r\n\r\n");
 
-
 	if (headerEnd == std::string::npos)
 	{
 		return false;
 	}
-
+	
 	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
 		return  _readBuffer.find("0\r\n\r\n") != std::string::npos || _readBuffer.find("0\r\n") != std::string::npos;
@@ -136,6 +134,7 @@ bool Connection::isRequestComplete()
     	return true;
 		
 	}
+
 	return  _readBuffer.size() >= headerEnd + 4 + contentLength;
 }
 
@@ -191,6 +190,7 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 {
 
 	HttpRequest request = HttpParser::parseHttp(requestToParse);
+	
 	Router router;
 	if (router.route(request, _server) == RouteType::CGI)
 	{
@@ -198,6 +198,7 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 		return;
 	}
 	_writeBuffer = processRequest(requestToParse, _server);
+
 	
 	if (_writeBuffer.find("Connection: close") != std::string::npos || 
 		_writeBuffer.find("connection: close") != std::string::npos)
@@ -215,6 +216,7 @@ void Connection::handleWrite(EventLoop &loop) {
 		loop.removeConnection(getFd());
 		return ;
 	}
+	
 	_lastActivity = time(nullptr);
 	_writeBuffer.erase(0, bytes);
 	if (_writeBuffer.empty())

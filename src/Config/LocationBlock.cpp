@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 15:22:32 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/06 15:25:06 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 		throw std::runtime_error("root directive requires exactly one value");
 	}
 	if (values[0].empty()) {
-	    throw std::runtime_error("root cannot be empty");
+		throw std::runtime_error("root cannot be empty");
 	}
 	_root = PathUtils::normalizePath(PathUtils::joinPath(_configDirectory, values[0]));
 }
