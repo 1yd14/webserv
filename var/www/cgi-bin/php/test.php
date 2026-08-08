@@ -29,10 +29,6 @@ foreach ($_SERVER as $key => $val) {
 }
 ?></pre>
 
-<?php
-while (true) {
-    // Intentionally do nothing forever.
-}?>
 
 <h2>GET params</h2>
 <pre><?php print_r($_GET); ?></pre>
