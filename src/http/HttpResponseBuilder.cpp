@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 13:52:54 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/08 14:49:45 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 
 	response.setProtocol("HTTP/1.1");
+	    // TEST: force a 500 response
+    if (request.getTarget() == "/500")
+    {
+        sendError(response, server, HttpStatus::INTERNAL_SERVER_ERROR);
+        buildHeader(request, response);
+        return response;
+    }
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
 		if (request.getStatusCode() == HttpStatus::METHOD_NOT_ALLOWED)
@@ -172,14 +179,15 @@ void HttpResponseBuilder::buildBody(const HttpRequest& request, HttpResponse& re
 			manageDirectory(response, request, path, server);
 			break;
 		default:
-			manageErrorPage(response, server);
+			sendError(response, server, HttpStatus::INTERNAL_SERVER_ERROR);
 			break;
 	}
 }
 
 void HttpResponseBuilder::sendError(HttpResponse& response, const Server& server, HttpStatus status) {
 	response.setStatus(status);
-	manageErrorPage(response, server);
+	//manageErrorPage(response, server);
+	getErrorBody(response, server);
 }
 
 void HttpResponseBuilder::manageStatic(HttpResponse& response,const std::string& path, const LocationBlock* block, const Server& server)
@@ -355,28 +363,6 @@ void HttpResponseBuilder::manageRedirect(HttpResponse& response, const LocationB
 		return;
 	}
 	sendError(response, server, HttpStatus::INTERNAL_SERVER_ERROR);
-}
-
-void HttpResponseBuilder::manageErrorPage(HttpResponse& response, const Server& server)
-{
-	int status = (int)response.getStatus();
-	const auto& errorPages = server.getErrorPages();
-
-	auto itt = errorPages.find(status);
-	if (itt != errorPages.end())
-	{
-		std::ifstream file(itt->second);
-		if(!file.is_open())
-		{
-			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
-			return;
-		}
-		std::string body((std::istreambuf_iterator<char>(file)),
-					 	std::istreambuf_iterator<char>());
-		response.setBody(body);
-		return;
-	}
-	response.setBody("<html><body><h1>" + std::to_string((int)response.getStatus()) + " Error</h1></body></html>");
 }
 
 void HttpResponseBuilder::manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path, const Server& server)

@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 13:52:21 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/08 14:29:44 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ class HttpResponseBuilder
 			static void manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target, const Server& server);
 			static void manageUpload(HttpResponse& response, const HttpRequest& request, const LocationBlock& block, const Server& server);
 			static void manageRedirect(HttpResponse& response, const LocationBlock& block, const Server& server);
-			static void manageErrorPage(HttpResponse& response, const Server& server);
 			static bool parseFormData(HttpResponse& response, const HttpRequest& request, const std::string& uploadDir);
 			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path, const Server& server);
 			static std::string parseFormData(HttpResponse& response, const HttpRequest& request);
