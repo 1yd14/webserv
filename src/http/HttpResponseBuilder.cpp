@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 13:25:09 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/08 13:52:54 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,7 +288,7 @@ void HttpResponseBuilder::manageUpload(HttpResponse& response , const HttpReques
 		{
 			if(!parseFormData(response, request , uploadDir))
 			{
-				response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+				sendError(response, server, HttpStatus::INTERNAL_SERVER_ERROR);
 				return;
 			}
 			
