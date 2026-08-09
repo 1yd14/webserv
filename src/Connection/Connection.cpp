@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 16:28:29 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 16:51:15 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,6 +246,11 @@ void Connection::handleEvent(EventLoop &loop) {
 }
 
 void Connection::onTimeout(EventLoop & loop) {
+	if (_state == READING && !_readBuffer.empty())
+	{
+		std::string timeoutResponse = "HTTP/1.1 408 Request Timeout\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
+		send(getFd(), timeoutResponse.c_str(), timeoutResponse.size(), 0);
+	}
 	loop.removeConnection(getFd());
 }
 
