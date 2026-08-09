@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 17:06:54 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/09 16:28:29 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,6 +194,7 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 	Router router;
 	if (router.route(request, _server) == RouteType::CGI)
 	{
+		_state = AWAITING_CGI;
 		CGIHanlder::execute(request,_server, loop, *this);
 		return;
 	}
@@ -244,6 +245,9 @@ void Connection::handleEvent(EventLoop &loop) {
 	(void)_server;
 }
 
+void Connection::onTimeout(EventLoop & loop) {
+	loop.removeConnection(getFd());
+}
 
 void Connection::setWriterBuffer(const std::string& data)
 {
