@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/10 15:39:44 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:58:01 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,6 +233,7 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 
 			if(router.route(request,_server) == RouteType::CGI)
 			{
+				_state = AWAITING_CGI;
 				CGIHanlder::execute(request, _server, loop ,*this);
 				return;
 			}
