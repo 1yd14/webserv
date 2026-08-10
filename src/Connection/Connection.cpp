@@ -6,12 +6,13 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/10 17:22:38 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 17:28:32 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Connection.hpp"
 #include "EventLoop.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <ctime>
 #include <string>
@@ -248,8 +249,16 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 				return;
 			}
 			_writeBuffer = processRequest(request, _server);
-			if (_writeBuffer.find("Connection: close") != std::string::npos || 
-				_writeBuffer.find("connection: close") != std::string::npos)
+			std::string lowerBuffer = _writeBuffer;
+			std::transform(
+					lowerBuffer.begin(),
+					lowerBuffer.end(),
+					lowerBuffer.begin(),
+					[](unsigned char c) {
+					    return std::tolower(c);
+					}
+				);
+			if (lowerBuffer.find("connection: close") != std::string::npos)
 				{
 					_shouldClose = true;
 				}
@@ -257,7 +266,6 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 			loop.setWriting(this, EPOLL_CTL_MOD);
 			return;
 		}
-		
 	}
 	HttpResponse response = builder.build(request, _server, RouteType::NOT_FOUND);
 	response.setHeader("Connection", "close");
