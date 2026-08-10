@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 15:13:21 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:33:33 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,15 +215,20 @@ std::string getReasonPhrase(HttpStatus status)
 
 size_t extractContentLength(const std::string& buffer)
 {
-	size_t pos = buffer.find("Content-Length:");
+	std::string lowerBuffer = buffer;
+
+    std::transform(
+        lowerBuffer.begin(),
+        lowerBuffer.end(),
+        lowerBuffer.begin(),
+        [](unsigned char c) {
+            return std::tolower(c);
+        }
+    );
+	size_t pos = lowerBuffer.find("content-length:");
 	long val = 0;
-	if (pos == std::string::npos)
-	{
-		pos = buffer.find("content-length:");
-	}
 	if (pos != std::string::npos)
 	{
-		
 		std::string sub = buffer.substr( pos +15);
 		auto itt =  sub.find_first_of("\r\n");
 
