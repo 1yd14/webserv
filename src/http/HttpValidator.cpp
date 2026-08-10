@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpValidator.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 12:02:37 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:39:55 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/09 17:44:37 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:39:48 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,7 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
 	auto itt = header.find("content-type");
 	env.emplace_back("CONTENT_TYPE="+ (itt != header.end() ? itt->second : ""));
 	env.emplace_back("REDIRECT_STATUS=200");
-	// redirect status ? 
-	// all other envs ?
+
 	return env;
 };
 

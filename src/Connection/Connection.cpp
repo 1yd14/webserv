@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/10 12:08:56 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:58:01 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include "../http/Router.hpp"
 #include "../http/CGiHandler.hpp"
 #include "../http/HttpResponseBuilder.hpp"
+#include "../http/HttpValidator.hpp"
 
 
 uint64_t Connection::s_nextId = 1;
@@ -217,25 +218,43 @@ std::string Connection::prepareRequest()
 void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 {
 
+	HttpResponseBuilder builder;
 	HttpRequest request = HttpParser::parseHttp(requestToParse);
-	
-	Router router;
-	if (router.route(request, _server) == RouteType::CGI)
-	{
-		_state = AWAITING_CGI;
-		CGIHanlder::execute(request,_server, loop, *this);
-		return;
-	}
-	_writeBuffer = processRequest(requestToParse, _server);
+	HttpStatus status = request.getStatusCode();
 
-	
-	if (_writeBuffer.find("Connection: close") != std::string::npos || 
-		_writeBuffer.find("connection: close") != std::string::npos)
+	if(status == HttpStatus::OK ||status == HttpStatus::NONE)
+	{
+		HttpValidator validator;
+		
+		status = validator.validate(request,_server);
+		if (status == HttpStatus::OK)
 		{
-			_shouldClose = true;
+			Router router;
+
+			if(router.route(request,_server) == RouteType::CGI)
+			{
+				_state = AWAITING_CGI;
+				CGIHanlder::execute(request, _server, loop ,*this);
+				return;
+			}
+			_writeBuffer = processRequest(request, _server);
+			if (_writeBuffer.find("Connection: close") != std::string::npos || 
+				_writeBuffer.find("connection: close") != std::string::npos)
+				{
+					_shouldClose = true;
+				}
+			_state = WRITING;
+			loop.setWriting(this, EPOLL_CTL_MOD);
+			return;
 		}
+		
+	}
+	HttpResponse response = builder.build(request, _server, RouteType::NOT_FOUND);
+	response.setHeader("Connection", "close");
+	_writeBuffer = response.serialize();
 	_state = WRITING;
 	loop.setWriting(this, EPOLL_CTL_MOD);
+
 }
 
 void Connection::handleWrite(EventLoop &loop) {

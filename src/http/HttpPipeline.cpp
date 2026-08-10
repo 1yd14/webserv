@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/04 11:27:57 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:21:56 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,29 +18,9 @@
 #include "HttpResponseBuilder.hpp"
 #include <iostream>
 
-std::string processRequest(const std::string& rawRequest, const Server& server)
+std::string processRequest(const HttpRequest& request, const Server& server)
 {
-	HttpRequest request;
-	HttpParser parser;
 	HttpResponseBuilder builder;
-	request = parser.parseHttp(rawRequest);
-	
-	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
-	{
-		HttpResponse response = builder.build(request, server,RouteType::NOT_FOUND );
-		response.setHeader("Connection", "close");
-		return response.serialize();
-	}
-	HttpValidator validator;
-	
-	HttpStatus status = validator.validate(request, server);
-	
-	if (status != HttpStatus::OK)
-	{
-		HttpResponse response = builder.build(request, server, RouteType::NOT_FOUND );
-		response.setHeader("Connection", "close");
-		return response.serialize();
-	}
 	Router router;
 	const RouteType routeType = router.route(request, server);
 	HttpResponse response = builder.build(request, server, routeType);
