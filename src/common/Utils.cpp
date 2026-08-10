@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 14:27:22 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 14:57:58 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,6 +332,7 @@ void getErrorBody(HttpResponse& response, const Server& server) {
 		if(!file.is_open())
 		{
 			response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+            response.setBody("<html><body><h1>" + std::to_string((int)response.getStatus()) + " Error</h1></body></html>");
 			return;
 		}
 		std::string body((std::istreambuf_iterator<char>(file)),
