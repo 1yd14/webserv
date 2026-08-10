@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/06 14:05:00 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/09 17:44:37 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,10 @@ std::string CGIHanlder::getInterpreter(std::string extension)
 	{
 		return "/usr/bin/php-cgi";
 	}
-
+	if (extension == ".bla")
+	{
+		return "./cgi_tester"; // or wherever you place/download it, absolute path is safer
+	}
 	return "";
 }
 
@@ -116,13 +119,14 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 	return  argv;
 }
 
-HttpResponse CGIHanlder::buildError(const HttpStatus& status)
+HttpResponse CGIHanlder::buildError(const HttpStatus& status, const Server& server)
 {
 	HttpResponse errorResponse;
 	
-	errorResponse.setStatus(status);
 	errorResponse.setProtocol("HTTP/1.1");
-	errorResponse.setHeader("Content-Length", "0");
+	errorResponse.setStatus(status);
+	getErrorBody(errorResponse, server);
+	errorResponse.setHeader("Content-Length", std::to_string(errorResponse.getBody().length()));
 	return errorResponse;
 }
 
@@ -130,7 +134,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 {
 	std::vector<std::string> env = buildEnv(request, server, connection.getLocalPort());
 	std::vector<std::string> argv = buildArgs(request, server);
-	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR).serialize();
+	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR, server).serialize();
 	if (argv.empty())
 	{
 		connection.setWriterBuffer(errorResponse);
@@ -141,7 +145,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 	if (block == nullptr)
 	{
-		errorResponse = buildError(HttpStatus::NOT_FOUND).serialize();
+		errorResponse = buildError(HttpStatus::NOT_FOUND, server).serialize();
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
@@ -158,7 +162,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 
 	if (access(scriptPath.c_str(), X_OK) != 0)
 	{
-   		errorResponse = buildError(HttpStatus::FORBIDDEN).serialize();
+   		errorResponse = buildError(HttpStatus::FORBIDDEN, server).serialize();
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
@@ -231,11 +235,11 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		write(pipe_in[1],request.getBody().c_str(),request.getBody().length());
 		close(pipe_in[1]);
 		
-		loop.addCgi(std::make_unique<CGIProcess>(pipe_out[0], pid, connection.getId()));
+		loop.addCgi(std::make_unique<CGIProcess>(pipe_out[0], pid, connection.getId(), server));
 	}
 }
 
-void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response)
+void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response, const Server& server)
 {
 	size_t separator = output.find("\r\n\r\n");
 	
@@ -244,6 +248,8 @@ void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& respons
 	if (separator == std::string::npos)
 	{
 		response.setStatus(HttpStatus::INTERNAL_SERVER_ERROR);
+		getErrorBody(response, server);
+		response.setHeader("Content-Length", std::to_string(response.getBody().length()));
 		return;
 	}
 

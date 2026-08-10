@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   EventLoop.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/03 13:00:25 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/09 16:29:09 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 #define MAX_EVENTS 1024
 #define TIMEOUT_MS 5000
-#define TIMEOUT_SECONDS 60
+#define TIMEOUT_SECONDS 10
 
 EventLoop::EventLoop() {
 	_epollFd = epoll_create1(0);
@@ -71,10 +71,10 @@ void EventLoop::run() {
 		int readyFds = epoll_wait(_epollFd, events.data(), events.size(), TIMEOUT_MS);
 		if (readyFds < 0) {
 			if (errno == EINTR) {
-				break ;
+        		continue;
 			}
-			//hanlde the error
-			continue;
+    		std::cerr << "epoll_wait: " << strerror(errno) << std::endl;
+    		break;
 		}
 		for (int i = 0; i < readyFds; ++i) {
 			auto* socket = static_cast<ASocket*>(events[i].data.ptr);
@@ -84,21 +84,27 @@ void EventLoop::run() {
 					socket->handleEvent(*this);
 					continue;
 				}
-				else {
-					removeConnection(socket->getFd());
-					continue;
-				}
+				removeConnection(socket->getFd());
+				continue;
 			}
 			socket->handleEvent(*this);
 		}
-		std::vector<int> timeoutFds;
-		for (size_t i = 0; i < _connections.size(); i++) {
-			if(time(nullptr) - _connections[i]->getLastActivity() > TIMEOUT_SECONDS) {
-				timeoutFds.push_back(_connections[i]->getFd());
+		std::vector<ASocket*> timedOut;
+		for (auto& conn : _connections) {
+			if (time(nullptr) - conn->getLastActivity() > TIMEOUT_SECONDS){
+				if (conn->getState() == AWAITING_CGI) {
+					continue ;
+				}
+	        	timedOut.push_back(conn.get());
 			}
 		}
-		for (int fd : timeoutFds) {
-			removeConnection(fd);
+		for (auto& CGI : _cgiProcesses) {
+			if(time(nullptr) - CGI->getLastActivity() > TIMEOUT_SECONDS) {
+				timedOut.push_back(CGI.get());
+			}
+		}
+		for (ASocket* socket : timedOut) {
+    		socket->onTimeout(*this);
 		}
 	}
 }
@@ -114,7 +120,7 @@ void EventLoop::removeConnection(int fd) {
 }
 void EventLoop::removeCGIProcess(int fd)
 {
-		epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
+	epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
 	_cgiProcesses.erase(
 		std::remove_if(_cgiProcesses.begin(), _cgiProcesses.end(), 
 			[fd](const std::unique_ptr<CGIProcess> &s){

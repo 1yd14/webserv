@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:29:18 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/04 12:26:32 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/08 14:19:14 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <string>
 #include "../Config/LocationBlock.hpp"
 #include "../Config/Server.hpp"
+#include "HttpResponse.hpp"
 #include "HttpStatus.hpp"
 
 
@@ -29,4 +30,5 @@ size_t extractContentLength(const std::string& buffer);
 std::string unchunkBody(const std::string& chunckedBody, bool &error);
 std::string getMimeType(const std::string& path);
 std::string urlDecode(const std::string& str);
+void getErrorBody(HttpResponse& response, const Server& server);
 

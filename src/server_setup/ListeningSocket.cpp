@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 19:45:49 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/17 16:45:51 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 15:53:17 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,4 +68,9 @@ void ListeningSocket::handleEvent(EventLoop &loop) {
 		return;
 	}
 	loop.addConnection(std::make_unique<Connection>(clientFd, _server, _port));
+}
+
+void ListeningSocket::onTimeout(EventLoop& loop)
+{
+    (void)loop; 
 }

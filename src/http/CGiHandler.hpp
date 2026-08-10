@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:41:39 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/07/17 16:55:45 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/08 15:19:12 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ class CGIHanlder
 		CGIHanlder() = delete;
 		
 		static void execute(const HttpRequest& request,const Server& server, EventLoop& loop, Connection& connection);
-		static void parseCGIOutput(const std::string& output, HttpResponse& response);
-		static HttpResponse buildError(const HttpStatus& status);
+		static void parseCGIOutput(const std::string& output, HttpResponse& response, const Server& server);
+		static HttpResponse buildError(const HttpStatus& status, const Server& server);
 	private:
 		static std::vector<std::string>buildEnv(const HttpRequest& request, const Server& server, int localPort);
 		static std::vector<std::string>buildArgs(const HttpRequest& request, const Server& server);

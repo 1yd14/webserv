@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/19 13:32:34 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/17 13:56:59 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 17:56:33 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ LocationBlock ConfigParser::parseLocation(std::istringstream &input, const std::
         { "cgi_extension",&LocationBlock::setCgiExtension },
         { "autoindex",    &LocationBlock::setAutoIndex    },
         { "redirect",     &LocationBlock::setRedirect     },
+        { "max_body_size",&LocationBlock::setMaxBodySize  },
+
     };
 	while (input>>word) {
 		if (word == "}") {
