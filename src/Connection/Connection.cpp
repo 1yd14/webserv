@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/10 15:58:01 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 17:22:38 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,11 +114,10 @@ void Connection::handleRead(EventLoop& loop)
 		loop.setWriting(this, EPOLL_CTL_MOD);
 		return;
 	}
-	std::cout << "buffer '" << buffer << " wrtite buffer '" << _writeBuffer << " \n"; 
 	std::string requestToParse = prepareRequest();
-		  std::cout << "==============REQUEST================" << std::endl;
-		 std::cout << requestToParse << std::endl;
-		 std::cout << "==============================" << std::endl;
+		//  std::cout << "==============REQUEST================" << std::endl;
+		// std::cout << requestToParse << std::endl;
+		// std::cout << "==============================" << std::endl;
 	if (_state == ERROR_PENDING)
 	{
 		_writeBuffer = _pendingError;
@@ -127,12 +126,11 @@ void Connection::handleRead(EventLoop& loop)
 		loop.setWriting(this, EPOLL_CTL_MOD);
 		return;
 	}
+	if (requestToParse.empty())
+	{
+		return;
+	}
 	dispatch(requestToParse, loop);
-		 std::cout << "==============RESPONSE================" << std::endl;
-		 std::cout << _writeBuffer << std::endl;
-		 std::cout << "==============================" << std::endl;
-	
- 	
 }
 
 bool Connection::isRequestComplete(const LocationBlock * block)
@@ -186,14 +184,26 @@ std::string Connection::prepareRequest()
 {
 	bool error = false;
 	size_t headerEnd = _readBuffer.find("\r\n\r\n");
-	size_t totalExpected;
+	size_t totalExpected = 0;
 	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
+		size_t chunkEnd = _readBuffer.find("0\r\n\r\n");
+        if (chunkEnd == std::string::npos)
+		{
+            return "";
+		}
+        totalExpected = chunkEnd + 5;
 		totalExpected = _readBuffer.find("0\r\n\r\n") + 5;
 	}
 	else
 	{
-		totalExpected = headerEnd + 4 + extractContentLength(_readBuffer);
+		size_t contentLength = extractContentLength(_readBuffer);
+	
+		totalExpected = headerEnd + 4 + contentLength;
+		if (_readBuffer.size() < totalExpected)
+		{	
+			return "";
+		}
 	}
 	std::string requestToParse = _readBuffer.substr(0, totalExpected);
 	_readBuffer.erase(0, totalExpected);
