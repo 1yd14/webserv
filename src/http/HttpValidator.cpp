@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 14:54:34 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:39:55 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,6 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 	{
 		return HttpStatus::OK;
 	}
-	if (method == "OPTIONS" || method == "PUT" ||
-		 method == "TRACE" || method == "PATCH" || method == "CONNECT" || method == "HEAD")
-	{
-		
-    	return HttpStatus::METHOD_NOT_ALLOWED;
-	}
 	for (const auto &cha : method)
 	{
 		if (isupper(cha) ==  0)
@@ -94,7 +88,7 @@ HttpStatus HttpValidator::isValidMethod(const HttpRequest& request)
 			return HttpStatus::BAD_REQUEST;
 		}
 	}
-	return HttpStatus::METHOD_NOT_ALLOWED;
+	return HttpStatus::NOT_IMPLEMENTED;
 }
 
 HttpStatus HttpValidator::isValidTarget(const HttpRequest& request, const Server& server)
@@ -282,13 +276,10 @@ HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size
         if (request.getContentLength() == -1)
 		{
 			return HttpStatus::BAD_REQUEST;
-			
 		}
         if (request.getBody().length() != (size_t)request.getContentLength())
 		{
-			std::cout << "body length=" << request.getBody().length() << " contentLength=" << request.getContentLength() << "\n";
             return HttpStatus::BAD_REQUEST;
-
 		}
     }
     size_t bodySize = request.getBody().size();

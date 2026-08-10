@@ -406,10 +406,10 @@ run_http_test "POST / with body returns 200" "200" "POST" "/" "hello"
 run_http_test "POST / no body returns 411" "411" "POST" "/"
 run_http_test "POST /files not allowed returns 405" "405" "POST" "/files" "hello"
 run_http_test "DELETE / not allowed returns 405" "405" "DELETE" "/"
-run_http_test "PATCH returns 405" "405" "PATCH" "/" "" "-H 'Content-Length: 0'"
-run_http_test "PUT returns 405" "405" "PUT" "/" "" "-H 'Content-Length: 0'"
+run_http_test "PATCH returns 501" "501" "PATCH" "/" "" "-H 'Content-Length: 0'"
+run_http_test "PUT returns 501" "501" "PUT" "/" "" "-H 'Content-Length: 0'"
 run_http_test "Invalid method lowercase returns 400" "400" "get" "/"
-run_http_test "Unknown method BLABLA returns 405" "405" "BLABLA" "/"
+run_http_test "Unknown method BLABLA returns 501" "501" "BLABLA" "/"
 
 # ---- Upload ----
 run_http_test "POST /upload returns 201" "201" "POST" "/upload" "hello"
@@ -460,7 +460,7 @@ run_raw_test "Space before colon in header returns 400" "400" "GET / HTTP/1.1\r\
 run_raw_test "Folded header returns 400" "400" "GET / HTTP/1.1\r\nHost: localhost\r\nX-Test: value\r\n continued\r\n\r\n"
 run_raw_test "Missing Host HTTP/1.1 returns 400" "400" "GET / HTTP/1.1\r\n\r\n"
 run_raw_test "GET with valid path returns 200" "200" "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
-run_raw_test "HEAD request returns 405" "405" "HEAD / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+run_raw_test "HEAD request returns 501" "501" "HEAD / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
 run_raw_test "Negative Content-Length returns 400" "400" "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: -1\r\n\r\n"
 run_raw_test "Non-digit Content-Length returns 400" "400" "GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: abc\r\n\r\n"
 
@@ -544,7 +544,7 @@ fi
 run_http_test "POST to directory returns 405" "405" "POST" "/files/" "hello"
 
 # HEAD method (if supported)
-run_raw_test "HEAD request returns 405" "405" "HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+run_raw_test "HEAD request returns 501" "501" "HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n"
 
 # ============ Response Header Checks ============
 echo ""
@@ -555,7 +555,7 @@ echo "============== Response Header Checks =============="
 run_http_test "POST to directory returns 405" "405" "POST" "/files/" "hello"
 
 # HEAD method (if supported)
-run_raw_test "HEAD request returns 405" "405" "HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n"
+run_raw_test "HEAD request returns 501" "501" "HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n"
 
 # ============ Response Header Checks ============
 echo ""

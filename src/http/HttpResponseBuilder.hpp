@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpResponseBuilder.hpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/07 12:38:28 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/08 14:29:44 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,12 @@ class HttpResponseBuilder
 			static void buildBody(const HttpRequest& request,HttpResponse& response,const Server& server,RouteType routeType, const LocationBlock* block);
 
 			static void manageStatic(HttpResponse& response, const std::string& path, const LocationBlock* block, const Server& server);
-			static void manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target);
-			static void manageUpload(HttpResponse& response, const HttpRequest& request, const LocationBlock& block);
-			static void manageRedirect(HttpResponse& response, const LocationBlock& block);
-			static void manageErrorPage(HttpResponse& response, const Server& server);
-			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path);
+			static void manageDelete(HttpResponse& response, const LocationBlock& block, const std::string& target, const Server& server);
+			static void manageUpload(HttpResponse& response, const HttpRequest& request, const LocationBlock& block, const Server& server);
+			static void manageRedirect(HttpResponse& response, const LocationBlock& block, const Server& server);
 			static bool parseFormData(HttpResponse& response, const HttpRequest& request, const std::string& uploadDir);
+			static void manageDirectory(HttpResponse& response, const HttpRequest& request,const std::string& path, const Server& server);
+			static std::string parseFormData(HttpResponse& response, const HttpRequest& request);
+			static void sendError(HttpResponse& response, const Server& server, HttpStatus status);
+			static std::string resolvePath(const HttpRequest& request, const Server& server, const LocationBlock* block);
 };

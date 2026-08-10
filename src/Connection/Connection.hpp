@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/17 16:52:30 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 18:11:42 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include <ctime>
 #include <string>
 
-enum State { READING, WRITING, CLOSING , ERROR_PENDING};
+enum State { READING, WRITING, CLOSING , ERROR_PENDING, AWAITING_CGI};
 
 class Connection : public ASocket {
 	private:
@@ -42,10 +42,11 @@ class Connection : public ASocket {
 	int getLocalPort() const;
 	time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
+	void onTimeout(EventLoop& loop) override;
 	void handleRead(EventLoop &loop);
 	void handleWrite(EventLoop &loop);
 	void setWriterBuffer(const std::string& data);
-	bool isRequestComplete();
+	bool isRequestComplete(const LocationBlock* block);
 	void handleErrorPending(EventLoop& loop);
 	std::string prepareRequest();
 	void dispatch(const std::string& requestToParse, EventLoop& loop);

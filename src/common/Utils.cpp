@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/20 16:30:15 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/07 14:15:44 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:13:21 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 
 // Removes leading and trailing whitespace (\r, \n, \t, space) from a string
@@ -318,4 +319,25 @@ std::string urlDecode(const std::string& str)
 		}
     }
     return result;
+}
+
+void getErrorBody(HttpResponse& response, const Server& server) {
+	int status = (int)response.getStatus();
+	const auto& errorPages = server.getErrorPages();
+
+	auto itt = errorPages.find(status);
+	if (itt != errorPages.end())
+	{
+		std::ifstream file(itt->second);
+		if(!file.is_open())
+		{
+            response.setBody("<html><body><h1>" + std::to_string((int)response.getStatus()) + " Error</h1></body></html>");
+			return;
+		}
+		std::string body((std::istreambuf_iterator<char>(file)),
+					 	std::istreambuf_iterator<char>());
+		response.setBody(body);
+		return;
+	}
+	response.setBody("<html><body><h1>" + std::to_string((int)response.getStatus()) + " Error</h1></body></html>");
 }

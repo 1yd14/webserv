@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/01 16:51:29 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/06/09 18:48:08 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 15:33:24 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,6 @@ class ASocket {
 	ASocket(const ASocket&)            = delete;
 	ASocket& operator=(const ASocket&) = delete;
 	virtual void handleEvent(EventLoop &loop) = 0;
+	virtual void onTimeout(EventLoop &loop) = 0;
 	virtual ~ASocket();
 };
