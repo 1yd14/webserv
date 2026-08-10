@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/10 14:59:37 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:28:17 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,9 +217,11 @@ void Connection::dispatch(const std::string& requestToParse, EventLoop& loop)
 			loop.setWriting(this, EPOLL_CTL_MOD);
 			return;
 		}
+		
 	}
 	HttpResponse response = builder.build(request, _server, RouteType::NOT_FOUND);
 	response.setHeader("Connection", "close");
+	_writeBuffer = response.serialize();
 	_state = WRITING;
 	loop.setWriting(this, EPOLL_CTL_MOD);
 

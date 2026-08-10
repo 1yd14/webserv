@@ -6,7 +6,7 @@
 /*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 14:37:07 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 14:59:22 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 15:21:56 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "HttpResponseBuilder.hpp"
 #include <iostream>
 
-std::string processRequest(HttpRequest& request, const Server& server)
+std::string processRequest(const HttpRequest& request, const Server& server)
 {
 	HttpResponseBuilder builder;
 	Router router;
