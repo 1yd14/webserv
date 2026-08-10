@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/22 11:35:43 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 13:23:36 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 12:02:37 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -276,13 +276,10 @@ HttpStatus HttpValidator::isValidBody(const HttpRequest& request,size_t max_size
         if (request.getContentLength() == -1)
 		{
 			return HttpStatus::BAD_REQUEST;
-			
 		}
         if (request.getBody().length() != (size_t)request.getContentLength())
 		{
-			std::cout << "body length=" << request.getBody().length() << " contentLength=" << request.getContentLength() << "\n";
             return HttpStatus::BAD_REQUEST;
-
 		}
     }
     size_t bodySize = request.getBody().size();

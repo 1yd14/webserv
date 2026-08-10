@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 16:25:28 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 18:11:42 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Connection : public ASocket {
 	void handleRead(EventLoop &loop);
 	void handleWrite(EventLoop &loop);
 	void setWriterBuffer(const std::string& data);
-	bool isRequestComplete();
+	bool isRequestComplete(const LocationBlock* block);
 	void handleErrorPending(EventLoop& loop);
 	std::string prepareRequest();
 	void dispatch(const std::string& requestToParse, EventLoop& loop);

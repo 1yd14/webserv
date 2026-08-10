@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationBlock.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 15:25:06 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/09 18:00:59 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include <stdexcept>
 #include <set>
 #include "PathUtils.hpp"
+#include "Server.hpp"
+#include <sstream>
+#include <limits>
 
 LocationBlock::LocationBlock()
 :     _root(std::nullopt),
@@ -62,6 +65,39 @@ std::optional<int>	LocationBlock::getRedirectCode() const {
 
 std::optional<std::string>	LocationBlock::getRedirectUrl() const {
 	return (_redirect_url);
+}
+
+std::optional<long long> LocationBlock::getMaxBodySize() const {
+	return (_max_body_size);
+}
+
+void LocationBlock::setMaxBodySize(std::vector<std::string> values) {
+	if (values.size() != 1) {
+		throw std::runtime_error("max_body_size directive requires exactly one value");
+	}
+	const std::string& val = values[0];
+	if (values[0][0] == '-') {
+		throw std::runtime_error("max_body_size cannot be negative");
+	}
+	char suffix = val.back();
+	std::string numberPart = (suffix == 'M' || suffix == 'K') ? val.substr(0, val.size() - 1) : val;
+
+	long long result;
+	std::istringstream sstream(numberPart);
+	if (!(sstream >> result) || !sstream.eof()) {
+		throw std::runtime_error("max_body_size: invalid value: " + val);
+	}
+	int multiplier = 1;
+	if (suffix == 'M') {
+		multiplier = 1024 * 1024;
+	}
+	else if (suffix == 'K') {
+		multiplier = 1024;
+	}
+	if (result > (std::numeric_limits<long long>::max() / multiplier)) {
+		throw std::runtime_error("max_body_size too large: overflow");
+	}
+	_max_body_size = result * multiplier;
 }
 
 void LocationBlock::setConfigDirectory(std::string configPath) {

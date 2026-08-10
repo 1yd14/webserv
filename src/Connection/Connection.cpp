@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:44:38 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 16:51:15 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 12:08:56 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,26 @@ time_t Connection::getLastActivity() const {
 }
 //this function needs to check if everything is read or if more needs to be read to change the epoll event that triggers waking up from EPOLLIN TO EPOLLOUT
 
+std::string extractTarget(const std::string& buffer)
+{
+	size_t lineEnd = buffer.find("\r\n");
+	if (lineEnd == std::string::npos)
+	{
+		return "";
+	}
+
+	std::string requestLine = buffer.substr(0, lineEnd);
+	size_t first = requestLine.find(" ");
+	size_t second = requestLine.find(" ", first + 1);
+
+	if (first == std::string::npos || second == std::string::npos)
+	{
+		return "";
+	}
+
+	return requestLine.substr(first + 1, second - (first + 1));
+}
+
 void Connection::handleRead(EventLoop& loop)
 {
 	char buffer[4096];
@@ -79,7 +99,9 @@ void Connection::handleRead(EventLoop& loop)
 		handleErrorPending(loop);
 		return;
 	}
-	if (!isRequestComplete())
+	std::string target = extractTarget(_readBuffer);
+	const LocationBlock* block = findMatchingLocation(target, _server);
+	if (!isRequestComplete(block))
 	{
 		return;
 	}
@@ -91,10 +113,11 @@ void Connection::handleRead(EventLoop& loop)
 		loop.setWriting(this, EPOLL_CTL_MOD);
 		return;
 	}
+	std::cout << "buffer '" << buffer << " wrtite buffer '" << _writeBuffer << " \n"; 
 	std::string requestToParse = prepareRequest();
-		//  std::cout << "==============REQUEST================" << std::endl;
-		// std::cout << requestToParse << std::endl;
-		// std::cout << "==============================" << std::endl;
+		  std::cout << "==============REQUEST================" << std::endl;
+		 std::cout << requestToParse << std::endl;
+		 std::cout << "==============================" << std::endl;
 	if (_state == ERROR_PENDING)
 	{
 		_writeBuffer = _pendingError;
@@ -104,14 +127,14 @@ void Connection::handleRead(EventLoop& loop)
 		return;
 	}
 	dispatch(requestToParse, loop);
-		// std::cout << "==============RESPONSE================" << std::endl;
-		// std::cout << _writeBuffer << std::endl;
-		// std::cout << "==============================" << std::endl;
+		 std::cout << "==============RESPONSE================" << std::endl;
+		 std::cout << _writeBuffer << std::endl;
+		 std::cout << "==============================" << std::endl;
 	
  	
 }
 
-bool Connection::isRequestComplete()
+bool Connection::isRequestComplete(const LocationBlock * block)
 {
 	size_t headerEnd = _readBuffer.find("\r\n\r\n");
 
@@ -124,9 +147,14 @@ bool Connection::isRequestComplete()
 	{
 		return  _readBuffer.find("0\r\n\r\n") != std::string::npos || _readBuffer.find("0\r\n") != std::string::npos;
 	}
+	
+	size_t maxBody = (block != nullptr && block->getMaxBodySize().has_value())
+	    ? block->getMaxBodySize().value()
+	    : (size_t)_server.getMaxBodySize();
+
 	size_t contentLength = extractContentLength(_readBuffer);
 	
-	if (contentLength > (size_t)_server.getMaxBodySize())
+	if (contentLength > maxBody)
 	{
 		_pendingError = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
     	_state = ERROR_PENDING;
@@ -160,7 +188,7 @@ std::string Connection::prepareRequest()
 	size_t totalExpected;
 	if (_readBuffer.find("Transfer-Encoding: chunked") != std::string::npos)
 	{
-		totalExpected = _readBuffer.find("0\r\n\r") + 5;
+		totalExpected = _readBuffer.find("0\r\n\r\n") + 5;
 	}
 	else
 	{

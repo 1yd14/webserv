@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 18:10:14 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 17:56:30 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class LocationBlock {
 	std::optional<bool> getAutoIndex() const ;
 	std::optional<int>	getRedirectCode() const ;
 	std::optional<std::string>	getRedirectUrl() const ;
+	std::optional<long long> getMaxBodySize() const ;
 	void setConfigDirectory(std::string configPath);
 	void setPath(std::string path);
 	void setMethods(std::vector<std::string> value);
@@ -40,6 +41,7 @@ class LocationBlock {
 	void setAutoIndex(std::vector<std::string> value);
 	void setResolvedAutoIndex(bool value);
 	void setRedirect(std::vector<std::string> value);
+	void setMaxBodySize(std::vector<std::string> values);
 	void validate();
 	void freeze();
 
@@ -54,5 +56,6 @@ class LocationBlock {
 	std::optional<bool>			_autoindex;
 	std::optional<int>			_redirect_code;
 	std::optional<std::string>	_redirect_url;
+	std::optional<long long>	_max_body_size;
 	bool						_finalized = false;
 };

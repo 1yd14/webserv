@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/08 15:18:38 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/09 17:44:37 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,10 @@ std::string CGIHanlder::getInterpreter(std::string extension)
 	{
 		return "/usr/bin/php-cgi";
 	}
-
+	if (extension == ".bla")
+	{
+		return "./cgi_tester"; // or wherever you place/download it, absolute path is safer
+	}
 	return "";
 }
 
