@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 16:15:48 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 11:52:48 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/10 14:59:23 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,6 @@ HttpResponse HttpResponseBuilder::build(HttpRequest const &request, Server const
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
 
 	response.setProtocol("HTTP/1.1");
-	    // TEST: force a 500 response
-    if (request.getTarget() == "/500")
-    {
-        sendError(response, server, HttpStatus::INTERNAL_SERVER_ERROR);
-        buildHeader(request, response);
-        return response;
-    }
 	if (request.getStatusCode() != HttpStatus::OK && request.getStatusCode() != HttpStatus::NONE)
 	{
 		if (request.getStatusCode() == HttpStatus::METHOD_NOT_ALLOWED)
