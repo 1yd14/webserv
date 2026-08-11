@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 18:11:42 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/11 14:40:38 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,5 +50,6 @@ class Connection : public ASocket {
 	void handleErrorPending(EventLoop& loop);
 	std::string prepareRequest();
 	void dispatch(const std::string& requestToParse, EventLoop& loop);
+	void processBuffer(EventLoop& loop);
 	uint64_t getId();
 };
