@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 15:39:48 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/10 18:07:38 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
@@ -32,7 +33,7 @@ std::vector<std::string> CGIHanlder::buildEnv(const HttpRequest& request, const 
 	std::string path = request.getTarget();
 	size_t qmark =path.find("?");
 	const LocationBlock* block = findMatchingLocation(path, server);
-	std::string scriptPath = getScriptPath(request, server, *block);
+	std::string scriptPath = std::filesystem::absolute(getScriptPath(request, server, *block)).string();
 	std::string scriptName = (qmark != std::string::npos) ? path.substr(0, qmark) : path;
     std::string query      = (qmark != std::string::npos) ? path.substr(qmark + 1) : "";
 
@@ -94,20 +95,23 @@ std::vector<std::string> CGIHanlder::buildArgs(const HttpRequest& request, const
 {
 	std::vector<std::string> argv;
 	const LocationBlock* block = findMatchingLocation(request.getTarget(), server);
-	if (block == nullptr)
+	if (block == nullptr || !block->getCgiExtension().has_value())
 	{
 		return argv;
 	}
 	std::string scriptPath = getScriptPath(request, server, *block);
+	scriptPath = std::filesystem::absolute(scriptPath).string();
 	size_t qpos = scriptPath.find('?');
 	if (qpos != std::string::npos)
 	{
     	scriptPath = scriptPath.substr(0, qpos);
 	}
-	std::string extension;
-	if (block->getCgiExtension().has_value())
+	std::string extension = block->getCgiExtension().value();
+	size_t extPos = scriptPath.rfind(extension);
+	bool hasCorrectExtension = (extPos != std::string::npos && extPos == scriptPath.length() - extension.length());
+	if (!hasCorrectExtension)
 	{
-		extension = block->getCgiExtension().value();
+		return argv;
 	}
 	std::string interpreter = getInterpreter(extension);
 	argv.push_back(interpreter);
@@ -136,6 +140,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 	std::string errorResponse = buildError(HttpStatus::INTERNAL_SERVER_ERROR, server).serialize();
 	if (argv.empty())
 	{
+		std::string errorResponse = buildError(HttpStatus::NOT_FOUND, server).serialize();
 		connection.setWriterBuffer(errorResponse);
 		connection.setState(WRITING);
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
@@ -150,7 +155,7 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		loop.setWriting(&connection, EPOLL_CTL_MOD);
 		return;
 	}
-	std::string scriptPath = getScriptPath(request, server, *block);
+	std::string scriptPath = std::filesystem::absolute(getScriptPath(request, server, *block)).string();
 	size_t qpos = scriptPath.find('?');
 	if (qpos != std::string::npos)
 	{
@@ -207,7 +212,13 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 		close(pipe_in[0]);
 		dup2(pipe_out[1], STDOUT_FILENO);
 		close(pipe_out[1]);
-		
+	
+		std::filesystem::path absoluteScriptPath = std::filesystem::absolute(scriptPath);
+		std::filesystem::path scriptDir = absoluteScriptPath.parent_path();
+		if (chdir(scriptDir.c_str()) != 0)
+		{
+			exit(1);
+		}
 		std::vector<char *> envp;
 		for (const auto& ett:env)
 		{
