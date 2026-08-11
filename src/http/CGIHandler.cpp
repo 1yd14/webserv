@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/08 10:49:55 by rmhazres          #+#    #+#             */
-/*   Updated: 2026/08/10 18:07:38 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/11 12:45:31 by rmhazres         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,7 +251,13 @@ void CGIHanlder::execute(const HttpRequest& request,const Server& server, EventL
 
 void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& response, const Server& server)
 {
-	size_t separator = output.find("\r\n\r\n");
+	size_t sepLength = 2;
+	size_t separator = output.find("\n\n");
+	if (separator == std::string::npos)
+	{
+		separator = output.find("\r\n\r\n");
+		sepLength = 4;
+	}
 	
 	response.setProtocol("HTTP/1.1");
 
@@ -264,9 +270,9 @@ void CGIHanlder::parseCGIOutput(const std::string& output, HttpResponse& respons
 	}
 
 	response.setHeader(parseHeaders(output.substr(0,separator)));
-	response.setBody(output.substr(separator+4));
+	response.setBody(output.substr(separator+ sepLength));
 	response.setStatus(HttpStatus::OK);
-	response.setHeader("content-length", std::to_string(response.getBody().length()));
+	response.setHeader("Content-Length", std::to_string(response.getBody().length()));
 	const auto& header = response.getHeader();
 	auto itt = header.find("status");
 	if (itt != header.end())
