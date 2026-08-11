@@ -1,4 +1,412 @@
 <!DOCTYPE html>
-<html>
-<body><h1>HELLLOOOOOOOOOOOO</h1></body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebServ — HTTP/1.1 Server</title>
+    <!-- Test: index_file_location -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0e0e10;
+            --surface: #18181b;
+            --border: #27272a;
+            --text: #e4e4e7;
+            --muted: #71717a;
+            --accent: #22d3ee;
+            --accent-dim: rgba(34,211,238,0.12);
+            --green: #4ade80;
+            --red: #f87171;
+            --yellow: #facc15;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            --font-sans: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ---- Header ---- */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        header h1 {
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+
+        header span {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-left: auto;
+        }
+
+        /* ---- Layout ---- */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .hero {
+            margin-bottom: 3rem;
+        }
+
+        .hero h2 {
+            font-family: var(--font-mono);
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero h2 span {
+            color: var(--accent);
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 480px;
+        }
+
+        /* ---- Grid ---- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+        }
+
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--accent);
+            background: var(--accent-dim);
+            border-radius: 4px;
+            padding: 2px 6px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.08em;
+        }
+
+        .card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        /* ---- Links ---- */
+        .link-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .link-list a {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .link-list a::before {
+            content: '→';
+            color: var(--muted);
+        }
+
+        .link-list a:hover {
+            color: #fff;
+        }
+
+        /* ---- Upload form ---- */
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .upload-form input[type="file"] {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--muted);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .upload-form input[type="text"] {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .upload-form input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            transition: opacity 0.15s;
+        }
+
+        .btn:hover { opacity: 0.85; }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        /* ---- Method badges ---- */
+        .methods {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .method {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .method.get  { background: rgba(74,222,128,0.15); color: var(--green); }
+        .method.post { background: rgba(250,204,21,0.15); color: var(--yellow); }
+        .method.del  { background: rgba(248,113,113,0.15); color: var(--red); }
+
+        /* ---- Terminal block ---- */
+        .terminal {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 1rem;
+        }
+
+        .terminal .cmd { color: var(--accent); }
+        .terminal .out { color: var(--green); }
+
+        /* ---- Section divider ---- */
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="status-dot"></div>
+    <h1>WebServ / HTTP 1.1</h1>
+    <span>42 — Codam</span>
+</header>
+
+<main>
+    <div class="hero">
+        <h2>Your server is <span>running.</span></h2>
+        <p>A from-scratch HTTP/1.1 server in C++. No frameworks, no libraries — just raw sockets, epoll, and a lot of RFC reading.</p>
+    </div>
+
+    <p class="section-label">Features</p>
+
+    <div class="grid">
+
+        <!-- Static files -->
+        <div class="card">
+            <span class="card-tag">STATIC</span>
+            <h3>File Serving</h3>
+            <p>Browse static files from the document root.</p>
+            <ul class="link-list">
+                <li><a href="/files/">Directory listing →</a></li>
+                <li><a href="/files/a.txt">a.txt</a></li>
+                <li><a href="/index.html">index.html (this page)</a></li>
+            </ul>
+            <div class="methods">
+                <span class="method get">GET</span>
+            </div>
+        </div>
+
+        <!-- Upload -->
+        <div class="card">
+            <span class="card-tag">UPLOAD</span>
+            <h3>File Upload</h3>
+            <p>POST a file to the server. It lands in the uploads directory.</p>
+            <form class="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <button type="submit" class="btn">Upload</button>
+            </form>
+            <div class="methods">
+                <span class="method post">POST</span>
+                <span class="method del">DELETE</span>
+            </div>
+        </div>
+
+        <!-- CGI -->
+        <div class="card">
+            <span class="card-tag">CGI</span>
+            <h3>Python CGI</h3>
+            <p>Execute server-side Python scripts. Environment variables passed via CGI spec.</p>
+            <ul class="link-list">
+                <li><a href="/cgi-bin/python/test.py">Run test.py</a></li>
+                <li><a href="/cgi-bin/python/test.py?name=world">With query string</a></li>
+            </ul>
+            <div class="methods">
+                <span class="method get">GET</span>
+                <span class="method post">POST</span>
+            </div>
+        </div>
+
+        <!-- Redirect -->
+        <div class="card">
+            <span class="card-tag">REDIRECT</span>
+            <h3>301 Redirect</h3>
+            <p>Permanent redirect — browser follows automatically.</p>
+            <ul class="link-list">
+                <li><a href="/old-page">/old-page → /new-page</a></li>
+            </ul>
+            <div class="terminal">
+                <div class="cmd">GET /old-page HTTP/1.1</div>
+                <div class="out">← 301 Moved Permanently</div>
+                <div class="out">   Location: /new-page</div>
+            </div>
+        </div>
+
+        <!-- Error pages -->
+        <div class="card">
+            <span class="card-tag">ERRORS</span>
+            <h3>Custom Error Pages</h3>
+            <p>Configurable error pages for 404, 500, and more.</p>
+            <ul class="link-list">
+                <li><a href="/this-does-not-exist">Trigger a 404</a></li>
+            </ul>
+            <div class="methods">
+                <span class="method get">GET</span>
+            </div>
+        </div>
+
+        <!-- Multi-port -->
+        <div class="card">
+            <span class="card-tag">MULTI-PORT</span>
+            <h3>Multiple Servers</h3>
+            <p>This server listens on several ports simultaneously via a single epoll loop.</p>
+            <ul class="link-list">
+                <li><a href="http://localhost:8080/">Port 8080</a></li>
+                <li><a href="http://localhost:8081/">Port 8081</a></li>
+            </ul>
+        </div>
+
+    </div>
+
+    <p class="section-label">Quick test</p>
+    <div class="terminal">
+        <div class="cmd"># Test with curl</div>
+        <br>
+        <div class="cmd">curl -v http://localhost:8080/</div>
+        <div class="out">← 200 OK</div>
+        <br>
+        <div class="cmd">curl -v -X POST -H "Content-Length: 5" -d "hello" http://localhost:8080/upload/test.txt</div>
+        <div class="out">← 201 Created</div>
+        <br>
+        <div class="cmd">curl -v -X DELETE http://localhost:8080/upload/test.txt</div>
+        <div class="out">← 204 No Content</div>
+    </div>
+
+</main>
+
+<footer>
+    webserv — built at 42 Codam — C++20 — epoll — HTTP/1.1
+</footer>
+
+</body>
 </html>
