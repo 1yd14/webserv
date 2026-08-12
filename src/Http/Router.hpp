@@ -1,29 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   Router.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/12 11:09:25 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/03 12:42:30 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/08/12 12:36:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "Server.hpp"
+#include "../Common/RouteType.hpp"
+#include "../Config/Server.hpp"
+#include "../Common/HttpRequest.hpp"
 
-class Config {
+class Router
+{
 	public:
-	Config();
-	Config (std::string filename);
-	Config (const Config & other) = default;
-	Config& operator=(const Config& other) = default;
-	~Config() = default;
-	
-	std::vector<Server> getServers();
-	
+						Router() = default;
+						~Router() = default;
+						Router(const Router &other) = delete;
+						Router& operator=(const Router &other) = delete;
+	[[nodiscard]]		RouteType route(const HttpRequest& request, const Server &server) const;
 	private:
-	std::vector<Server> _servers;
 };

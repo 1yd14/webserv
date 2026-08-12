@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 14:44:14 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 18:00:59 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:14:38 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,19 +15,18 @@
 #include <stdexcept>
 #include <set>
 #include "PathUtils.hpp"
-#include "Server.hpp"
 #include <sstream>
 #include <limits>
 
 LocationBlock::LocationBlock()
-:     _root(std::nullopt),
-	  _index(std::nullopt),
-	  _upload_dir(std::nullopt),
-	  _cgi_extension(std::nullopt),
-      _autoindex(std::nullopt),
-      _redirect_code(std::nullopt),
-      _redirect_url(std::nullopt),
-      _finalized(false)
+:		_root(std::nullopt),
+		_index(std::nullopt),
+		_upload_dir(std::nullopt),
+		_cgi_extension(std::nullopt),
+		_autoindex(std::nullopt),
+		_redirect_code(std::nullopt),
+		_redirect_url(std::nullopt),
+		_finalized(false)
 {
 }
 
@@ -121,19 +120,19 @@ void LocationBlock::setMethods(std::vector<std::string> values) {
 	if (values.size() < 1) {
 		throw std::runtime_error("methods directive requires at least one value");
 	}
-    static const std::set<std::string> allowed = {
-        "GET",
-        "POST",
-        "DELETE"
-    };
+	static const std::set<std::string> allowed = {
+		"GET",
+		"POST",
+		"DELETE"
+	};
 
-    for (std::vector<std::string>::const_iterator it = values.begin();
-         it != values.end(); ++it) {
+	for (std::vector<std::string>::const_iterator it = values.begin();
+		it != values.end(); ++it) {
 
-        if (allowed.find(*it) == allowed.end()) {
-            throw std::runtime_error("Invalid HTTP method: " + *it);
-        }
-    }
+		if (allowed.find(*it) == allowed.end()) {
+			throw std::runtime_error("Invalid HTTP method: " + *it);
+		}
+	}
 	_methods = values;
 }
 
@@ -151,7 +150,7 @@ void LocationBlock::setRoot(std::vector<std::string> values) {
 }
 
 void LocationBlock::setResolvedRoot(std::string root) {
-	  _root = root;
+		_root = root;
 }
 
 void LocationBlock::setIndex(std::vector<std::string> values) {
@@ -162,7 +161,7 @@ void LocationBlock::setIndex(std::vector<std::string> values) {
 		throw std::runtime_error("index directive requires exactly one value");
 	}
 	if (values[0].find('/') != std::string::npos) {
-	    throw std::runtime_error("index must be a filename, not a path");
+		throw std::runtime_error("index must be a filename, not a path");
 	}
 	_index = values[0];
 }
@@ -189,7 +188,7 @@ void LocationBlock::setCgiExtension(std::vector<std::string> values) {
 		throw std::runtime_error("cgi_extension directive requires exactly one value");
 	}
 	if (values[0].empty() || values[0][0] != '.') {
-	    throw std::runtime_error("cgi_extension must start with '.'");
+		throw std::runtime_error("cgi_extension must start with '.'");
 	}
 	_cgi_extension = values[0];
 }
@@ -229,9 +228,9 @@ void LocationBlock::setRedirect(std::vector<std::string> values) {
 		throw std::runtime_error("return directive has invalid status code: " + values[0]);
 	}
 	if (_redirect_code != 301 && _redirect_code != 302 &&
-    		_redirect_code != 303 && _redirect_code != 307 &&
-    		_redirect_code != 308) {
-    	throw std::runtime_error("invalid redirect code");
+			_redirect_code != 303 && _redirect_code != 307 &&
+			_redirect_code != 308) {
+		throw std::runtime_error("invalid redirect code");
 	}
 	if (values.size() == 2) {
 		_redirect_url = values[1];
@@ -251,7 +250,6 @@ void LocationBlock::validate() {
 	if (!_autoindex) {
 		_autoindex = false;
 	}
-	//check for cross checks needed
 	if (_upload_dir) {
 		if (std::ranges::find(_methods, "POST") == _methods.end()) {
 			throw std::runtime_error("upload_dir requires POST method");
