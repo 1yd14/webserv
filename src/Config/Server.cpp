@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:41:59 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/23 17:06:24 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:20:51 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 #include <iostream>
 
 Server::Server() 
-    : _port(0),
-      _max_body_size(0),
-      _finalized(false) {}
+	:	_port(0),
+		_max_body_size(0),
+		_finalized(false) {}
 
 std::vector<int> Server::getPort() const {
 	return (_port);
@@ -161,9 +161,6 @@ void Server::finalize() {
 	if (_root.empty()) {
 		throw std::runtime_error("server: missing root");
 	}
-	//if (_location_blocks.empty()) {
-	//	throw std::runtime_error("server: no locations defined");
-	//}
 	for (size_t i = 0; i < _location_blocks.size(); i ++) {
 		LocationBlock &loc = _location_blocks[i];
 		if (! loc.getRoot()) {
@@ -176,7 +173,6 @@ void Server::finalize() {
 			loc.setResolvedAutoIndex(false);
 		}
 	}
-	//checks duplicates
 	for (size_t i = 0; i < _location_blocks.size(); i++) {
 		for (size_t j = i + 1; j < _location_blocks.size(); j++) {
 			if (_location_blocks[i].getPath() == _location_blocks[j].getPath()) {

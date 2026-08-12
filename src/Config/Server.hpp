@@ -6,29 +6,28 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 12:34:17 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/23 17:06:14 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:22:24 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <cstddef>
-#include <map>
-#include <vector>
-#include <string>
 #include "LocationBlock.hpp"
+#include <map>
+#include <string>
+#include <vector>
 
 
 class Server {
 	public:
 	Server();
-	std::vector<int> getPort() const;
-	std::string	getHost() const;
-	std::string getRoot() const;
-	std::string getIndex() const;
-	long long getMaxBodySize() const;
-	const std::map<int, std::string>& getErrorPages() const;
-	const std::vector<LocationBlock>& getLocationBlocks() const;
+	[[nodiscard]] std::vector<int> getPort() const;
+	[[nodiscard]] std::string	getHost() const;
+	[[nodiscard]] std::string getRoot() const;
+	[[nodiscard]] std::string getIndex() const;
+	[[nodiscard]] long long getMaxBodySize() const;
+	[[nodiscard]] const std::map<int, std::string>& getErrorPages() const;
+	[[nodiscard]] const std::vector<LocationBlock>& getLocationBlocks() const;
 	void setConfigDirectory(std::string configPath);
 	void setPort(std::vector<std::string> values);
 	void setHost(std::vector<std::string> values);

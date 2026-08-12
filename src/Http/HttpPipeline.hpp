@@ -1,29 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   HttpPipeline.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/12 11:09:25 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/09 14:37:11 by rmhazres          #+#    #+#             */
+/*   Updated: 2026/08/12 12:36:41 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+#include "../Common/HttpRequest.hpp"
+#include "../Config/Server.hpp"
 
-#include "Server.hpp"
-
-class Config {
-	public:
-	Config();
-	Config (std::string filename);
-	Config (const Config & other) = default;
-	Config& operator=(const Config& other) = default;
-	~Config() = default;
-	
-	std::vector<Server> getServers();
-	
-	private:
-	std::vector<Server> _servers;
-};
+std::string processRequest(const HttpRequest& request, const Server& server);

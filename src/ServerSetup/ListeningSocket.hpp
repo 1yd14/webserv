@@ -1,29 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.hpp                                         :+:      :+:    :+:   */
+/*   ListeningSocket.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/19 14:29:05 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/12 11:09:25 by lyvan-de         ###   ########.fr       */
+/*   Created: 2026/06/01 17:56:26 by lyvan-de          #+#    #+#             */
+/*   Updated: 2026/08/12 11:54:58 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "Server.hpp"
+#include "ASocket.hpp"
+#include "../Config/Server.hpp"
 
-class Config {
-	public:
-	Config();
-	Config (std::string filename);
-	Config (const Config & other) = default;
-	Config& operator=(const Config& other) = default;
-	~Config() = default;
-	
-	std::vector<Server> getServers();
-	
+class EventLoop; 
+
+class ListeningSocket : public ASocket {
 	private:
-	std::vector<Server> _servers;
+		const Server& _server;
+		const int _port;
+
+	public:
+		ListeningSocket(const Server& server, const int& port);
+		void bindSocket(int port);
+		void listenSocket();
+		void handleEvent(EventLoop &loop) override;
+		void onTimeout(EventLoop &loop) override;
 };

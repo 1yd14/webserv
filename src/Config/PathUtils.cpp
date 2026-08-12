@@ -3,17 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   PathUtils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/08 13:39:57 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/06 15:23:40 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:14:48 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PathUtils.hpp"
 #include <sstream>
 #include <vector>
-#include <iostream>
 
 std::string PathUtils::getConfDir(std::string &configPath) {
 	size_t pos = configPath.find_last_of('/');

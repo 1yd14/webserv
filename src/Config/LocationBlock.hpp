@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/21 13:34:12 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 17:56:30 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:03:25 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,16 @@
 class LocationBlock {
 	public:
 	LocationBlock();
-	std::string	getPath() const ;
-	std::vector<std::string> getMethods() const ;
-	std::optional<std::string>	getRoot() const ;
-	std::optional<std::string>	getIndex() const ;
-	std::optional<std::string>	getUploadDir() const ;	
-	std::optional<std::string> getCgiExtension() const ;
-	std::optional<bool> getAutoIndex() const ;
-	std::optional<int>	getRedirectCode() const ;
-	std::optional<std::string>	getRedirectUrl() const ;
-	std::optional<long long> getMaxBodySize() const ;
+	[[nodiscard]] std::string	getPath() const ;
+	[[nodiscard]] std::vector<std::string> getMethods() const ;
+	[[nodiscard]] std::optional<std::string>	getRoot() const ;
+	[[nodiscard]] std::optional<std::string>	getIndex() const ;
+	[[nodiscard]] std::optional<std::string>	getUploadDir() const ;	
+	[[nodiscard]] std::optional<std::string> getCgiExtension() const ;
+	[[nodiscard]] std::optional<bool> getAutoIndex() const ;
+	[[nodiscard]] std::optional<int>	getRedirectCode() const ;
+	[[nodiscard]] std::optional<std::string>	getRedirectUrl() const ;
+	[[nodiscard]] std::optional<long long> getMaxBodySize() const ;
 	void setConfigDirectory(std::string configPath);
 	void setPath(std::string path);
 	void setMethods(std::vector<std::string> value);

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rmhazres <rmhazres@student.codam.nl>       +#+  +:+       +#+        */
+/*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:20:35 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/11 14:40:38 by rmhazres         ###   ########.fr       */
+/*   Updated: 2026/08/12 12:34:09 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "../server_setup/ASocket.hpp"
+#include "../ServerSetup/ASocket.hpp"
 #include "../Config/Server.hpp"
 #include "EventLoop.hpp"
 #include <cstdint>
@@ -38,9 +38,9 @@ class Connection : public ASocket {
 	Connection(int fd, const Server& server, const int& port);
 	~Connection();
 	void setState(State newState);
-	State getState() const;
-	int getLocalPort() const;
-	time_t getLastActivity() const;
+	[[nodiscard]] State getState() const;
+	[[nodiscard]] int getLocalPort() const;
+	[[nodiscard]] time_t getLastActivity() const;
 	void handleEvent(EventLoop &loop) override;
 	void onTimeout(EventLoop& loop) override;
 	void handleRead(EventLoop &loop);

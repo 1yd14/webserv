@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:32 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/07/15 14:12:40 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 12:34:58 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 #include <memory>
 #include <vector>
-#include "../server_setup/ASocket.hpp"
+#include "../ServerSetup/ASocket.hpp"
 #include <sys/epoll.h>
-#include "../http/CGIProcess.hpp"
+#include "../Http/CGIProcess.hpp"
 
 class Connection;
 class CGIProcess;

@@ -6,7 +6,7 @@
 /*   By: lyvan-de <lyvan-de@student.codam.nl>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/05 16:53:28 by lyvan-de          #+#    #+#             */
-/*   Updated: 2026/08/09 16:29:09 by lyvan-de         ###   ########.fr       */
+/*   Updated: 2026/08/12 11:30:05 by lyvan-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 #define MAX_EVENTS 1024
 #define TIMEOUT_MS 5000
-#define TIMEOUT_SECONDS 10
+#define TIMEOUT_SECONDS 30
 
 EventLoop::EventLoop() {
 	_epollFd = epoll_create1(0);
@@ -33,11 +33,11 @@ EventLoop::EventLoop() {
 		throw std::runtime_error("epoll cannot be created");
 	}
 }
+
 EventLoop::~EventLoop() {
 	close(_epollFd);
 }
 
-// this function throws an exception because these ones are added before creating up epoll loop
 void EventLoop::addListeningSocket(std::unique_ptr<ASocket> socket) {
 	if (!setReading(socket.get(), EPOLL_CTL_ADD)) {
 		throw std::runtime_error("epoll_ctl failed: " + std::string(strerror(errno)));
@@ -45,7 +45,6 @@ void EventLoop::addListeningSocket(std::unique_ptr<ASocket> socket) {
 	_listeners.push_back(std::move(socket));
 }
 
-// this function is similar to addListeningSocket but does not throw an exception because of time sensitivity
 void EventLoop::addConnection(std::unique_ptr<Connection> connection) {
 	if (!setReading(connection.get(), EPOLL_CTL_ADD)) {
 		std::cerr << "epoll_ctl failed for connection: " << strerror(errno) << "\n";
@@ -54,8 +53,7 @@ void EventLoop::addConnection(std::unique_ptr<Connection> connection) {
 	_connections.push_back(std::move(connection));
 }
 
-void EventLoop::addCgi(std::unique_ptr<CGIProcess> cgiProcess)
-{
+void EventLoop::addCgi(std::unique_ptr<CGIProcess> cgiProcess) {
 	if (!setReading(cgiProcess.get(), EPOLL_CTL_ADD)) {
 		std::cerr << "epoll_ctl failed for connection: " << strerror(errno) << "\n";
 		return;
@@ -66,7 +64,6 @@ void EventLoop::addCgi(std::unique_ptr<CGIProcess> cgiProcess)
 void EventLoop::run() {
 	std::array<epoll_event, MAX_EVENTS> events;
 
-	
 	while(g_sig_val == 0) {
 		int readyFds = epoll_wait(_epollFd, events.data(), events.size(), TIMEOUT_MS);
 		if (readyFds < 0) {
@@ -118,6 +115,7 @@ void EventLoop::removeConnection(int fd) {
 			}),
 		_connections.end());
 }
+
 void EventLoop::removeCGIProcess(int fd)
 {
 	epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr);
